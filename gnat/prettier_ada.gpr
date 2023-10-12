@@ -1,0 +1,24 @@
+--
+--  Copyright (C) 2023, AdaCore
+--  SPDX-License-Identifier: Apache-2.0
+--
+
+with "prettier_ada_common";
+with "gnatcoll";
+
+library project Prettier_Ada is
+   type Library_Type_Type is ("static", "static-pic", "relocatable");
+   Library_Type : Library_Type_Type :=
+     external ("LIBRARY_TYPE_PRETTIER_ADA",
+               external ("LIBRARY_TYPE", "static"));
+
+   for Library_Name use "prettier_ada";
+   for Library_Dir use
+     "../lib/" & Library_Type & "." & Prettier_Ada_Common.Build_Mode;
+   for Library_Kind use Library_Type;
+   for Source_Dirs use ("../src");
+   for Object_Dir use
+     "../obj/lib/" & Library_Type & "." & Prettier_Ada_Common.Build_Mode;
+
+   package Compiler renames Prettier_Ada_Common.Compiler;
+end Prettier_Ada;

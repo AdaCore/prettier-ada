@@ -1,0 +1,12 @@
+# Build artifacts
+obj
+bin
+lib.*
+lib
+
+# Testsuite output
+out
+testsuite/out
+
+# Python artifacts
+*.pyc
