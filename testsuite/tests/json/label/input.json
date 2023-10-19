@@ -1,0 +1,24 @@
+{
+    "kind": "list",
+    "id": 1,
+    "list": [
+        {
+            "kind": "command",
+            "id": 2,
+            "command": {
+                "command": "label",
+                "text": "foo",
+                "labelContents": {"kind": "text", "id": 3, "text": "bar"}
+            }
+        },
+        {
+            "kind": "command",
+            "id": 4,
+            "command": {
+                "command": "label",
+                "text": "bar",
+                "labelContents": null
+            }
+        }
+    ]
+}

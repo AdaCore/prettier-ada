@@ -1,0 +1,8 @@
+{
+    "kind": "command",
+    "id": 2,
+    "command": {
+        "command": "fill",
+        "parts": {"kind": "text", "id": 3, "text": "foo"}
+    }
+}

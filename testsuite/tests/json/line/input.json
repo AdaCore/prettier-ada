@@ -1,0 +1,46 @@
+{
+    "kind": "list",
+    "id": 1,
+    "list": [
+        {
+            "kind": "command",
+            "id": 2,
+            "command": {
+                "command": "line",
+                "literal": false,
+                "soft": false,
+                "hard": false
+            }
+        },
+        {
+            "kind": "command",
+            "id": 3,
+            "command": {
+                "command": "line",
+                "literal": true,
+                "soft": false,
+                "hard": false
+            }
+        },
+        {
+            "kind": "command",
+            "id": 4,
+            "command": {
+                "command": "line",
+                "literal": false,
+                "soft": true,
+                "hard": false
+            }
+        },
+        {
+            "kind": "command",
+            "id": 5,
+            "command": {
+                "command": "line",
+                "literal": false,
+                "soft": false,
+                "hard": true
+            }
+        }
+    ]
+}

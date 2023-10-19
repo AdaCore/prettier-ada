@@ -1,0 +1,8 @@
+{
+    "kind": "command",
+    "id": 2,
+    "command": {
+        "command": "lineSuffix",
+        "lineSuffixContents": {"kind": "text", "id": 3, "text": "foo"}
+    }
+}

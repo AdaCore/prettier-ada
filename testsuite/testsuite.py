@@ -13,12 +13,14 @@ import sys
 
 import e3.testsuite
 from drivers.document_formatter_driver import DocumentFormatterDriver
+from drivers.serialization import SerializationDriver
 
 
 class Testsuite(e3.testsuite.Testsuite):
     tests_subdir = "tests"
     test_driver_map = {
         "document_formatter": DocumentFormatterDriver,
+        "serialization": SerializationDriver,
     }
 
     def add_options(self, parser):

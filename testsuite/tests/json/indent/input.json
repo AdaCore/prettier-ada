@@ -1,0 +1,8 @@
+{
+    "kind": "command",
+    "id": 1,
+    "command": {
+        "command": "indent",
+        "indentContents": {"kind": "text", "id": 2, "text": "foo"}
+    }
+}

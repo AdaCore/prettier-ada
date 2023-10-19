@@ -1,0 +1,39 @@
+{
+    "kind": "list",
+    "id": 1,
+    "list": [
+        {
+            "kind": "command",
+            "id": 2,
+            "command": {
+                "command": "group",
+                "id": 1,
+                "groupContents": {"kind": "text", "id": 3, "text": "foo"},
+                "break": false,
+                "expandedStates": null
+            }
+        },
+        {
+            "kind": "command",
+            "id": 4,
+            "command": {
+                "command": "group",
+                "id": 2,
+                "groupContents": null,
+                "break": true,
+                "expandedStates": null
+            }
+        },
+        {
+            "kind": "command",
+            "id": 5,
+            "command": {
+                "command": "group",
+                "id": 3,
+                "groupContents": null,
+                "break": false,
+                "expandedStates": {"kind": "text", "id": 6, "text": "bar"}
+            }
+        }
+    ]
+}
