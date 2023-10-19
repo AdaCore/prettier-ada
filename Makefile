@@ -6,7 +6,7 @@ ALL_LIBRARY_TYPES = static static-pic relocatable
 
 LIB_PROJECT = gnat/prettier_ada.gpr
 
-TEST_DRIVER = testsuite/drivers/document_formatter/gnat/document_formatter.gpr
+TEST_PROGRAMS = testsuite/test_programs/gnat/test_programs.gpr
 
 .PHONY: lib
 lib:
@@ -57,25 +57,25 @@ install-lib:
 			-P $(LIB_PROJECT) -p -f ; \
 	done ;
 
-.PHONY: test-driver
-test-driver:
+.PHONY: test-programs
+test-programs:
 	gprbuild \
 		-v \
 		-k \
 		-XPRETTIER_LIBRARY_LIBRARY_TYPE=$(LIBRARY_TYPE) \
 		-XPRETTIER_LIBRARY_BUILD_MODE=$(BUILD_MODE) \
-		-P$(TEST_DRIVER) \
+		-P$(TEST_PROGRAMS) \
 		-p \
-		-j$(PROCESSORS);
+		-j$(PROCESSORS); \
 
-.PHONY: install-test-driver
-install-test-driver:
+.PHONY: install-test-programs
+install-test-programs:
 	gprinstall \
 		-XPRETTIER_LIBRARY_LIBRARY_TYPE=$(LIBRARY_TYPE) \
 		-XPRETTIER_LIBRARY_BUILD_MODE=$(BUILD_MODE) \
 		--prefix="$(PREFIX)" \
 		--mode=usage \
-		-P$(TEST_DRIVER) \
+		-P$(TEST_PROGRAMS) \
 		-p \
 		-f
 
