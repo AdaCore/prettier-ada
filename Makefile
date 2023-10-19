@@ -51,6 +51,7 @@ install-lib:
 			-XPRETTIER_LIBRARY_LIBRARY_TYPE=$$library_type \
 			-XPRETTIER_LIBRARY_BUILD_MODE=$(BUILD_MODE) \
 			--prefix="$(PREFIX)" \
+			--install-name=prettier_ada \
 			--sources-subdir=include/ada_prettier \
 			--build-name=$$library_type \
 			--build-var=LIBRARY_TYPE \
@@ -74,6 +75,7 @@ install-test-programs:
 		-XPRETTIER_LIBRARY_LIBRARY_TYPE=$(LIBRARY_TYPE) \
 		-XPRETTIER_LIBRARY_BUILD_MODE=$(BUILD_MODE) \
 		--prefix="$(PREFIX)" \
+		--install-name=test_programs \
 		--mode=usage \
 		-P$(TEST_PROGRAMS) \
 		-p \
