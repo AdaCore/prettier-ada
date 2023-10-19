@@ -656,7 +656,8 @@ package body Prettier_Ada.Documents.Json is
             return To_Document_Type (Read_Result.Value);
          when False =>
             --  TODO: Gracefully handle this
-            raise Program_Error;
+            raise Program_Error
+              with GNATCOLL.JSON.Format_Parsing_Error (Read_Result.Error);
       end case;
    end Deserialize;
 
