@@ -1,0 +1,35 @@
+--
+--  Copyright (C) 2023, AdaCore
+--  SPDX-License-Identifier: Apache-2.0
+--
+
+abstract project Prettier_Ada_Common is
+
+   type Target_Type is ("Windows_NT", "unix", "osx");
+   Target : Target_Type := external ("OS", "unix");
+
+   type Build_Mode_Type is ("dev", "prod");
+   Build_Mode : Build_Mode_Type :=
+     external ("PRETTIER_ADA_BUILD_MODE", external ("BUILD_MODE", "dev"));
+
+   package Compiler is
+      Common_Switches :=
+        ("-fPIC", "-gnatX", "-gnatyg", "-g", "-gnatwa", "-gnatw.u");
+
+      case Build_Mode is
+         when "dev" =>
+            for Default_Switches ("Ada") use
+              Common_Switches
+              & ("-gnatwe",
+                 "-O0",
+                 "-gnata",
+                 "-gnatVa");
+         when "prod" =>
+            for Default_Switches ("Ada") use
+              Common_Switches
+              & ("-Ofast",
+                 "-gnatn2");
+      end case;
+   end Compiler;
+
+end Prettier_Ada_Common;
