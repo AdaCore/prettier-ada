@@ -9,20 +9,202 @@ with Ada.Containers.Hashed_Maps;
 
 package body Prettier_Ada.Documents.Json is
 
+   function Serialize
+     (Document : Document_Type) return GNATCOLL.JSON.JSON_Value;
+   --  Serialize a document into a JSON representation
+
    ---------------
    -- Serialize --
    ---------------
 
    function Serialize
+     (Document : Document_Type) return GNATCOLL.JSON.JSON_Value
+   is
+      use GNATCOLL.JSON;
+
+      function From_Document (Document : Document_Type) return JSON_Value;
+      --  Serialize a document
+
+      function From_Document_List (List : Document_Array) return JSON_Value;
+      --  Serialize a document list
+
+      function From_Command (Command : Command_Type) return JSON_Value;
+      --  Serialize a command
+
+      -------------------
+      -- From_Document --
+      -------------------
+
+      function From_Document (Document : Document_Type) return JSON_Value is
+         D : constant Bare_Document_Access := Document.Bare_Document;
+      begin
+         if D = null then
+            return Create;
+         end if;
+
+         return Result : constant JSON_Value := Create_Object do
+            Result.Set_Field ("id", D.Id);
+            case D.Kind is
+               when Document_Text =>
+                  Result.Set_Field ("kind", "text");
+                  Result.Set_Field ("text", D.Text);
+
+               when Document_List =>
+                  Result.Set_Field ("kind", "list");
+                  Result.Set_Field ("list", From_Document_List (D.List.all));
+
+               when Document_Command =>
+                  Result.Set_Field ("kind", "command");
+                  Result.Set_Field ("command", From_Command (D.Command.all));
+            end case;
+         end return;
+      end From_Document;
+
+      ------------------------
+      -- From_Document_List --
+      ------------------------
+
+      function From_Document_List (List : Document_Array) return JSON_Value
+      is
+         Elements : JSON_Array;
+      begin
+         for D of List loop
+            Append (Elements, From_Document (D));
+         end loop;
+         return Create (Elements);
+      end From_Document_List;
+
+      ------------------
+      -- From_Command --
+      ------------------
+
+      function From_Command (Command : Command_Type) return JSON_Value is
+         Result : constant JSON_Value := Create_Object;
+      begin
+         case Command.Kind is
+            when Command_Align =>
+               Result.Set_Field ("command", "align");
+
+               declare
+                  Data : JSON_Value;
+               begin
+                  case Command.Align_Data.Kind is
+                     when Width =>
+                        Data := Create_Object;
+                        Data.Set_Field ("kind", "width");
+                        Data.Set_Field ("n", Command.Align_Data.N);
+
+                     when Text =>
+                        Data := Create_Object;
+                        Data.Set_Field ("kind", "text");
+                        Data.Set_Field ("t", Command.Align_Data.T);
+
+                     when Dedent =>
+                        Data := Create_Object;
+                        Data.Set_Field ("kind", "dedent");
+
+                     when Dedent_To_Root =>
+                        Data := Create_Object;
+                        Data.Set_Field ("kind", "dedentToRoot");
+
+                     when Root =>
+                        Data := Create_Object;
+                        Data.Set_Field ("kind", "root");
+
+                     when None =>
+                        Data := Create;
+                  end case;
+                  Result.Set_Field ("alignData", Data);
+               end;
+
+               Result.Set_Field
+                 ("alignContents", From_Document (Command.Align_Contents));
+
+            when Command_Break_Parent =>
+               Result.Set_Field ("command", "breakParent");
+
+            when Command_Cursor =>
+
+               --  TODO: implement this once the deserialiser handles this
+               --  command.
+
+               raise Program_Error;
+
+            when Command_Fill =>
+               Result.Set_Field ("command", "fill");
+               Result.Set_Field ("parts", From_Document (Command.Parts));
+
+            when Command_Group =>
+               Result.Set_Field ("command", "group");
+               Result.Set_Field ("id", Natural (Command.Id));
+               Result.Set_Field
+                 ("groupContents", From_Document (Command.Group_Contents));
+               Result.Set_Field ("break", Command.Break);
+               Result.Set_Field
+                 ("expandedStates", From_Document (Command.Expanded_States));
+
+            when Command_If_Break =>
+               Result.Set_Field ("command", "ifBreak");
+               Result.Set_Field
+                 ("ifBreakGroupId", Natural (Command.If_Break_Group_Id));
+               Result.Set_Field
+                 ("breakContents", From_Document (Command.Break_Contents));
+               Result.Set_Field
+                 ("flatContents", From_Document (Command.Flat_Contents));
+
+            when Command_Indent =>
+               Result.Set_Field ("command", "indent");
+               Result.Set_Field
+                 ("indentContents", From_Document (Command.Indent_Contents));
+
+            when Command_Indent_If_Break =>
+               Result.Set_Field ("command", "indentIfBreak");
+               Result.Set_Field
+                 ("indentIfBreakContents",
+                  From_Document (Command.Indent_If_Break_Contents));
+               Result.Set_Field
+                 ("indentIfBreakGroupId",
+                  Natural (Command.Indent_If_Break_Group_Id));
+               Result.Set_Field ("negate", Command.Negate);
+
+            when Command_Label =>
+               Result.Set_Field ("command", "label");
+               Result.Set_Field ("text", Command.Text);
+               Result.Set_Field
+                 ("labelContents", From_Document (Command.Label_Contents));
+
+            when Command_Line =>
+               Result.Set_Field ("command", "line");
+               Result.Set_Field ("literal", Command.Literal);
+               Result.Set_Field ("soft", Command.Soft);
+               Result.Set_Field ("hard", Command.Hard);
+
+            when Command_Line_Suffix =>
+               Result.Set_Field ("command", "lineSuffix");
+               Result.Set_Field
+                 ("lineSuffixContents",
+                  From_Document (Command.Line_Suffix_Contents));
+
+            when Command_Line_Suffix_Boundary =>
+               Result.Set_Field ("command", "lineSuffixBoundary");
+
+            when Command_Trim =>
+               Result.Set_Field ("command", "trim");
+         end case;
+
+         return Result;
+      end From_Command;
+
+   begin
+      return From_Document (Document);
+   end Serialize;
+
+   function Serialize
      (Document : Document_Type)
       return Ada.Strings.Unbounded.Unbounded_String
    is
-      pragma Unreferenced (Document);
-
    begin
-      --  TODO: Implement this
-
-      return (raise Program_Error);
+      return Serialize (Document).Write (Compact => False);
    end Serialize;
 
    -----------------
@@ -656,7 +838,8 @@ package body Prettier_Ada.Documents.Json is
             return To_Document_Type (Read_Result.Value);
          when False =>
             --  TODO: Gracefully handle this
-            raise Program_Error;
+            raise Program_Error
+              with GNATCOLL.JSON.Format_Parsing_Error (Read_Result.Error);
       end case;
    end Deserialize;
 

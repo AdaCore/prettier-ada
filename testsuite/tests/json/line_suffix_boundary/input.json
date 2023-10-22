@@ -1,0 +1,5 @@
+{
+    "kind": "command",
+    "id": 1,
+    "command": {"command": "lineSuffixBoundary"}
+}

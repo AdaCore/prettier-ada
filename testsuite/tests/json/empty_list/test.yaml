@@ -1,0 +1,3 @@
+description: |
+    JSON (de)serialization test: empty list document
+driver: serialization

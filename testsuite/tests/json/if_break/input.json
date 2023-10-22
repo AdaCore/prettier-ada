@@ -1,0 +1,26 @@
+{
+    "kind": "list",
+    "id": 1,
+    "list": [
+        {
+            "kind": "command",
+            "id": 2,
+            "command": {
+                "command": "ifBreak",
+                "ifBreakGroupId": 1,
+                "breakContents": {"kind": "text", "id": 3, "text": "foo"},
+                "flatContents": null
+            }
+        },
+        {
+            "kind": "command",
+            "id": 4,
+            "command": {
+                "command": "ifBreak",
+                "ifBreakGroupId": 2,
+                "breakContents": null,
+                "flatContents": {"kind": "text", "id": 5, "text": "bar"}
+            }
+        }
+    ]
+}
