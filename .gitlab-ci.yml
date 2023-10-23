@@ -1,15 +1,7 @@
 workflow:
   rules:
-    # To avoid running too many pipelines, restrict the times we run one:
-
-    # Run pipelines triggered by a merge request creation/update
+    # Run the generic CI on merge requests only
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
-
-    # Run for pushes to a branch *except* if there is also a merge request for
-    # it.
-    - if: '$CI_COMMIT_BRANCH && $CI_OPEN_MERGE_REQUESTS'
-      when: never
-    - if: '$CI_COMMIT_BRANCH'
 
 stages:
   - single
