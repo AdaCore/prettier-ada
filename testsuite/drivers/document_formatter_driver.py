@@ -38,8 +38,14 @@ class DocumentFormatterDriver(BaseDriver):
         # Some tests expect the script to stop with an error status code: in
         # that case just print it so that the baseline catches it.
         p = self.shell(
-            ["document_formatter", "-D", self.test_env.get("doc", "doc.json")]
-            + self.test_env.get("format_options", []),
+            self.valgrind_wrap(
+                [
+                    "document_formatter",
+                    "-D",
+                    self.test_env.get("doc", "doc.json"),
+                ]
+                + self.test_env.get("format_options", [])
+            ),
             catch_error=False,
         )
         if p.status:
