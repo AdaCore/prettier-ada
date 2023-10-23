@@ -49,6 +49,7 @@ install-lib:
 	for library_type in $(ALL_LIBRARY_TYPES) ; do \
 		gprinstall \
 			-XPRETTIER_LIBRARY_LIBRARY_TYPE=$$library_type \
+			-XLIBRARY_TYPE=$$library_type \
 			-XPRETTIER_LIBRARY_BUILD_MODE=$(BUILD_MODE) \
 			--prefix="$(PREFIX)" \
 			--install-name=prettier_ada \
