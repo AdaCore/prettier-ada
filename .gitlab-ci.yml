@@ -8,6 +8,7 @@ stages:
 
 build_and_test:
   stage: single
+  interruptible: true
   services:
     - image:sandbox
     - cpu:8
