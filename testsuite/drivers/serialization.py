@@ -29,6 +29,9 @@ class SerializationDriver(BaseDriver):
 
     def run(self):
         # Run the test program and canonicalize its output
-        p = self.shell(["json_tester", "input.json"], analyze_output=False)
+        p = self.shell(
+            self.valgrind_wrap(["json_tester", "input.json"]),
+            analyze_output=False,
+        )
         doc = json.loads(p.out)
         self.output += self.canon_json(doc)
