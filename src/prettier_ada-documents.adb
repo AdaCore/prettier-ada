@@ -4,14 +4,18 @@
 --
 
 with Ada.Assertions;
-with Ada.Characters.Latin_1;
 with Ada.Containers.Hashed_Maps;
 with Ada.Containers.Hashed_Sets;
 with Ada.Containers.Vectors;
-with Ada.Strings;
 
 with Prettier_Ada.Documents.Builders;
 with Prettier_Ada.Optionals;
+
+with VSS.Characters.Latin;
+with VSS.Strings.Character_Iterators;
+with VSS.Strings.Grapheme_Cluster_Iterators;
+with VSS.Strings.Conversions;
+with VSS.Strings.Markers;
 
 package body Prettier_Ada.Documents is
 
@@ -58,7 +62,7 @@ package body Prettier_Ada.Documents is
             when Indent | Dedent =>
                null;
             when String_Align =>
-               T : Ada.Strings.Unbounded.Unbounded_String;
+               T : Prettier_String;
             when Number_Align =>
                N : Natural;
          end case;
@@ -74,7 +78,7 @@ package body Prettier_Ada.Documents is
    type Indentation_Head_Type_Access is access Indentation_Queue_Type;
 
    type Indentation_Queue_Type is record
-      Value  : Ada.Strings.Unbounded.Unbounded_String;
+      Value  : Prettier_String;
       Length : Natural;
       Queue  : Indentation_Data_Vector;
       Root   : Indentation_Head_Type_Access;
@@ -95,6 +99,9 @@ package body Prettier_Ada.Documents is
      Ada.Containers.Hashed_Maps (Symbol_Type, Mode_Kind, Hash, "=");
 
    subtype Symbol_To_Mode_Map is Symbol_To_Mode_Maps.Map;
+
+   procedure Append (To : in out Prettier_String; Source : Prettier_String);
+   --  Append Source to the end of To
 
    procedure Break_Parent_Group
      (Group_Stack : in out Document_Type_Vector);
@@ -165,10 +172,34 @@ package body Prettier_Ada.Documents is
    --  TODO: Description
    --  TODO: Refactor so that Optional_Boolean is not needed
 
-   function Trim
-     (Text : in out Ada.Strings.Unbounded.Unbounded_String)
+   function Text_Width
+     (Text : Prettier_String)
       return Natural;
    --  TODO: Description
+
+   type Trim_End is (Left, Right, Both);
+
+   procedure Trim
+     (Item : in out Prettier_String;
+      Side : Trim_End);
+   --  Remove whitespaces and horizontal tab characters from Item.
+   --  Side controls from which end(s) characters are removed.
+
+   function Trim
+     (Text : in out Prettier_String)
+      return Natural;
+   --  Removes leading whitespaces and horizontal tab characters from Text.
+   --  Returns how many characters were removed.
+
+   ------------
+   -- Append --
+   ------------
+
+   procedure Append (To : in out Prettier_String; Source : Prettier_String)
+   is
+   begin
+      VSS.Strings.Append (To, Source);
+   end Append;
 
    ------------------------
    -- Break_Parent_Group --
@@ -200,6 +231,27 @@ package body Prettier_Ada.Documents is
          end;
       end if;
    end Break_Parent_Group;
+
+   ----------------
+   -- Text_Width --
+   ----------------
+
+   function Text_Width
+     (Text : Prettier_String)
+      return Natural
+   is
+      --  TODO: For now simply count the grapheme clusters.
+      --  When VSS has support to East Asian Width, rewrite this function
+      J : VSS.Strings.Grapheme_Cluster_Iterators.Grapheme_Cluster_Iterator :=
+         Text.Before_First_Grapheme_Cluster;
+      Count : Natural := 0;
+   begin
+      while J.Forward loop
+         Count := @ + 1;
+      end loop;
+
+      return Count;
+   end Text_Width;
 
    ----------
    -- Fits --
@@ -246,7 +298,7 @@ package body Prettier_Ada.Documents is
         Rest_Commands.Last_Index;
       Fit_Commands    : Fit_Command_Type_Vector := [+Next];
 
-      Current_Line : Ada.Strings.Unbounded.Unbounded_String;
+      Current_Line : Prettier_String;
 
       Current_Has_Line_Suffix : Boolean := Has_Line_Suffix;
 
@@ -286,11 +338,10 @@ package body Prettier_Ada.Documents is
                case Document.Bare_Document.Kind is
                   when Document_Text =>
                      Gnatfmt_Trace.Trace ("F8");
-                     Ada.Strings.Unbounded.Append
+                     Append
                        (Current_Line, Document.Bare_Document.Text);
                      Remaining_Width :=
-                       @ - Ada.Strings.Unbounded.Length
-                             (Document.Bare_Document.Text);
+                       @ - Text_Width (Document.Bare_Document.Text);
 
                   when Document_List =>
                      Gnatfmt_Trace.Trace ("F9");
@@ -464,7 +515,7 @@ package body Prettier_Ada.Documents is
                                      .Bare_Document
                                      .Command
                                  .Flat_Contents);
-                              use type Ada.Strings.Unbounded.Unbounded_String;
+                              use type Prettier_String;
 
                            begin
                               Gnatfmt_Trace.Trace ("F16");
@@ -491,7 +542,7 @@ package body Prettier_Ada.Documents is
 
                            if not Document.Bare_Document.Command.Soft then
                               Gnatfmt_Trace.Trace ("F20");
-                              Ada.Strings.Unbounded.Append (Current_Line, " ");
+                              Append (Current_Line, " ");
                               Remaining_Width := @ - 1;
                            end if;
 
@@ -529,18 +580,20 @@ package body Prettier_Ada.Documents is
       return Ada.Strings.Unbounded.Unbounded_String
    is
       use type Ada.Containers.Count_Type;
+      use type Prettier_String;
 
-      End_Of_Line : constant Ada.Strings.Unbounded.Unbounded_String :=
+      End_Of_Line : constant Prettier_String :=
         (case Options.End_Of_Line is
             when LF =>
-               Ada.Strings.Unbounded.To_Unbounded_String
-                 ("" & Ada.Characters.Latin_1.LF),
+              VSS.Strings.Empty_Virtual_String
+              & VSS.Characters.Latin.Line_Feed,
             when CR =>
-               Ada.Strings.Unbounded.To_Unbounded_String
-                 ("" & Ada.Characters.Latin_1.CR),
+              VSS.Strings.Empty_Virtual_String
+              & VSS.Characters.Latin.Carriage_Return,
             when CRLF =>
-               Ada.Strings.Unbounded.To_Unbounded_String
-                 ("" & Ada.Characters.Latin_1.CR & Ada.Characters.Latin_1.LF));
+              VSS.Strings.Empty_Virtual_String
+              & VSS.Characters.Latin.Carriage_Return
+              & VSS.Characters.Latin.Line_Feed);
 
       Group_Mode_Map : Symbol_To_Mode_Map;
 
@@ -555,7 +608,7 @@ package body Prettier_Ada.Documents is
 
       Printed_Cursor_Count : Natural := 0;
 
-      Result : Ada.Strings.Unbounded.Unbounded_String;
+      Result : Prettier_String := VSS.Strings.Empty_Virtual_String;
 
    begin
 
@@ -970,22 +1023,22 @@ package body Prettier_Ada.Documents is
                         Gnatfmt_Trace.Trace ("13121");
                         if Indentation.Root /= null then
                            Gnatfmt_Trace.Trace ("131211");
-                           Ada.Strings.Unbounded.Append (Result, End_Of_Line);
-                           Ada.Strings.Unbounded.Append
+                           Append (Result, End_Of_Line);
+                           Append
                              (Result, Indentation.Root.Value);
                            Pos := Indentation.Root.Length;
 
                         else
                            Gnatfmt_Trace.Trace ("131212");
-                           Ada.Strings.Unbounded.Append (Result, End_Of_Line);
+                           Append (Result, End_Of_Line);
                            Pos := 0;
                         end if;
 
                      else
                         Gnatfmt_Trace.Trace ("13122");
                         Pos := @ - Trim (Result);
-                        Ada.Strings.Unbounded.Append (Result, End_Of_Line);
-                        Ada.Strings.Unbounded.Append
+                        Append (Result, End_Of_Line);
+                        Append
                           (Result, Indentation.Value);
                         Pos := Indentation.Length;
                      end if;
@@ -1007,7 +1060,7 @@ package body Prettier_Ada.Documents is
                               .Soft
                      then
                         Gnatfmt_Trace.Trace ("13211");
-                        Ada.Strings.Unbounded.Append (Result, " ");
+                        Append (Result, " ");
                         Pos := @ + 1;
                      end if;
 
@@ -1039,12 +1092,10 @@ package body Prettier_Ada.Documents is
             procedure Process_Document_Text is
             begin
                Gnatfmt_Trace.Trace ("1");
-               Ada.Strings.Unbounded.Append
+               Append
                  (Result, Document.Bare_Document.Text);
                if Print_Commands.Length > 0 then
-                  Pos :=
-                    @ + Ada.Strings.Unbounded.Length
-                          (Document.Bare_Document.Text);
+                  Pos := @ + Text_Width (Document.Bare_Document.Text);
                end if;
             end Process_Document_Text;
 
@@ -1166,9 +1217,6 @@ package body Prettier_Ada.Documents is
                                                 .Command
                                                 .Break_Contents;
 
-                                    use type
-                                      Ada.Strings.Unbounded.Unbounded_String;
-
                                  begin
                                     Gnatfmt_Trace.Trace ("91");
                                     if Break_Contents /= No_Document
@@ -1195,9 +1243,6 @@ package body Prettier_Ada.Documents is
                                                 .Bare_Document
                                                 .Command
                                           .Flat_Contents;
-
-                                    use type
-                                      Ada.Strings.Unbounded.Unbounded_String;
 
                                  begin
                                     Gnatfmt_Trace.Trace ("92");
@@ -1360,7 +1405,7 @@ package body Prettier_Ada.Documents is
 
       Prettier_Ada.Documents.Builders.Reset_Document_Id;
 
-      return Result;
+      return VSS.Strings.Conversions.To_Unbounded_UTF_8_String (Result);
 
    exception
       when others =>
@@ -1406,7 +1451,7 @@ package body Prettier_Ada.Documents is
       Options : Indentation_Options_Type)
       return Indentation_Queue_Type
    is
-      Value  : Ada.Strings.Unbounded.Unbounded_String;
+      Value  : Prettier_String;
       Length : Natural := 0;
       Queue  : Indentation_Data_Vector := From.Queue;
 
@@ -1438,9 +1483,11 @@ package body Prettier_Ada.Documents is
       procedure Add_Tabs (Count : Natural)
       is
       begin
-         Ada.Strings.Unbounded.Append
+         VSS.Strings.Append
            (Value,
-            Ada.Strings.Unbounded."*" (Count, Ada.Characters.Latin_1.HT));
+            VSS.Strings."*"
+              (VSS.Strings.Character_Count (Count),
+               VSS.Characters.Latin.Character_Tabulation));
          Length := @ + Options.Width * Count;
       end Add_Tabs;
 
@@ -1451,9 +1498,11 @@ package body Prettier_Ada.Documents is
       procedure Add_Spaces (Count : Natural)
       is
       begin
-         Ada.Strings.Unbounded.Append
+         VSS.Strings.Append
            (Value,
-            Ada.Strings.Unbounded."*" (Count, Ada.Characters.Latin_1.Space));
+            VSS.Strings."*"
+              (VSS.Strings.Character_Count (Count),
+               VSS.Characters.Latin.Space));
          Length := @ + Count;
       end Add_Spaces;
 
@@ -1526,8 +1575,8 @@ package body Prettier_Ada.Documents is
 
             when String_Align =>
                Flush;
-               Ada.Strings.Unbounded.Append (Value, Part.T);
-               Length := @ + Ada.Strings.Unbounded.Length (Part.T);
+               Append (Value, Part.T);
+               Length := @ + Text_Width (Part.T);
 
             when Number_Align =>
                Last_Tabs := @ + 1;
@@ -1587,7 +1636,9 @@ package body Prettier_Ada.Documents is
             return
               Generate_Indentation
                 (From,
-                 Indentation_Data_Type'(String_Align, Align_Data.T),
+                 Indentation_Data_Type'
+                   (String_Align,
+                    VSS.Strings.Conversions.To_Virtual_String (Align_Data.T)),
                  Options.Indentation);
 
          when Dedent_To_Root =>
@@ -1753,7 +1804,7 @@ package body Prettier_Ada.Documents is
 
    function Root_Indent return Indentation_Queue_Type is
       (Indentation_Queue_Type'
-         (Value  => Ada.Strings.Unbounded.Null_Unbounded_String,
+         (Value  => VSS.Strings.Empty_Virtual_String,
           Length => 0,
           Queue  => [],
           Root   => null));
@@ -1991,18 +2042,84 @@ package body Prettier_Ada.Documents is
    -- Trim --
    ----------
 
-   function Trim
-     (Text : in out Ada.Strings.Unbounded.Unbounded_String)
-      return Natural
+   procedure Trim
+     (Item : in out Prettier_String;
+      Side : Trim_End)
    is
-      use Ada.Strings.Unbounded;
-
-      Initial_Length : constant Natural := Length (Text);
+      MF : VSS.Strings.Markers.Character_Marker;
+      ML : VSS.Strings.Markers.Character_Marker;
 
    begin
-      Trim (Text, Ada.Strings.Right);
+      if Side in Left | Both then
+         declare
+            J : VSS.Strings.Character_Iterators.Character_Iterator :=
+              Item.Before_First_Character;
+            C : VSS.Characters.Virtual_Character'Base;
 
-      return Initial_Length - Length (Text);
+         begin
+            while J.Forward (C) loop
+               exit when C not in ' '
+                                  | VSS.Characters.Latin.Character_Tabulation;
+            end loop;
+
+            if J.Has_Element then
+               MF := J.Marker;
+
+            else
+               Item.Clear;
+
+               return;
+            end if;
+         end;
+
+      else
+         MF := Item.At_First_Character.Marker;
+      end if;
+
+      if Side in Right | Both then
+         declare
+            J : VSS.Strings.Character_Iterators.Character_Iterator :=
+              Item.After_Last_Character;
+            C : VSS.Characters.Virtual_Character'Base;
+
+         begin
+            while J.Backward loop
+               C := J.Element;
+
+               exit when C not in ' '
+                                  | VSS.Characters.Latin.Character_Tabulation;
+            end loop;
+
+            if J.Has_Element then
+               ML := J.Marker;
+
+            else
+               Item.Clear;
+
+               return;
+            end if;
+         end;
+
+      else
+         ML := Item.At_Last_Character.Marker;
+      end if;
+
+      Item := Item.Slice (MF, ML);
+   end Trim;
+
+   ----------
+   -- Trim --
+   ----------
+
+   function Trim
+     (Text : in out Prettier_String)
+      return Natural
+   is
+      Initial_Length : constant Natural := Text_Width (Text);
+
+   begin
+      Trim (Text, Right);
+      return Initial_Length - Text_Width (Text);
    end Trim;
 
 end Prettier_Ada.Documents;

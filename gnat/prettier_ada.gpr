@@ -5,6 +5,7 @@
 
 with "prettier_ada_common";
 with "gnatcoll";
+with "vss_text";
 
 library project Prettier_Ada is
    type Library_Type_Type is ("static", "static-pic", "relocatable");

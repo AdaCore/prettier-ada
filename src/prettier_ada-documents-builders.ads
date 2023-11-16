@@ -32,7 +32,8 @@ package Prettier_Ada.Documents.Builders is
    function Text
      (T : Ada.Strings.Unbounded.Unbounded_String)
       return Document_Type;
-   --  Convert text into a Document_Type object
+   --  Convert text into a Document_Type object. T is expected to be UTF-8
+   --  encoded.
 
    function List
      (Documents : Document_Array)
