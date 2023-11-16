@@ -83,6 +83,6 @@ install-test-programs:
 		-f
 
 .PHONY: test
-test: test-driver
+test: test-programs
 	python3 testsuite/testsuite.py
 
