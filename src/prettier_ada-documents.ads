@@ -9,6 +9,7 @@
 with Ada.Strings.Unbounded;
 
 private with Ada.Containers;
+private with VSS.Strings;
 
 package Prettier_Ada.Documents is
 
@@ -69,6 +70,8 @@ package Prettier_Ada.Documents is
    end record;
 
 private
+
+   subtype Prettier_String is VSS.Strings.Virtual_String;
 
    function Hash (Symbol : Symbol_Type) return Ada.Containers.Hash_Type;
    --  Casts Symbol_Type as Hash_Type
@@ -134,7 +137,7 @@ private
             Negate                   : Boolean := False;
 
          when Command_Label =>
-            Text           : Ada.Strings.Unbounded.Unbounded_String;
+            Text           : Prettier_String;
             Label_Contents : Document_Type;
 
          when Command_Line =>
@@ -161,7 +164,7 @@ private
       Id : Natural;
       case Kind is
          when Document_Text =>
-            Text : Ada.Strings.Unbounded.Unbounded_String;
+            Text : Prettier_String;
          when Document_List =>
             List : Document_Array_Access;
          when Document_Command =>

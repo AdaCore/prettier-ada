@@ -2,10 +2,10 @@
 --  Copyright (C) 2023, AdaCore
 --  SPDX-License-Identifier: Apache-2.0
 --
-
 with GNATCOLL.JSON;
 with Ada.Containers;
 with Ada.Containers.Hashed_Maps;
+with VSS.Strings.Conversions;
 
 package body Prettier_Ada.Documents.Json is
 
@@ -47,7 +47,8 @@ package body Prettier_Ada.Documents.Json is
             case D.Kind is
                when Document_Text =>
                   Result.Set_Field ("kind", "text");
-                  Result.Set_Field ("text", D.Text);
+                  Result.Set_Field
+                    ("text", VSS.Strings.Conversions.To_UTF_8_String (D.Text));
 
                when Document_List =>
                   Result.Set_Field ("kind", "list");
@@ -97,7 +98,10 @@ package body Prettier_Ada.Documents.Json is
                      when Text =>
                         Data := Create_Object;
                         Data.Set_Field ("kind", "text");
-                        Data.Set_Field ("t", Command.Align_Data.T);
+                        Data.Set_Field
+                          ("t",
+                           Ada.Strings.Unbounded.To_String
+                             (Command.Align_Data.T));
 
                      when Dedent =>
                         Data := Create_Object;
@@ -169,7 +173,9 @@ package body Prettier_Ada.Documents.Json is
 
             when Command_Label =>
                Result.Set_Field ("command", "label");
-               Result.Set_Field ("text", Command.Text);
+               Result.Set_Field
+                 ("text",
+                  VSS.Strings.Conversions.To_UTF_8_String (Command.Text));
                Result.Set_Field
                  ("labelContents", From_Document (Command.Label_Contents));
 
@@ -353,7 +359,9 @@ package body Prettier_Ada.Documents.Json is
                    new Bare_Document_Record'
                          (Kind => Document_Text,
                           Id   => Id,
-                          Text => Get (Json)));
+                          Text =>
+                            VSS.Strings.Conversions.To_Virtual_String
+                              (UTF8_String'(Get (Json)))));
          end To_Document_Text;
 
          ----------------------
@@ -584,7 +592,7 @@ package body Prettier_Ada.Documents.Json is
                     when Text =>
                       Alignment_Data_Type'
                         (Kind => Text,
-                         T    => Get (Json, "t")),
+                         T    => UTF8_Unbounded_String'(Get (Json, "t"))),
                     when Width =>
                       Alignment_Data_Type'
                         (Kind => Width,
@@ -727,7 +735,9 @@ package body Prettier_Ada.Documents.Json is
             return
               Command_Type'
                 (Kind           => Command_Label,
-                 Text           => Get (Json, "text"),
+                 Text           =>
+                   VSS.Strings.Conversions.To_Virtual_String
+                     (UTF8_String'(Get (Json, "text"))),
                  Label_Contents =>
                    To_Document_Type (Get (Json, "labelContents")));
          end To_Command_Label;

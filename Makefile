@@ -64,7 +64,8 @@ test-programs:
 	gprbuild \
 		-v \
 		-k \
-		-XPRETTIER_LIBRARY_LIBRARY_TYPE=$(LIBRARY_TYPE) \
+		-XLIBRARY_TYPE=static \
+		-XPRETTIER_LIBRARY_LIBRARY_TYPE=static \
 		-XPRETTIER_LIBRARY_BUILD_MODE=$(BUILD_MODE) \
 		-P$(TEST_PROGRAMS) \
 		-p \
@@ -73,7 +74,8 @@ test-programs:
 .PHONY: install-test-programs
 install-test-programs:
 	gprinstall \
-		-XPRETTIER_LIBRARY_LIBRARY_TYPE=$(LIBRARY_TYPE) \
+		-XLIBRARY_TYPE=static \
+		-XPRETTIER_LIBRARY_LIBRARY_TYPE=static \
 		-XPRETTIER_LIBRARY_BUILD_MODE=$(BUILD_MODE) \
 		--prefix="$(PREFIX)" \
 		--install-name=test_programs \
@@ -83,6 +85,6 @@ install-test-programs:
 		-f
 
 .PHONY: test
-test: test-driver
+test: test-programs
 	python3 testsuite/testsuite.py
 

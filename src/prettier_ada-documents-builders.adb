@@ -3,6 +3,8 @@
 --  SPDX-License-Identifier: Apache-2.0
 --
 
+with VSS.Strings.Conversions;
+
 package body Prettier_Ada.Documents.Builders is
 
    Document_Id : Natural := Natural'First;
@@ -41,7 +43,7 @@ package body Prettier_Ada.Documents.Builders is
       Bare_Document : constant Bare_Document_Access :=
         new Bare_Document_Record'
           (Kind => Document_Text,
-           Text => T,
+           Text => VSS.Strings.Conversions.To_Virtual_String (T),
            Id   => New_Document_Id);
 
    begin
@@ -249,7 +251,7 @@ package body Prettier_Ada.Documents.Builders is
    is
       Command       : constant Command_Type :=
         (Kind           => Command_Label,
-         Text           => Text,
+         Text           => VSS.Strings.Conversions.To_Virtual_String (Text),
          Label_Contents => Contents);
       Bare_Document : constant Bare_Document_Access :=
         new Bare_Document_Record'

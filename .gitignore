@@ -4,6 +4,9 @@ bin
 lib.*
 lib
 
+# Imported Prettier testsuite
+testsuite/tests/prettier
+
 # Testsuite output
 out
 testsuite/out
