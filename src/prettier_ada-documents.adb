@@ -42,14 +42,13 @@ package body Prettier_Ada.Documents is
 
    subtype Document_Vector is Document_Vectors.Vector;
 
-   package Document_Type_Hashed_Sets is new
+   package Document_Hashed_Sets is new
      Ada.Containers.Hashed_Sets
        (Element_Type        => Document_Type,
         Hash                => Hash,
         Equivalent_Elements => "=");
 
-   subtype Document_Type_Hashed_Set is
-     Document_Type_Hashed_Sets.Set;
+   subtype Document_Hashed_Set is Document_Hashed_Sets.Set;
 
    type Mode_Kind is (Mode_Break, Mode_Flat, None);
 
@@ -1691,7 +1690,7 @@ package body Prettier_Ada.Documents is
    ----------------------
 
    procedure Propagate_Breaks (Document : Document_Type) is
-      Already_Visited : Document_Type_Hashed_Set;
+      Already_Visited : Document_Hashed_Set;
       Group_Stack     : Document_Vector;
 
       function Propagate_Breaks_On_Enter
