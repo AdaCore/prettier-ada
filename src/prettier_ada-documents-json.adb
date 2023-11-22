@@ -2,6 +2,7 @@
 --  Copyright (C) 2023, AdaCore
 --  SPDX-License-Identifier: Apache-2.0
 --
+
 with GNATCOLL.JSON;
 with Ada.Containers;
 with Ada.Containers.Hashed_Maps;
