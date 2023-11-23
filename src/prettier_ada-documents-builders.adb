@@ -9,8 +9,19 @@ package body Prettier_Ada.Documents.Builders is
 
    Document_Id : Natural := Natural'First;
 
+   function "+" (Documents : Document_Vector) return Document_Array;
+   pragma Inline ("+");
+   --  Convert a Document_Vector into a Document_Array
+
    function New_Document_Id return Natural;
    --  TODO: Description
+
+   ---------
+   -- "+" --
+   ---------
+
+   function "+" (Documents : Document_Vector) return Document_Array is
+     ([for Document of Documents => Document]);
 
    ---------------------
    -- New_Document_Id --
@@ -68,6 +79,16 @@ package body Prettier_Ada.Documents.Builders is
       return Document_Type'(Bare_Document => Bare_Document);
    end List;
 
+   ----------
+   -- List --
+   ----------
+
+   function List
+     (Documents : Document_Vector)
+      return Document_Type
+   is (List (+Documents));
+   pragma Inline (List);
+
    -----------
    -- Align --
    -----------
@@ -90,6 +111,17 @@ package body Prettier_Ada.Documents.Builders is
    begin
       return Document_Type'(Bare_Document => Bare_Document);
    end Align;
+
+   -----------
+   -- Align --
+   -----------
+
+   function Align
+     (Data     : Alignment_Data_Type;
+      Contents : Document_Vector)
+      return Document_Type
+   is (Align (Data, +Contents));
+   pragma Inline (Align);
 
    ------------------
    -- Break_Parent --
@@ -147,6 +179,16 @@ package body Prettier_Ada.Documents.Builders is
       return Document_Type'(Bare_Document => Bare_Document);
    end Fill;
 
+   ----------
+   -- Fill --
+   ----------
+
+   function Fill
+     (Parts : Document_Vector)
+      return Document_Type
+   is (Fill (+Parts));
+   pragma Inline (Fill);
+
    -----------
    -- Group --
    -----------
@@ -171,6 +213,17 @@ package body Prettier_Ada.Documents.Builders is
    begin
       return Document_Type'(Bare_Document => Bare_Document);
    end Group;
+
+   -----------
+   -- Group --
+   -----------
+
+   function Group
+     (Documents : Document_Vector;
+      Options   : Group_Options_Type := No_Group_Options)
+      return Document_Type
+   is (Group (+Documents, Options));
+   pragma Inline (Group);
 
    --------------
    -- If_Break --
@@ -328,7 +381,7 @@ package body Prettier_Ada.Documents.Builders is
         (Bare_Document => Hard_Line_Bare_Document);
 
    begin
-      return List ([Hard_Line_Document, Break_Parent]);
+      return List (Document_Array'([Hard_Line_Document, Break_Parent]));
    end Hard_Line;
 
    ------------------
@@ -352,7 +405,7 @@ package body Prettier_Ada.Documents.Builders is
         (Bare_Document => Hard_Line_Bare_Document);
 
    begin
-      return List ([Hard_Line_Document, Break_Parent]);
+      return List (Document_Array'([Hard_Line_Document, Break_Parent]));
    end Literal_Line;
 
    ------------------------------------
@@ -469,7 +522,7 @@ package body Prettier_Ada.Documents.Builders is
    is
    begin
       if Documents'Length = 0 then
-         return List ([]);
+         return List (Document_Array'([]));
 
       elsif Documents'Length = 1 then
          declare
@@ -499,5 +552,16 @@ package body Prettier_Ada.Documents.Builders is
          end;
       end if;
    end Join;
+
+   ----------
+   -- Join --
+   ----------
+
+   function Join
+     (Separator : Document_Type;
+      Documents : Document_Vector)
+      return Document_Type
+   is (Join (Separator, +Documents));
+   pragma Inline (Join);
 
 end Prettier_Ada.Documents.Builders;

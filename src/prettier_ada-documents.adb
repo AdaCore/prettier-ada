@@ -37,20 +37,18 @@ package body Prettier_Ada.Documents is
 
    subtype Optional_Boolean is Optional_Booleans.Generic_Optional_Type;
 
-   package Document_Type_Vectors is new
-     Ada.Containers.Vectors (Positive, Document_Type);
+   package Document_Vectors renames
+     Prettier_Ada.Documents.Builders.Document_Vectors;
 
-   subtype Document_Type_Vector is
-     Document_Type_Vectors.Vector;
+   subtype Document_Vector is Document_Vectors.Vector;
 
-   package Document_Type_Hashed_Sets is new
+   package Document_Hashed_Sets is new
      Ada.Containers.Hashed_Sets
        (Element_Type        => Document_Type,
         Hash                => Hash,
         Equivalent_Elements => "=");
 
-   subtype Document_Type_Hashed_Set is
-     Document_Type_Hashed_Sets.Set;
+   subtype Document_Hashed_Set is Document_Hashed_Sets.Set;
 
    type Mode_Kind is (Mode_Break, Mode_Flat, None);
 
@@ -104,7 +102,7 @@ package body Prettier_Ada.Documents is
    --  Append Source to the end of To
 
    procedure Break_Parent_Group
-     (Group_Stack : in out Document_Type_Vector);
+     (Group_Stack : in out Document_Vector);
    --  TODO: Description
 
    function Fits
@@ -206,14 +204,14 @@ package body Prettier_Ada.Documents is
    ------------------------
 
    procedure Break_Parent_Group
-     (Group_Stack : in out Document_Type_Vector)
+     (Group_Stack : in out Document_Vector)
    is
       use type Ada.Containers.Count_Type;
 
    begin
       if Group_Stack.Length > 0 then
          declare
-            Parent_Group  : constant Document_Type_Vectors.Reference_Type :=
+            Parent_Group  : constant Document_Vectors.Reference_Type :=
               Group_Stack.Reference (Group_Stack.Last);
             Group_Command : Command_Access
               renames Parent_Group.Bare_Document.Command;
@@ -1692,8 +1690,8 @@ package body Prettier_Ada.Documents is
    ----------------------
 
    procedure Propagate_Breaks (Document : Document_Type) is
-      Already_Visited : Document_Type_Hashed_Set;
-      Group_Stack     : Document_Type_Vector;
+      Already_Visited : Document_Hashed_Set;
+      Group_Stack     : Document_Vector;
 
       function Propagate_Breaks_On_Enter
         (Document : Document_Type)
@@ -1825,7 +1823,7 @@ package body Prettier_Ada.Documents is
            return Optional_Boolean := null;
       Should_Traverse_Conditional_Groups : Boolean := False)
    is
-      Doc_Stack : Document_Type_Vector := [Document];
+      Doc_Stack : Document_Vector := [Document];
 
       Traverse_Doc_On_Exit_Stack_Marker : constant Document_Type :=
         Prettier_Ada.Documents.Builders.Text

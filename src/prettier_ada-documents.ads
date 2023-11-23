@@ -3,14 +3,14 @@
 --  SPDX-License-Identifier: Apache-2.0
 --
 
---  This package provides the Document_Type definition (equivalent to
---  Prettier's Doc type) and format function.
---  To create a Document_Type, use the Prettier_Ada.Documents.Builders package.
 with Ada.Strings.Unbounded;
 
 private with Ada.Containers;
 private with VSS.Strings;
 
+--  This package provides the Document_Type definition (equivalent to
+--  Prettier's Doc type) and format function.
+--  To create a Document_Type, use the Prettier_Ada.Documents.Builders package.
 package Prettier_Ada.Documents is
 
    type Indentation_Kind is (Spaces, Tabs);
@@ -41,10 +41,6 @@ package Prettier_Ada.Documents is
    --  Formats Document with the given Options
 
    type Document_Array is array (Positive range <>) of Document_Type;
-
-   --  TODO: Investigate if Document_Type_Array is too restrictive when
-   --  creating a Document_Type (due to the need to know the array length).
-   --  If so, add a Ada.Containers.Vectors package for Document_Type.
 
    type Symbol_Type is private;
 
