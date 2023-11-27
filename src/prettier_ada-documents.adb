@@ -1807,6 +1807,24 @@ package body Prettier_Ada.Documents is
           Queue  => [],
           Root   => null));
 
+   ----------------------
+   -- To_Document_Type --
+   ----------------------
+
+   function To_Document_Type
+     (Text : Wide_Wide_String)
+      return Document_Type
+   is
+      Bare_Document : constant Bare_Document_Access :=
+        new Bare_Document_Record'
+          (Kind => Document_Text,
+           Text => VSS.Strings.To_Virtual_String (Text),
+           Id   => Prettier_Ada.Documents.Builders.New_Document_Id);
+
+   begin
+      return Document_Type'(Bare_Document => Bare_Document);
+   end To_Document_Type;
+
    -----------------------
    -- Traverse_Document --
    -----------------------

@@ -19,6 +19,9 @@ package Prettier_Ada.Documents.Builders is
 
    No_Symbol : constant Symbol_Type;
 
+   function New_Document_Id return Natural;
+   --  Creates an unique id to be used when building a document
+
    procedure Reset_Document_Id;
    --  Each Document_Type built by the builders found on this packages will
    --  have an unique ID. When building a Document_Type for several sources,

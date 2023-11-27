@@ -9,9 +9,6 @@ package body Prettier_Ada.Documents.Builders is
 
    Document_Id : Natural := Natural'First;
 
-   function New_Document_Id return Natural;
-   --  TODO: Description
-
    ---------
    -- "+" --
    ---------
