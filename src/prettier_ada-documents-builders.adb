@@ -536,16 +536,30 @@ package body Prettier_Ada.Documents.Builders is
 
       else
          declare
-            Length : constant Positive :=
-               Documents'Length + Documents'Length - 1;
-            Joined_Documents : Document_Array (1 .. Length);
+            --  Double the size minus 1
+            Last_Index       : constant Positive :=
+              Documents'Last + Documents'Length - 1;
+            Joined_Documents : Document_Array (Documents'First .. Last_Index);
+
          begin
-            for J in 1 .. Length loop
-               Joined_Documents (Documents'First - 2 * J - 1 - 1) :=
-                 Documents (J);
+            --  Joined_Documents'First + 2 * (J - Documents'First) means
+            --  increment indices by 2 instead of 1.
+
+            --  Copy from Documents
+            for J in Documents'Range loop
+               Joined_Documents
+                 (Joined_Documents'First + 2 * (J - Documents'First)) :=
+                   Documents (J);
             end loop;
-            for J in 1 .. Length - 1 loop
-               Joined_Documents (Documents'First + 2 * J - 1) := Separator;
+
+            --  Fill the gaps with Separators.
+            --  Gaps start on the second element, hence the + 1.
+            --  There are Documents'Length - 1 separators, hence the
+            --  Documents'Last - 1 as upper bound.
+            for J in Documents'First .. Documents'Last - 1 loop
+               Joined_Documents
+                 (Joined_Documents'First + 2 * (J - Documents'First) + 1) :=
+                   Separator;
             end loop;
 
             return List (Joined_Documents);
