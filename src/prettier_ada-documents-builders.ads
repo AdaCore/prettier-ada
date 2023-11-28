@@ -19,6 +19,9 @@ package Prettier_Ada.Documents.Builders is
 
    No_Symbol : constant Symbol_Type;
 
+   function New_Document_Id return Natural;
+   --  Creates an unique id to be used when building a document
+
    procedure Reset_Document_Id;
    --  Each Document_Type built by the builders found on this packages will
    --  have an unique ID. When building a Document_Type for several sources,
@@ -36,6 +39,9 @@ package Prettier_Ada.Documents.Builders is
 
    subtype Document_Vector is Document_Vectors.Vector;
 
+   function "+" (Documents : Document_Vector) return Document_Array;
+   --  Convert a Document_Vector into a Document_Array
+
    function Text
      (T : Ada.Strings.Unbounded.Unbounded_String)
       return Document_Type;
@@ -47,20 +53,15 @@ package Prettier_Ada.Documents.Builders is
       return Document_Type;
    --  Convert an array of Document_Type objects into a Document_Type object
 
-   function List
-     (Documents : Document_Vector)
-      return Document_Type;
-   --  Convert a vector of Document_Type objects into a Document_Type object
-
    function Align
      (Data     : Alignment_Data_Type;
-      Contents : Document_Array)
+      Contents : Document_Type)
       return Document_Type;
    --  Creates a new Align Document Command
 
    function Align
      (Data     : Alignment_Data_Type;
-      Contents : Document_Vector)
+      Contents : Document_Array)
       return Document_Type;
    --  Creates a new Align Document Command
 
@@ -71,12 +72,12 @@ package Prettier_Ada.Documents.Builders is
    --  Creates a new Cursor Document Command
 
    function Fill
-     (Parts : Document_Array)
+     (Parts : Document_Type)
       return Document_Type;
    --  Creates a new Fill Document Command
 
    function Fill
-     (Parts : Document_Vector)
+     (Parts : Document_Array)
       return Document_Type;
    --  Creates a new Fill Document Command
 
@@ -89,13 +90,13 @@ package Prettier_Ada.Documents.Builders is
    No_Group_Options : constant Group_Options_Type;
 
    function Group
-     (Documents : Document_Array;
+     (Documents : Document_Type;
       Options   : Group_Options_Type := No_Group_Options)
       return Document_Type;
    --  Creates a new Group Document Command
 
    function Group
-     (Documents : Document_Vector;
+     (Documents : Document_Array;
       Options   : Group_Options_Type := No_Group_Options)
       return Document_Type;
    --  Creates a new Group Document Command
@@ -177,12 +178,6 @@ package Prettier_Ada.Documents.Builders is
       Documents : Document_Array)
       return Document_Type;
    --  Join an array of Documents with a Separator
-
-   function Join
-     (Separator : Document_Type;
-      Documents : Document_Vector)
-      return Document_Type;
-   --  Join a vector of Documents with a Separator
 
 private
 

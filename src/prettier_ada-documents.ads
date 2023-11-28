@@ -31,8 +31,13 @@ package Prettier_Ada.Documents is
    Default_Format_Options : constant Format_Options_Type :=
      (Width => 80, Indentation => (Spaces, 2), End_Of_Line => LF);
 
-   type Document_Type is private;
+   type Document_Type is private
+     with String_Literal => To_Document_Type;
+   pragma Preelaborable_Initialization (Document_Type);
    --  TODO: This DS leaks memory. Design a way to release it.
+
+   function To_Document_Type (Text : Wide_Wide_String) return Document_Type;
+   --  Convert given string into virtual string.
 
    function Format
      (Document : Document_Type;

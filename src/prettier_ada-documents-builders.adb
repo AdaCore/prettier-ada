@@ -9,19 +9,13 @@ package body Prettier_Ada.Documents.Builders is
 
    Document_Id : Natural := Natural'First;
 
-   function "+" (Documents : Document_Vector) return Document_Array;
-   pragma Inline ("+");
-   --  Convert a Document_Vector into a Document_Array
-
-   function New_Document_Id return Natural;
-   --  TODO: Description
-
    ---------
    -- "+" --
    ---------
 
    function "+" (Documents : Document_Vector) return Document_Array is
      ([for Document of Documents => Document]);
+   pragma Inline ("+");
 
    ---------------------
    -- New_Document_Id --
@@ -79,29 +73,19 @@ package body Prettier_Ada.Documents.Builders is
       return Document_Type'(Bare_Document => Bare_Document);
    end List;
 
-   ----------
-   -- List --
-   ----------
-
-   function List
-     (Documents : Document_Vector)
-      return Document_Type
-   is (List (+Documents));
-   pragma Inline (List);
-
    -----------
    -- Align --
    -----------
 
    function Align
      (Data     : Alignment_Data_Type;
-      Contents : Document_Array)
+      Contents : Document_Type)
       return Document_Type
    is
       Command       : constant Command_Type :=
         (Kind            => Command_Align,
          Align_Data      => Data,
-         Align_Contents  => List (Contents));
+         Align_Contents  => Contents);
       Bare_Document : constant Bare_Document_Access :=
         new Bare_Document_Record'
           (Kind    => Document_Command,
@@ -118,10 +102,9 @@ package body Prettier_Ada.Documents.Builders is
 
    function Align
      (Data     : Alignment_Data_Type;
-      Contents : Document_Vector)
+      Contents : Document_Array)
       return Document_Type
-   is (Align (Data, +Contents));
-   pragma Inline (Align);
+   is (Align (Data, List (Contents)));
 
    ------------------
    -- Break_Parent --
@@ -163,12 +146,12 @@ package body Prettier_Ada.Documents.Builders is
    ----------
 
    function Fill
-     (Parts : Document_Array)
+     (Parts : Document_Type)
       return Document_Type
    is
       Command        : constant Command_Type :=
         (Kind   => Command_Fill,
-         Parts  => List (Parts));
+         Parts  => Parts);
       Bare_Document : constant Bare_Document_Access :=
         new Bare_Document_Record'
           (Kind    => Document_Command,
@@ -184,24 +167,23 @@ package body Prettier_Ada.Documents.Builders is
    ----------
 
    function Fill
-     (Parts : Document_Vector)
+     (Parts : Document_Array)
       return Document_Type
-   is (Fill (+Parts));
-   pragma Inline (Fill);
+   is (Fill (List (Parts)));
 
    -----------
    -- Group --
    -----------
 
    function Group
-     (Documents : Document_Array;
+     (Documents : Document_Type;
       Options   : Group_Options_Type := No_Group_Options)
       return Document_Type
    is
       Command        : constant Command_Type :=
         (Kind            => Command_Group,
          Id              => Options.Id,
-         Group_Contents  => List (Documents),
+         Group_Contents  => Documents,
          Break           => Options.Should_Break,
          Expanded_States => Options.Expanded_States);
       Bare_Document : constant Bare_Document_Access :=
@@ -219,11 +201,10 @@ package body Prettier_Ada.Documents.Builders is
    -----------
 
    function Group
-     (Documents : Document_Vector;
+     (Documents : Document_Array;
       Options   : Group_Options_Type := No_Group_Options)
       return Document_Type
-   is (Group (+Documents, Options));
-   pragma Inline (Group);
+   is (Group (List (Documents), Options));
 
    --------------
    -- If_Break --
@@ -566,16 +547,5 @@ package body Prettier_Ada.Documents.Builders is
          end;
       end if;
    end Join;
-
-   ----------
-   -- Join --
-   ----------
-
-   function Join
-     (Separator : Document_Type;
-      Documents : Document_Vector)
-      return Document_Type
-   is (Join (Separator, +Documents));
-   pragma Inline (Join);
 
 end Prettier_Ada.Documents.Builders;
