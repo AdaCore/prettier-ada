@@ -13,6 +13,7 @@ with Prettier_Ada.Documents;
 --  (usually an AST type, such as Libadalang.Analysis.Ada_Node) and a Print_IR
 --  function that converts it into a Document_Type. This function should use
 --  the Prettier_Ada.Documents.Builders package to build a Document_Type.
+
 generic
    type Node_Type is private;
    with function Print_IR
