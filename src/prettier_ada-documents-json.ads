@@ -7,6 +7,7 @@ with Ada.Strings.Unbounded;
 
 --  This packages provides a serialization/deserialization function that
 --  encodes/decodes a Document_Type.
+
 package Prettier_Ada.Documents.Json is
 
    --  TODO: Describe the json schema used to encode each document kind.

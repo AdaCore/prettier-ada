@@ -13,3 +13,6 @@ testsuite/out
 
 # Python artifacts
 *.pyc
+
+# Clang-Format Style Options
+.clang-format

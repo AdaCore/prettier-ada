@@ -7,8 +7,12 @@ with GNATCOLL.JSON;
 with Ada.Containers;
 with Ada.Containers.Hashed_Maps;
 with VSS.Strings.Conversions;
+with Prettier_Ada.Documents.Implementation;
+use Prettier_Ada.Documents.Implementation;
+with Prettier_Ada.Document_Vectors;
 
 package body Prettier_Ada.Documents.Json is
+   subtype Document_Vector is Prettier_Ada.Document_Vectors.Vector;
 
    function Serialize
      (Document : Document_Type) return GNATCOLL.JSON.JSON_Value;
@@ -26,7 +30,7 @@ package body Prettier_Ada.Documents.Json is
       function From_Document (Document : Document_Type) return JSON_Value;
       --  Serialize a document
 
-      function From_Document_List (List : Document_Array) return JSON_Value;
+      function From_Document_List (List : Document_Vector) return JSON_Value;
       --  Serialize a document list
 
       function From_Command (Command : Command_Type) return JSON_Value;
@@ -37,7 +41,7 @@ package body Prettier_Ada.Documents.Json is
       -------------------
 
       function From_Document (Document : Document_Type) return JSON_Value is
-         D : constant Bare_Document_Access := Document.Bare_Document;
+         D : constant access Bare_Document_Record := Document.Bare_Document;
       begin
          if D = null then
             return Create;
@@ -53,7 +57,7 @@ package body Prettier_Ada.Documents.Json is
 
                when Document_List =>
                   Result.Set_Field ("kind", "list");
-                  Result.Set_Field ("list", From_Document_List (D.List.all));
+                  Result.Set_Field ("list", From_Document_List (D.List));
 
                when Document_Command =>
                   Result.Set_Field ("kind", "command");
@@ -66,7 +70,7 @@ package body Prettier_Ada.Documents.Json is
       -- From_Document_List --
       ------------------------
 
-      function From_Document_List (List : Document_Array) return JSON_Value
+      function From_Document_List (List : Document_Vector) return JSON_Value
       is
          Elements : JSON_Array;
       begin
@@ -377,12 +381,11 @@ package body Prettier_Ada.Documents.Json is
             Elements  : constant JSON_Array := Get (Json);
             Length    : constant Natural :=
               GNATCOLL.JSON.Length (Elements);
-            Documents : constant Document_Array_Access :=
-              new Document_Array (1 .. Length);
+            Documents : Document_Vector;
 
          begin
             for J in 1 .. Length loop
-               Documents (J) := To_Document_Type (Get (Elements, J));
+               Documents.Append (To_Document_Type (Get (Elements, J)));
             end loop;
 
             return

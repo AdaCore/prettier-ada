@@ -6,6 +6,7 @@
 with GNATCOLL.Traces;
 
 --  Prettier_Ada root package
+
 package Prettier_Ada is
 
    Gnatfmt_Trace : GNATCOLL.Traces.Trace_Handle :=

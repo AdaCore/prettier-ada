@@ -5,6 +5,7 @@
 
 --  This packages provides a generic package that creates an optional type,
 --  i.e., a type which can be set or not.
+
 package Prettier_Ada.Optionals is
 
    generic

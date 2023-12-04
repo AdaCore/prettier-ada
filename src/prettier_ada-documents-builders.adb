@@ -5,37 +5,10 @@
 
 with VSS.Strings.Conversions;
 
+with Prettier_Ada.Documents.Implementation;
+use Prettier_Ada.Documents.Implementation;
+
 package body Prettier_Ada.Documents.Builders is
-
-   Document_Id : Natural := Natural'First;
-
-   ---------
-   -- "+" --
-   ---------
-
-   function "+" (Documents : Document_Vector) return Document_Array is
-     ([for Document of Documents => Document]);
-   pragma Inline ("+");
-
-   ---------------------
-   -- New_Document_Id --
-   ---------------------
-
-   function New_Document_Id return Natural is
-   begin
-      return Result : constant Natural := Document_Id do
-         Document_Id := @ + 1;
-      end return;
-   end New_Document_Id;
-
-   -----------------------
-   -- Reset_Document_Id --
-   -----------------------
-
-   procedure Reset_Document_Id is
-   begin
-      Document_Id := Natural'First;
-   end Reset_Document_Id;
 
    ----------
    -- Text --
@@ -60,14 +33,14 @@ package body Prettier_Ada.Documents.Builders is
    -----------
 
    function List
-     (Documents : Document_Array)
+     (Documents : Document_Vector)
       return Document_Type
    is
       Bare_Document : constant Bare_Document_Access :=
         new Bare_Document_Record'
           (Kind => Document_List,
            Id   => New_Document_Id,
-           List => new Document_Array'(Documents));
+           List => Documents);
 
    begin
       return Document_Type'(Bare_Document => Bare_Document);
@@ -102,7 +75,7 @@ package body Prettier_Ada.Documents.Builders is
 
    function Align
      (Data     : Alignment_Data_Type;
-      Contents : Document_Array)
+      Contents : Document_Vector)
       return Document_Type
    is (Align (Data, List (Contents)));
 
@@ -167,7 +140,7 @@ package body Prettier_Ada.Documents.Builders is
    ----------
 
    function Fill
-     (Parts : Document_Array)
+     (Parts : Document_Vector)
       return Document_Type
    is (Fill (List (Parts)));
 
@@ -201,7 +174,7 @@ package body Prettier_Ada.Documents.Builders is
    -----------
 
    function Group
-     (Documents : Document_Array;
+     (Documents : Document_Vector;
       Options   : Group_Options_Type := No_Group_Options)
       return Document_Type
    is (Group (List (Documents), Options));
@@ -362,7 +335,7 @@ package body Prettier_Ada.Documents.Builders is
         (Bare_Document => Hard_Line_Bare_Document);
 
    begin
-      return List (Document_Array'([Hard_Line_Document, Break_Parent]));
+      return List ([Hard_Line_Document, Break_Parent]);
    end Hard_Line;
 
    ------------------
@@ -386,7 +359,7 @@ package body Prettier_Ada.Documents.Builders is
         (Bare_Document => Hard_Line_Bare_Document);
 
    begin
-      return List (Document_Array'([Hard_Line_Document, Break_Parent]));
+      return List ([Hard_Line_Document, Break_Parent]);
    end Literal_Line;
 
    ------------------------------------
@@ -461,16 +434,14 @@ package body Prettier_Ada.Documents.Builders is
    is
       Command       : constant Command_Type :=
         (Kind => Command_Line_Suffix_Boundary);
-      Bare_Document : constant Bare_Document_Record :=
-        (Kind    => Document_Command,
-         Id      => New_Document_Id,
-         Command => new Command_Type'(Command));
+      Bare_Document : constant Bare_Document_Access :=
+        new Bare_Document_Record'
+          (Kind    => Document_Command,
+           Id      => New_Document_Id,
+           Command => new Command_Type'(Command));
 
    begin
-      return
-        Document_Type'
-          (Bare_Document =>
-              new Bare_Document_Record'(Bare_Document));
+      return Document_Type'(Bare_Document => Bare_Document);
    end Line_Suffix_Boundary;
 
    ----------
@@ -479,17 +450,15 @@ package body Prettier_Ada.Documents.Builders is
 
    function Trim return Document_Type
    is
-      Command        : constant Command_Type      := (Kind => Command_Trim);
-      Bare_Document : constant Bare_Document_Record :=
-        (Kind    => Document_Command,
-         Id      => New_Document_Id,
-         Command => new Command_Type'(Command));
+      Command       : constant Command_Type      := (Kind => Command_Trim);
+      Bare_Document : constant Bare_Document_Access :=
+        new Bare_Document_Record'
+          (Kind    => Document_Command,
+           Id      => New_Document_Id,
+           Command => new Command_Type'(Command));
 
    begin
-      return
-        Document_Type'
-          (Bare_Document =>
-             new Bare_Document_Record'(Bare_Document));
+      return Document_Type'(Bare_Document => Bare_Document);
    end Trim;
 
    ----------
@@ -498,54 +467,39 @@ package body Prettier_Ada.Documents.Builders is
 
    function Join
      (Separator : Document_Type;
-      Documents : Document_Array)
+      Documents : Document_Vector)
       return Document_Type
    is
-   begin
-      if Documents'Length = 0 then
-         return List (Document_Array'([]));
+      use type Ada.Containers.Count_Type;
 
-      elsif Documents'Length = 1 then
-         declare
-            Length : constant Positive := 2;
-            Joined_Documents : Document_Array (1 .. Length);
-         begin
-            Joined_Documents (1) := Documents (Documents'First);
-            Joined_Documents (2) := Separator;
-            return List (Joined_Documents);
-         end;
+   begin
+      if Documents.Length = 0 then
+         return List ([]);
+
+      elsif Documents.Length = 1 then
+         return List ([Documents.First_Element, Separator]);
 
       else
          declare
-            --  Double the size minus 1
-            Last_Index       : constant Positive :=
-              Documents'Last + Documents'Length - 1;
-            Joined_Documents : Document_Array (Documents'First .. Last_Index);
+            Joined_Documents : Document_Vector;
 
          begin
-            --  Joined_Documents'First + 2 * (J - Documents'First) means
-            --  increment indices by 2 instead of 1.
-
-            --  Copy from Documents
-            for J in Documents'Range loop
-               Joined_Documents
-                 (Joined_Documents'First + 2 * (J - Documents'First)) :=
-                   Documents (J);
+            for Document of Documents loop
+               Joined_Documents.Append (Document);
+               Joined_Documents.Append (Separator);
             end loop;
-
-            --  Fill the gaps with Separators.
-            --  Gaps start on the second element, hence the + 1.
-            --  There are Documents'Length - 1 separators, hence the
-            --  Documents'Last - 1 as upper bound.
-            for J in Documents'First .. Documents'Last - 1 loop
-               Joined_Documents
-                 (Joined_Documents'First + 2 * (J - Documents'First) + 1) :=
-                   Separator;
-            end loop;
+            Joined_Documents.Delete_Last;
 
             return List (Joined_Documents);
          end;
       end if;
    end Join;
+
+   -----------------------
+   -- Reset_Document_Id --
+   -----------------------
+
+   procedure Reset_Document_Id
+     renames Prettier_Ada.Documents.Implementation.Reset_Document_Id;
 
 end Prettier_Ada.Documents.Builders;

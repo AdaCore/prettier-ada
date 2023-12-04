@@ -3,7 +3,7 @@
 --  SPDX-License-Identifier: Apache-2.0
 --
 
-with Ada.Containers.Vectors;
+with Prettier_Ada.Document_Vectors;
 
 --  This package provides functions to build a Document_Type.
 --  The API mimics the original Prettier builders API with the following
@@ -11,16 +11,16 @@ with Ada.Containers.Vectors;
 --  - To create a string Document, instead of using a string literal, use
 --    the Text function.
 --  - To create an array of Documents, instead of using the square bracket
---    notation, use the List function. This converts a Document_Array into
+--    notation, use the List function. This converts a Document_Vector into
 --    a Document_Type.
+
 package Prettier_Ada.Documents.Builders is
+
+   subtype Document_Vector is Prettier_Ada.Document_Vectors.Vector;
 
    No_Document : constant Document_Type;
 
    No_Symbol : constant Symbol_Type;
-
-   function New_Document_Id return Natural;
-   --  Creates an unique id to be used when building a document
 
    procedure Reset_Document_Id;
    --  Each Document_Type built by the builders found on this packages will
@@ -30,17 +30,6 @@ package Prettier_Ada.Documents.Builders is
    --  formatting them, instead of formatting right after creating a document.
    --  This function is automatically called when
    --  Prettier_Ada.Documents.Format finishes.
-   --
-   --  TODO: Address how this global mutable state affects multi-threaded
-   --  programs.
-
-   package Document_Vectors is new
-     Ada.Containers.Vectors (Positive, Document_Type);
-
-   subtype Document_Vector is Document_Vectors.Vector;
-
-   function "+" (Documents : Document_Vector) return Document_Array;
-   --  Convert a Document_Vector into a Document_Array
 
    function Text
      (T : Ada.Strings.Unbounded.Unbounded_String)
@@ -49,7 +38,7 @@ package Prettier_Ada.Documents.Builders is
    --  encoded.
 
    function List
-     (Documents : Document_Array)
+     (Documents : Document_Vector)
       return Document_Type;
    --  Convert an array of Document_Type objects into a Document_Type object
 
@@ -61,7 +50,7 @@ package Prettier_Ada.Documents.Builders is
 
    function Align
      (Data     : Alignment_Data_Type;
-      Contents : Document_Array)
+      Contents : Document_Vector)
       return Document_Type;
    --  Creates a new Align Document Command
 
@@ -77,7 +66,7 @@ package Prettier_Ada.Documents.Builders is
    --  Creates a new Fill Document Command
 
    function Fill
-     (Parts : Document_Array)
+     (Parts : Document_Vector)
       return Document_Type;
    --  Creates a new Fill Document Command
 
@@ -96,7 +85,7 @@ package Prettier_Ada.Documents.Builders is
    --  Creates a new Group Document Command
 
    function Group
-     (Documents : Document_Array;
+     (Documents : Document_Vector;
       Options   : Group_Options_Type := No_Group_Options)
       return Document_Type;
    --  Creates a new Group Document Command
@@ -115,13 +104,13 @@ package Prettier_Ada.Documents.Builders is
    --  Creates a new If_Break Document Command.
    --
    --  TODO: Investigate if Break_Contents and Flat_Contents must always be a
-   --  Document_Array. This is not possible to confirm from the Prettier
+   --  Document_Vector. This is not possible to confirm from the Prettier
    --  API, so an analysis to the formatting algorithm must be done.
 
    function Indent (Contents : Document_Type) return Document_Type;
    --  Creates a new Indent Document Command.
    --
-   --  TODO: Investigate if Contents always be a Document_Array. This is
+   --  TODO: Investigate if Contents always be a Document_Vector. This is
    --  not possible to confirm from the Prettier API, so an analysis to the
    --  formatting algorithm must be done.
 
@@ -175,7 +164,7 @@ package Prettier_Ada.Documents.Builders is
 
    function Join
      (Separator : Document_Type;
-      Documents : Document_Array)
+      Documents : Document_Vector)
       return Document_Type;
    --  Join an array of Documents with a Separator
 
