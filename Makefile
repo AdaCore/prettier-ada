@@ -53,7 +53,7 @@ install-lib:
 			-XPRETTIER_LIBRARY_BUILD_MODE=$(BUILD_MODE) \
 			--prefix="$(PREFIX)" \
 			--install-name=prettier_ada \
-			--sources-subdir=include/ada_prettier \
+			--sources-subdir=include/prettier_ada \
 			--build-name=$$library_type \
 			--build-var=LIBRARY_TYPE \
 			-P $(LIB_PROJECT) -p -f ; \
