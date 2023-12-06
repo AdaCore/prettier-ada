@@ -3,6 +3,9 @@
 --  SPDX-License-Identifier: Apache-2.0
 --
 
+with Ada.Strings;       use Ada.Strings;
+with Ada.Strings.Fixed; use Ada.Strings.Fixed;
+
 with Prettier_Ada.Documents.Implementation;
 
 package body Prettier_Ada.Documents is
@@ -37,6 +40,15 @@ package body Prettier_Ada.Documents is
 
    function Hash (Symbol : Symbol_Type) return Ada.Containers.Hash_Type
      renames Prettier_Ada.Documents.Implementation.Hash;
+
+   -----------
+   -- Image --
+   -----------
+
+   function Image (Symbol : Symbol_Type) return String is
+   begin
+      return Trim (Symbol'Image, Left);
+   end Image;
 
    ----------------
    -- New_Symbol --

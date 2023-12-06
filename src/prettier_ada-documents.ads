@@ -54,6 +54,11 @@ package Prettier_Ada.Documents is
 
    type Symbol_Type is private;
 
+   No_Symbol : constant Symbol_Type;
+
+   function Image (Symbol : Symbol_Type) return String;
+   --  Return a human representation of a symbol, for debugging purposes
+
    function Hash (Symbol : Symbol_Type) return Ada.Containers.Hash_Type;
    --  Casts Symbol_Type as Hash_Type
 
