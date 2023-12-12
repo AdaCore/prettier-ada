@@ -4,9 +4,9 @@ PROCESSORS ?= 0
 
 ALL_LIBRARY_TYPES = static static-pic relocatable
 
-LIB_PROJECT = gnat/prettier_ada.gpr
+LIB_PROJECT = prettier_ada.gpr
 
-TEST_PROGRAMS = testsuite/test_programs/gnat/test_programs.gpr
+TEST_PROGRAMS = testsuite/test_programs/test_programs.gpr
 
 .PHONY: lib
 lib:
@@ -48,9 +48,9 @@ install: install-lib
 install-lib:
 	for library_type in $(ALL_LIBRARY_TYPES) ; do \
 		gprinstall \
-			-XPRETTIER_LIBRARY_LIBRARY_TYPE=$$library_type \
+			-XPRETTIER_ADA_LIBRARY_TYPE=$$library_type \
 			-XLIBRARY_TYPE=$$library_type \
-			-XPRETTIER_LIBRARY_BUILD_MODE=$(BUILD_MODE) \
+			-XPRETTIER_ADA_BUILD_MODE=$(BUILD_MODE) \
 			--prefix="$(PREFIX)" \
 			--install-name=prettier_ada \
 			--sources-subdir=include/prettier_ada \
@@ -65,8 +65,8 @@ test-programs:
 		-v \
 		-k \
 		-XLIBRARY_TYPE=static \
-		-XPRETTIER_LIBRARY_LIBRARY_TYPE=static \
-		-XPRETTIER_LIBRARY_BUILD_MODE=$(BUILD_MODE) \
+		-XPRETTIER_ADA_LIBRARY_TYPE=static \
+		-XPRETTIER_ADA_BUILD_MODE=$(BUILD_MODE) \
 		-P$(TEST_PROGRAMS) \
 		-p \
 		-j$(PROCESSORS); \
@@ -75,8 +75,8 @@ test-programs:
 install-test-programs:
 	gprinstall \
 		-XLIBRARY_TYPE=static \
-		-XPRETTIER_LIBRARY_LIBRARY_TYPE=static \
-		-XPRETTIER_LIBRARY_BUILD_MODE=$(BUILD_MODE) \
+		-XPRETTIER_ADA_LIBRARY_TYPE=static \
+		-XPRETTIER_ADA_BUILD_MODE=$(BUILD_MODE) \
 		--prefix="$(PREFIX)" \
 		--install-name=test_programs \
 		--mode=usage \
