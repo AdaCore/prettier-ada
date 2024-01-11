@@ -411,144 +411,143 @@ package body Prettier_Ada.Documents.Json is
             Kind : constant Document_Kind := Document_Command;
 
          begin
-            case Command_Text is
-               when "align" =>
-                  declare
-                     Command : constant Command_Access :=
-                       new Command_Type'(To_Command_Align (Json));
-                  begin
-                     return
-                       Document_Type'
-                         (Bare_Document =>
-                            new Bare_Document_Record'(Kind, Id, Command));
-                  end;
+            if Command_Text = "align" then
+               declare
+                  Command : constant Command_Access :=
+                     new Command_Type'(To_Command_Align (Json));
+               begin
+                  return
+                     Document_Type'
+                       (Bare_Document =>
+                          new Bare_Document_Record'(Kind, Id, Command));
+               end;
 
-               when "breakParent" =>
-                  declare
-                     Command : constant Command_Access :=
-                       new Command_Type'(To_Command_Break_Parent (Json));
-                  begin
-                     return
-                       Document_Type'
-                         (Bare_Document =>
-                            new Bare_Document_Record'(Kind, Id, Command));
-                  end;
+            elsif Command_Text = "breakParent" then
+               declare
+                  Command : constant Command_Access :=
+                     new Command_Type'(To_Command_Break_Parent (Json));
+               begin
+                  return
+                     Document_Type'
+                       (Bare_Document =>
+                          new Bare_Document_Record'(Kind, Id, Command));
+               end;
 
-               when "fill" =>
-                  declare
-                     Command : constant Command_Access :=
-                       new Command_Type'(To_Command_Fill (Json));
-                  begin
-                     return
-                       Document_Type'
-                         (Bare_Document =>
-                            new Bare_Document_Record'(Kind, Id, Command));
-                  end;
+            elsif Command_Text = "fill" then
+               declare
+                  Command : constant Command_Access :=
+                     new Command_Type'(To_Command_Fill (Json));
+               begin
+                  return
+                     Document_Type'
+                       (Bare_Document =>
+                          new Bare_Document_Record'(Kind, Id, Command));
+               end;
 
-               when "group" =>
-                  declare
-                     Command : constant Command_Access :=
-                       new Command_Type'(To_Command_Group (Json));
-                  begin
-                     return
-                       Document_Type'
-                         (Bare_Document =>
-                            new Bare_Document_Record'(Kind, Id, Command));
-                  end;
+            elsif Command_Text = "group" then
+               declare
+                  Command : constant Command_Access :=
+                     new Command_Type'(To_Command_Group (Json));
+               begin
+                  return
+                     Document_Type'
+                       (Bare_Document =>
+                          new Bare_Document_Record'(Kind, Id, Command));
+               end;
 
-               when "ifBreak" =>
-                  declare
-                     Command : constant Command_Access :=
-                       new Command_Type'(To_Command_If_Break (Json));
-                  begin
-                     return
-                       Document_Type'
-                         (Bare_Document =>
-                            new Bare_Document_Record'(Kind, Id, Command));
-                  end;
+            elsif Command_Text = "ifBreak" then
+               declare
+                  Command : constant Command_Access :=
+                     new Command_Type'(To_Command_If_Break (Json));
+               begin
+                  return
+                     Document_Type'
+                       (Bare_Document =>
+                          new Bare_Document_Record'(Kind, Id, Command));
+               end;
 
-               when "indent" =>
-                  declare
-                     Command : constant Command_Access :=
-                       new Command_Type'(To_Command_Indent (Json));
-                  begin
-                     return
-                       Document_Type'
-                         (Bare_Document =>
-                            new Bare_Document_Record'(Kind, Id, Command));
-                  end;
+            elsif Command_Text = "indent" then
+               declare
+                  Command : constant Command_Access :=
+                     new Command_Type'(To_Command_Indent (Json));
+               begin
+                  return
+                     Document_Type'
+                       (Bare_Document =>
+                          new Bare_Document_Record'(Kind, Id, Command));
+               end;
 
-               when "indentIfBreak" =>
-                  declare
-                     Command : constant Command_Access :=
-                       new Command_Type'(To_Command_Indent_If_Break (Json));
-                  begin
-                     return
-                       Document_Type'
-                         (Bare_Document =>
-                            new Bare_Document_Record'(Kind, Id, Command));
-                  end;
+            elsif Command_Text = "indentIfBreak" then
+               declare
+                  Command : constant Command_Access :=
+                     new Command_Type'(To_Command_Indent_If_Break (Json));
+               begin
+                  return
+                     Document_Type'
+                       (Bare_Document =>
+                          new Bare_Document_Record'(Kind, Id, Command));
+               end;
 
-               when "line" =>
-                  declare
-                     Command : constant Command_Access :=
-                       new Command_Type'(To_Command_Line (Json));
-                  begin
-                     return
-                       Document_Type'
-                         (Bare_Document =>
-                            new Bare_Document_Record'(Kind, Id, Command));
-                  end;
+            elsif Command_Text = "line" then
+               declare
+                  Command : constant Command_Access :=
+                     new Command_Type'(To_Command_Line (Json));
+               begin
+                  return
+                     Document_Type'
+                       (Bare_Document =>
+                          new Bare_Document_Record'(Kind, Id, Command));
+               end;
 
-               when "label" =>
-                  declare
-                     Command : constant Command_Access :=
-                       new Command_Type'(To_Command_Label (Json));
-                  begin
-                     return
-                       Document_Type'
-                         (Bare_Document =>
-                            new Bare_Document_Record'(Kind, Id, Command));
-                  end;
+            elsif Command_Text = "label" then
+               declare
+                  Command : constant Command_Access :=
+                     new Command_Type'(To_Command_Label (Json));
+               begin
+                  return
+                     Document_Type'
+                       (Bare_Document =>
+                          new Bare_Document_Record'(Kind, Id, Command));
+               end;
 
-               when "lineSuffix" =>
-                  declare
-                     Command : constant Command_Access :=
-                       new Command_Type'(To_Command_Line_Suffix (Json));
-                  begin
-                     return
-                       Document_Type'
-                         (Bare_Document =>
-                            new Bare_Document_Record'(Kind, Id, Command));
-                  end;
+            elsif Command_Text = "lineSuffix" then
+               declare
+                  Command : constant Command_Access :=
+                     new Command_Type'(To_Command_Line_Suffix (Json));
+               begin
+                  return
+                     Document_Type'
+                       (Bare_Document =>
+                          new Bare_Document_Record'(Kind, Id, Command));
+               end;
 
-               when "lineSuffixBoundary" =>
-                  declare
-                     Command : constant Command_Access :=
-                       new Command_Type'
-                             (To_Command_Line_Suffix_Boundary (Json));
-                  begin
-                     return
-                       Document_Type'
-                         (Bare_Document =>
-                            new Bare_Document_Record'(Kind, Id, Command));
-                  end;
+            elsif Command_Text = "lineSuffixBoundary" then
+               declare
+                  Command : constant Command_Access :=
+                     new Command_Type'
+                           (To_Command_Line_Suffix_Boundary (Json));
+               begin
+                  return
+                     Document_Type'
+                       (Bare_Document =>
+                          new Bare_Document_Record'(Kind, Id, Command));
+               end;
 
-               when "trim" =>
-                  declare
-                     Command : constant Command_Access :=
-                       new Command_Type'(To_Command_Trim (Json));
-                  begin
-                     return
-                       Document_Type'
-                         (Bare_Document =>
-                            new Bare_Document_Record'(Kind, Id, Command));
-                  end;
+            elsif Command_Text = "trim" then
+               declare
+                  Command : constant Command_Access :=
+                     new Command_Type'(To_Command_Trim (Json));
+               begin
+                  return
+                     Document_Type'
+                       (Bare_Document =>
+                          new Bare_Document_Record'(Kind, Id, Command));
+               end;
 
-               when others =>
-                  --  TODO: Raise a better exception
-                  raise Program_Error;
-            end case;
+            else
+               --  TODO: Raise a better exception
+               raise Program_Error;
+            end if;
          end To_Document_Command;
 
          ----------------------
