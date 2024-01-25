@@ -1,5 +1,5 @@
 --
---  Copyright (C) 2023, AdaCore
+--  Copyright (C) 2023-2024, AdaCore
 --  SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 --
 
@@ -70,7 +70,30 @@ package Prettier_Ada.Documents is
    --  builders but it does not fit well on the public part of this package.
    --  Try to make this private.
 
-   type Align_Kind_Type is (Width, Text, Dedent, Dedent_To_Root, Root, None);
+   type Align_Kind_Type is
+     (Width, Text, Dedent, Dedent_To_Root, Root, Inner_Root, None);
+   --  Width, Text, Dedent, Dedent_To_Root and Root are align kinds ported from
+   --  and with the same behaviour as in Prettier.
+   --
+   --  None is added by this library just to make Alignment_Data_Type
+   --  constrained. It is useless when used to create an Alignment_Data_Type
+   --  object since it will result in no alignment being added.
+   --
+   --  Inner_Root is an extention added by this library.
+   --
+   --  It forces the indentation to be the line length right before formatting
+   --  the Document built with the Prettier_Ada.Documents.Builder.Align.
+   --
+   --  An example where this is needed is the following IfStmt where we want
+   --  the DottedName suffix to be aligned based on the first name.
+   --
+   --  ```
+   --  if AAAAA
+   --       .BBBBBB
+   --    and then CCCCC
+   --               .DDDDD
+   --  then
+   --  ```
 
    type Alignment_Data_Type (Kind : Align_Kind_Type := None) is record
       case Kind is
@@ -78,7 +101,7 @@ package Prettier_Ada.Documents is
             N : Natural; -- Number of spaces or tabs
          when Text =>
             T : Ada.Strings.Unbounded.Unbounded_String;
-         when Dedent | Dedent_To_Root | Root | None =>
+         when Dedent | Dedent_To_Root | Root | Inner_Root | None =>
             null;
       end case;
    end record;

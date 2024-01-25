@@ -1,5 +1,5 @@
 --
---  Copyright (C) 2023, AdaCore
+--  Copyright (C) 2023-2024, AdaCore
 --  SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 --
 
@@ -40,17 +40,20 @@ package body Prettier_Ada.Documents.Implementation is
 
    type Mode_Kind is (Mode_Break, Mode_Flat, None);
 
-   type Indentation_Data_Kind is (Indent, String_Align, Number_Align, Dedent);
+   type Indentation_Data_Kind is
+     (Indent, String_Align, Number_Align, Dedent, Inner_Root);
 
    type Indentation_Data_Type (Kind : Indentation_Data_Kind := Indent) is
       record
          case Kind is
             when Indent | Dedent =>
                null;
+            when Inner_Root =>
+               Margin : Natural;
             when String_Align =>
-               T : Prettier_String;
+               Text : Prettier_String;
             when Number_Align =>
-               N : Natural;
+               Width : Natural;
          end case;
       end record;
 
@@ -121,9 +124,10 @@ package body Prettier_Ada.Documents.Implementation is
    --  TODO: Description
 
    function Make_Align
-     (From       : Indentation_Queue_Type;
-      Align_Data : Alignment_Data_Type;
-      Options    : Format_Options_Type)
+     (From                : Indentation_Queue_Type;
+      Align_Data          : Alignment_Data_Type;
+      Options             : Format_Options_Type;
+      Current_Line_Length : Natural)
       return Indentation_Queue_Type;
    --  TODO: Description
 
@@ -1175,7 +1179,8 @@ package body Prettier_Ada.Documents.Implementation is
                              (Make_Align
                                 (Indentation,
                                  Document.Bare_Document.Command.Align_Data,
-                                 Options),
+                                 Options,
+                                 Pos),
                               Mode,
                               Document.Bare_Document.Command.Align_Contents));
 
@@ -1571,12 +1576,20 @@ package body Prettier_Ada.Documents.Implementation is
 
             when String_Align =>
                Flush;
-               Append (Value, Part.T);
-               Length := @ + Text_Width (Part.T);
+               Append (Value, Part.Text);
+               Length := @ + Text_Width (Part.Text);
 
             when Number_Align =>
                Last_Tabs := @ + 1;
-               Last_Spaces := @ + Part.N;
+               Last_Spaces := @ + Part.Width;
+
+            when Inner_Root =>
+               --  Last_Tabs and Last_Spaces are not flushed only when
+               --  Part.Kind = Number_Align. By simply adjusting Last_Spaces
+               --  based on the current line length, any previously unflushed
+               --  Last_Tabs and Last_Spaces become irrelevant, and the number
+               --  of tabs added when Part.Kind = Indent is kept.
+               Last_Spaces := Part.Margin - Length;
 
             when Dedent =>
                raise Program_Error; -- TODO: Make this a logic error
@@ -1610,9 +1623,10 @@ package body Prettier_Ada.Documents.Implementation is
    ----------------
 
    function Make_Align
-     (From       : Indentation_Queue_Type;
-      Align_Data : Alignment_Data_Type;
-      Options    : Format_Options_Type)
+     (From                : Indentation_Queue_Type;
+      Align_Data          : Alignment_Data_Type;
+      Options             : Format_Options_Type;
+      Current_Line_Length : Natural)
       return Indentation_Queue_Type
    is
 
@@ -1649,6 +1663,14 @@ package body Prettier_Ada.Documents.Implementation is
               Generate_Indentation
                 (From,
                  Indentation_Data_Type'(Kind => Dedent),
+                 Options.Indentation);
+
+         when Inner_Root =>
+            return
+              Generate_Indentation
+                (From,
+                 Indentation_Data_Type'
+                   (Kind => Inner_Root, Margin => Current_Line_Length),
                  Options.Indentation);
 
          when Root =>
