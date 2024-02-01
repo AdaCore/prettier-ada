@@ -1,0 +1,1234 @@
+=== Align ===
+> Align Document 1 JSON:
+{
+  "id": 5,
+  "kind": "command",
+  "command": {
+    "command": "align",
+    "alignData": {
+      "kind": "width",
+      "n": 2
+    },
+    "alignContents": {
+      "id": 4,
+      "kind": "command",
+      "command": {
+        "command": "fill",
+        "parts": {
+          "id": 3,
+          "kind": "list",
+          "list": [
+            {
+              "id": 0,
+              "kind": "text",
+              "text": "A"
+            },
+            {
+              "id": 1,
+              "kind": "command",
+              "command": {
+                "command": "line",
+                "literal": false,
+                "soft": false,
+                "hard": false
+              }
+            },
+            {
+              "id": 2,
+              "kind": "text",
+              "text": "B"
+            }
+          ]
+        }
+      }
+    }
+  }
+}
+> Align Document 1 Formatted:
+A B
+> Align Document 2 JSON:
+{
+  "id": 11,
+  "kind": "command",
+  "command": {
+    "command": "align",
+    "alignData": {
+      "kind": "width",
+      "n": 2
+    },
+    "alignContents": {
+      "id": 10,
+      "kind": "command",
+      "command": {
+        "command": "fill",
+        "parts": {
+          "id": 9,
+          "kind": "list",
+          "list": [
+            {
+              "id": 6,
+              "kind": "text",
+              "text": "A"
+            },
+            {
+              "id": 7,
+              "kind": "command",
+              "command": {
+                "command": "line",
+                "literal": false,
+                "soft": false,
+                "hard": false
+              }
+            },
+            {
+              "id": 8,
+              "kind": "text",
+              "text": "B"
+            }
+          ]
+        }
+      }
+    }
+  }
+}
+> Align Document 2 Formatted:
+A B
+
+=== Break_Parent ===
+> Break_Parent Document JSON:
+{
+  "id": 5,
+  "kind": "command",
+  "command": {
+    "command": "group",
+    "id": 0,
+    "groupContents": {
+      "id": 4,
+      "kind": "list",
+      "list": [
+        {
+          "id": 0,
+          "kind": "text",
+          "text": "A"
+        },
+        {
+          "id": 1,
+          "kind": "command",
+          "command": {
+            "command": "line",
+            "literal": false,
+            "soft": false,
+            "hard": false
+          }
+        },
+        {
+          "id": 2,
+          "kind": "text",
+          "text": "B"
+        },
+        {
+          "id": 3,
+          "kind": "command",
+          "command": {
+            "command": "breakParent"
+          }
+        }
+      ]
+    },
+    "break": false,
+    "expandedStates": null
+  }
+}
+> Break_Parent Document Formatted:
+A
+B
+
+=== Cursor ===
+> Cursor Document JSON:
+{
+  "id": 4,
+  "kind": "command",
+  "command": {
+    "command": "group",
+    "id": 0,
+    "groupContents": {
+      "id": 3,
+      "kind": "list",
+      "list": [
+        {
+          "id": 0,
+          "kind": "text",
+          "text": "A"
+        },
+        {
+          "id": 1,
+          "kind": "command",
+          "command": {
+            "command": "cursor",
+            "placeHolder": 1
+          }
+        },
+        {
+          "id": 2,
+          "kind": "text",
+          "text": "B"
+        }
+      ]
+    },
+    "break": false,
+    "expandedStates": null
+  }
+}
+> Cursor Document Formatted:
+AB
+
+=== Fill ===
+> Fill Document 1 JSON:
+{
+  "id": 2,
+  "kind": "command",
+  "command": {
+    "command": "fill",
+    "parts": {
+      "id": 1,
+      "kind": "list",
+      "list": [
+        {
+          "id": 0,
+          "kind": "text",
+          "text": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+        }
+      ]
+    }
+  }
+}
+> Fill Document 1 Formatted:
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+> Fill Document 2 JSON:
+{
+  "id": 5,
+  "kind": "command",
+  "command": {
+    "command": "fill",
+    "parts": {
+      "id": 4,
+      "kind": "list",
+      "list": [
+        {
+          "id": 3,
+          "kind": "text",
+          "text": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+        }
+      ]
+    }
+  }
+}
+> Fill Document 2 Formatted:
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+> Fill Document 3 JSON:
+{
+  "id": 10,
+  "kind": "command",
+  "command": {
+    "command": "fill",
+    "parts": {
+      "id": 9,
+      "kind": "list",
+      "list": [
+        {
+          "id": 6,
+          "kind": "text",
+          "text": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+        },
+        {
+          "id": 7,
+          "kind": "command",
+          "command": {
+            "command": "line",
+            "literal": false,
+            "soft": false,
+            "hard": false
+          }
+        },
+        {
+          "id": 8,
+          "kind": "text",
+          "text": "BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB"
+        }
+      ]
+    }
+  }
+}
+> Fill Document 3 Formatted:
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB
+> Fill Document 4 JSON:
+{
+  "id": 15,
+  "kind": "command",
+  "command": {
+    "command": "fill",
+    "parts": {
+      "id": 14,
+      "kind": "list",
+      "list": [
+        {
+          "id": 11,
+          "kind": "text",
+          "text": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+        },
+        {
+          "id": 12,
+          "kind": "command",
+          "command": {
+            "command": "line",
+            "literal": false,
+            "soft": false,
+            "hard": false
+          }
+        },
+        {
+          "id": 13,
+          "kind": "text",
+          "text": "BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB"
+        }
+      ]
+    }
+  }
+}
+> Fill Document 4 Formatted:
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB
+
+=== Group ===
+> Group Document 1 JSON:
+{
+  "id": 6,
+  "kind": "command",
+  "command": {
+    "command": "group",
+    "id": 0,
+    "groupContents": {
+      "id": 5,
+      "kind": "list",
+      "list": [
+        {
+          "id": 0,
+          "kind": "text",
+          "text": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+        },
+        {
+          "id": 1,
+          "kind": "command",
+          "command": {
+            "command": "line",
+            "literal": false,
+            "soft": false,
+            "hard": false
+          }
+        },
+        {
+          "id": 2,
+          "kind": "text",
+          "text": "BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB"
+        },
+        {
+          "id": 3,
+          "kind": "command",
+          "command": {
+            "command": "line",
+            "literal": false,
+            "soft": false,
+            "hard": false
+          }
+        },
+        {
+          "id": 4,
+          "kind": "text",
+          "text": "C"
+        }
+      ]
+    },
+    "break": false,
+    "expandedStates": null
+  }
+}
+> Group Document 1 Formatted:
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB
+C
+> Group Document 2 JSON:
+{
+  "id": 13,
+  "kind": "command",
+  "command": {
+    "command": "group",
+    "id": 0,
+    "groupContents": {
+      "id": 12,
+      "kind": "list",
+      "list": [
+        {
+          "id": 7,
+          "kind": "text",
+          "text": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+        },
+        {
+          "id": 8,
+          "kind": "command",
+          "command": {
+            "command": "line",
+            "literal": false,
+            "soft": false,
+            "hard": false
+          }
+        },
+        {
+          "id": 9,
+          "kind": "text",
+          "text": "BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB"
+        },
+        {
+          "id": 10,
+          "kind": "command",
+          "command": {
+            "command": "line",
+            "literal": false,
+            "soft": false,
+            "hard": false
+          }
+        },
+        {
+          "id": 11,
+          "kind": "text",
+          "text": "C"
+        }
+      ]
+    },
+    "break": false,
+    "expandedStates": null
+  }
+}
+> Group Document 2 Formatted:
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB
+C
+
+=== Hard_Line ===
+> Hard_Line Document JSON:
+{
+  "id": 9,
+  "kind": "command",
+  "command": {
+    "command": "indent",
+    "indentContents": {
+      "id": 8,
+      "kind": "command",
+      "command": {
+        "command": "group",
+        "id": 0,
+        "groupContents": {
+          "id": 7,
+          "kind": "list",
+          "list": [
+            {
+              "id": 0,
+              "kind": "text",
+              "text": "A"
+            },
+            {
+              "id": 3,
+              "kind": "list",
+              "list": [
+                {
+                  "id": 1,
+                  "kind": "command",
+                  "command": {
+                    "command": "line",
+                    "literal": false,
+                    "soft": false,
+                    "hard": true
+                  }
+                },
+                {
+                  "id": 2,
+                  "kind": "command",
+                  "command": {
+                    "command": "breakParent"
+                  }
+                }
+              ]
+            },
+            {
+              "id": 4,
+              "kind": "text",
+              "text": "B"
+            },
+            {
+              "id": 5,
+              "kind": "command",
+              "command": {
+                "command": "line",
+                "literal": false,
+                "soft": false,
+                "hard": false
+              }
+            },
+            {
+              "id": 6,
+              "kind": "text",
+              "text": "C"
+            }
+          ]
+        },
+        "break": false,
+        "expandedStates": null
+      }
+    }
+  }
+}
+> Hard_Line Document Formatted:
+A
+  B
+  C
+
+=== Hard_Line_Without_Break_Parent ===
+> Hard_Line_Without_Break_Parent Document JSON:
+{
+  "id": 6,
+  "kind": "command",
+  "command": {
+    "command": "group",
+    "id": 0,
+    "groupContents": {
+      "id": 5,
+      "kind": "list",
+      "list": [
+        {
+          "id": 0,
+          "kind": "text",
+          "text": "A"
+        },
+        {
+          "id": 1,
+          "kind": "command",
+          "command": {
+            "command": "line",
+            "literal": false,
+            "soft": false,
+            "hard": true
+          }
+        },
+        {
+          "id": 2,
+          "kind": "text",
+          "text": "B"
+        },
+        {
+          "id": 3,
+          "kind": "command",
+          "command": {
+            "command": "line",
+            "literal": false,
+            "soft": false,
+            "hard": false
+          }
+        },
+        {
+          "id": 4,
+          "kind": "text",
+          "text": "C"
+        }
+      ]
+    },
+    "break": false,
+    "expandedStates": null
+  }
+}
+> Hard_Line_Without_Break_Parent Document Formatted:
+A
+B C
+
+=== If_Break ===
+> If_Break Document 1 JSON:
+{
+  "id": 8,
+  "kind": "command",
+  "command": {
+    "command": "group",
+    "id": 0,
+    "groupContents": {
+      "id": 7,
+      "kind": "list",
+      "list": [
+        {
+          "id": 0,
+          "kind": "text",
+          "text": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+        },
+        {
+          "id": 1,
+          "kind": "command",
+          "command": {
+            "command": "line",
+            "literal": false,
+            "soft": false,
+            "hard": false
+          }
+        },
+        {
+          "id": 2,
+          "kind": "text",
+          "text": "BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB"
+        },
+        {
+          "id": 3,
+          "kind": "command",
+          "command": {
+            "command": "line",
+            "literal": false,
+            "soft": false,
+            "hard": false
+          }
+        },
+        {
+          "id": 6,
+          "kind": "command",
+          "command": {
+            "command": "ifBreak",
+            "ifBreakGroupId": 0,
+            "breakContents": {
+              "id": 5,
+              "kind": "text",
+              "text": "C"
+            },
+            "flatContents": {
+              "id": 4,
+              "kind": "text",
+              "text": "D"
+            }
+          }
+        }
+      ]
+    },
+    "break": false,
+    "expandedStates": null
+  }
+}
+> If_Break Document 1 Formatted:
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB
+C
+> If_Break Document 2 JSON:
+{
+  "id": 17,
+  "kind": "command",
+  "command": {
+    "command": "group",
+    "id": 0,
+    "groupContents": {
+      "id": 16,
+      "kind": "list",
+      "list": [
+        {
+          "id": 9,
+          "kind": "text",
+          "text": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+        },
+        {
+          "id": 10,
+          "kind": "command",
+          "command": {
+            "command": "line",
+            "literal": false,
+            "soft": false,
+            "hard": false
+          }
+        },
+        {
+          "id": 11,
+          "kind": "text",
+          "text": "BBBBBBBBBBBBBBBBBBBB"
+        },
+        {
+          "id": 12,
+          "kind": "command",
+          "command": {
+            "command": "line",
+            "literal": false,
+            "soft": false,
+            "hard": false
+          }
+        },
+        {
+          "id": 15,
+          "kind": "command",
+          "command": {
+            "command": "ifBreak",
+            "ifBreakGroupId": 0,
+            "breakContents": {
+              "id": 14,
+              "kind": "text",
+              "text": "C"
+            },
+            "flatContents": {
+              "id": 13,
+              "kind": "text",
+              "text": "D"
+            }
+          }
+        }
+      ]
+    },
+    "break": false,
+    "expandedStates": null
+  }
+}
+> If_Break Document 2 Formatted:
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA BBBBBBBBBBBBBBBBBBBB D
+
+=== Indent ===
+> Indent Document JSON:
+{
+  "id": 6,
+  "kind": "command",
+  "command": {
+    "command": "indent",
+    "indentContents": {
+      "id": 5,
+      "kind": "list",
+      "list": [
+        {
+          "id": 0,
+          "kind": "text",
+          "text": "A"
+        },
+        {
+          "id": 1,
+          "kind": "command",
+          "command": {
+            "command": "line",
+            "literal": false,
+            "soft": false,
+            "hard": false
+          }
+        },
+        {
+          "id": 2,
+          "kind": "text",
+          "text": "B"
+        },
+        {
+          "id": 3,
+          "kind": "command",
+          "command": {
+            "command": "line",
+            "literal": false,
+            "soft": false,
+            "hard": false
+          }
+        },
+        {
+          "id": 4,
+          "kind": "text",
+          "text": "C"
+        }
+      ]
+    }
+  }
+}
+> Indent Document Formatted:
+A
+  B
+  C
+
+=== Indent_If_Break ===
+> Indent_If_Break Document JSON:
+{
+  "id": 7,
+  "kind": "command",
+  "command": {
+    "command": "indentIfBreak",
+    "indentIfBreakContents": {
+      "id": 6,
+      "kind": "command",
+      "command": {
+        "command": "group",
+        "id": 0,
+        "groupContents": {
+          "id": 5,
+          "kind": "list",
+          "list": [
+            {
+              "id": 0,
+              "kind": "text",
+              "text": "A"
+            },
+            {
+              "id": 3,
+              "kind": "list",
+              "list": [
+                {
+                  "id": 1,
+                  "kind": "command",
+                  "command": {
+                    "command": "line",
+                    "literal": false,
+                    "soft": false,
+                    "hard": true
+                  }
+                },
+                {
+                  "id": 2,
+                  "kind": "command",
+                  "command": {
+                    "command": "breakParent"
+                  }
+                }
+              ]
+            },
+            {
+              "id": 4,
+              "kind": "text",
+              "text": "B"
+            }
+          ]
+        },
+        "break": false,
+        "expandedStates": null
+      }
+    },
+    "indentIfBreakGroupId": 0,
+    "negate": false
+  }
+}
+> Indent_If_Break Document Formatted:
+A
+  B
+
+=== Join ===
+> Join Document JSON:
+{
+  "id": 5,
+  "kind": "list",
+  "list": [
+    {
+      "id": 0,
+      "kind": "text",
+      "text": "A"
+    },
+    {
+      "id": 4,
+      "kind": "list",
+      "list": [
+        {
+          "id": 2,
+          "kind": "command",
+          "command": {
+            "command": "line",
+            "literal": false,
+            "soft": false,
+            "hard": true
+          }
+        },
+        {
+          "id": 3,
+          "kind": "command",
+          "command": {
+            "command": "breakParent"
+          }
+        }
+      ]
+    },
+    {
+      "id": 1,
+      "kind": "text",
+      "text": "B"
+    }
+  ]
+}
+> Join Document Formatted:
+A
+B
+
+=== Label ===
+> Label Document JSON:
+{
+  "id": 1,
+  "kind": "command",
+  "command": {
+    "command": "label",
+    "text": "A",
+    "labelContents": {
+      "id": 0,
+      "kind": "text",
+      "text": "B"
+    }
+  }
+}
+> Label Document Formatted:
+B
+
+=== Line_Suffix ===
+> Line_Suffix Document JSON:
+{
+  "id": 7,
+  "kind": "list",
+  "list": [
+    {
+      "id": 0,
+      "kind": "text",
+      "text": "A"
+    },
+    {
+      "id": 2,
+      "kind": "command",
+      "command": {
+        "command": "lineSuffix",
+        "lineSuffixContents": {
+          "id": 1,
+          "kind": "text",
+          "text": " -- comment"
+        }
+      }
+    },
+    {
+      "id": 3,
+      "kind": "text",
+      "text": ";"
+    },
+    {
+      "id": 6,
+      "kind": "list",
+      "list": [
+        {
+          "id": 4,
+          "kind": "command",
+          "command": {
+            "command": "line",
+            "literal": false,
+            "soft": false,
+            "hard": true
+          }
+        },
+        {
+          "id": 5,
+          "kind": "command",
+          "command": {
+            "command": "breakParent"
+          }
+        }
+      ]
+    }
+  ]
+}
+> Line_Suffix Document Formatted:
+A; -- comment
+
+
+=== Line_Suffix ===
+> Line_Suffix Document JSON:
+{
+  "id": 8,
+  "kind": "list",
+  "list": [
+    {
+      "id": 0,
+      "kind": "text",
+      "text": "if"
+    },
+    {
+      "id": 2,
+      "kind": "command",
+      "command": {
+        "command": "lineSuffix",
+        "lineSuffixContents": {
+          "id": 1,
+          "kind": "text",
+          "text": " -- comment"
+        }
+      }
+    },
+    {
+      "id": 3,
+      "kind": "command",
+      "command": {
+        "command": "lineSuffixBoundary"
+      }
+    },
+    {
+      "id": 4,
+      "kind": "text",
+      "text": "then"
+    },
+    {
+      "id": 7,
+      "kind": "list",
+      "list": [
+        {
+          "id": 5,
+          "kind": "command",
+          "command": {
+            "command": "line",
+            "literal": false,
+            "soft": false,
+            "hard": true
+          }
+        },
+        {
+          "id": 6,
+          "kind": "command",
+          "command": {
+            "command": "breakParent"
+          }
+        }
+      ]
+    }
+  ]
+}
+> Line_Suffix Document Formatted:
+if -- comment
+then
+
+
+=== List ===
+> List Document JSON:
+{
+  "id": 2,
+  "kind": "list",
+  "list": [
+    {
+      "id": 0,
+      "kind": "text",
+      "text": "A"
+    },
+    {
+      "id": 1,
+      "kind": "text",
+      "text": "B"
+    }
+  ]
+}
+> List Document Formatted:
+AB
+
+=== Literal_Line ===
+> Literal_Line Document JSON:
+{
+  "id": 9,
+  "kind": "command",
+  "command": {
+    "command": "indent",
+    "indentContents": {
+      "id": 8,
+      "kind": "command",
+      "command": {
+        "command": "group",
+        "id": 0,
+        "groupContents": {
+          "id": 7,
+          "kind": "list",
+          "list": [
+            {
+              "id": 0,
+              "kind": "text",
+              "text": "A   "
+            },
+            {
+              "id": 3,
+              "kind": "list",
+              "list": [
+                {
+                  "id": 1,
+                  "kind": "command",
+                  "command": {
+                    "command": "line",
+                    "literal": true,
+                    "soft": false,
+                    "hard": false
+                  }
+                },
+                {
+                  "id": 2,
+                  "kind": "command",
+                  "command": {
+                    "command": "breakParent"
+                  }
+                }
+              ]
+            },
+            {
+              "id": 4,
+              "kind": "text",
+              "text": "B"
+            },
+            {
+              "id": 5,
+              "kind": "command",
+              "command": {
+                "command": "line",
+                "literal": false,
+                "soft": false,
+                "hard": false
+              }
+            },
+            {
+              "id": 6,
+              "kind": "text",
+              "text": "C"
+            }
+          ]
+        },
+        "break": false,
+        "expandedStates": null
+      }
+    }
+  }
+}
+> Literal_Line Document Formatted:
+A   
+B
+  C
+
+=== Literal_Line_Without_Break_Parent ===
+> Literal_Line_Without_Break_Parent Document JSON:
+{
+  "id": 7,
+  "kind": "command",
+  "command": {
+    "command": "indent",
+    "indentContents": {
+      "id": 6,
+      "kind": "command",
+      "command": {
+        "command": "group",
+        "id": 0,
+        "groupContents": {
+          "id": 5,
+          "kind": "list",
+          "list": [
+            {
+              "id": 0,
+              "kind": "text",
+              "text": "A   "
+            },
+            {
+              "id": 1,
+              "kind": "command",
+              "command": {
+                "command": "line",
+                "literal": true,
+                "soft": false,
+                "hard": false
+              }
+            },
+            {
+              "id": 2,
+              "kind": "text",
+              "text": "B"
+            },
+            {
+              "id": 3,
+              "kind": "command",
+              "command": {
+                "command": "line",
+                "literal": false,
+                "soft": false,
+                "hard": false
+              }
+            },
+            {
+              "id": 4,
+              "kind": "text",
+              "text": "C"
+            }
+          ]
+        },
+        "break": false,
+        "expandedStates": null
+      }
+    }
+  }
+}
+> Literal_Line_Without_Break_Parent Document Formatted:
+A    B C
+
+=== String_Literal ===
+> String_Literal Document JSON:
+{
+  "id": 0,
+  "kind": "text",
+  "text": "A"
+}
+> String_Literal Document Formatted:
+A
+
+=== Text ===
+> Text Document JSON:
+{
+  "id": 0,
+  "kind": "text",
+  "text": "A"
+}
+> Text Document Formatted:
+A
+
+=== Trim ===
+> Trim Document JSON:
+{
+  "id": 7,
+  "kind": "command",
+  "command": {
+    "command": "indent",
+    "indentContents": {
+      "id": 6,
+      "kind": "list",
+      "list": [
+        {
+          "id": 0,
+          "kind": "text",
+          "text": "A"
+        },
+        {
+          "id": 3,
+          "kind": "list",
+          "list": [
+            {
+              "id": 1,
+              "kind": "command",
+              "command": {
+                "command": "line",
+                "literal": false,
+                "soft": false,
+                "hard": true
+              }
+            },
+            {
+              "id": 2,
+              "kind": "command",
+              "command": {
+                "command": "breakParent"
+              }
+            }
+          ]
+        },
+        {
+          "id": 4,
+          "kind": "command",
+          "command": {
+            "command": "trim"
+          }
+        },
+        {
+          "id": 5,
+          "kind": "text",
+          "text": "B"
+        }
+      ]
+    }
+  }
+}
+> Trim Document Formatted:
+A
+B
+
