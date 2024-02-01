@@ -63,7 +63,9 @@ package Prettier_Ada.Documents.Builders is
    function Fill
      (Parts : Document_Type)
       return Document_Type;
-   --  Creates a new Fill Document Command
+   --  Creates a new Fill Document Command. Parts is expected to be a
+   --  list of Document_Types (built with the List builder). If not, Parts
+   --  is implicitly wrapped in one.
 
    function Fill
      (Parts : Document_Vector)

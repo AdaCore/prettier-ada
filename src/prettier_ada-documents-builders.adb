@@ -124,7 +124,10 @@ package body Prettier_Ada.Documents.Builders is
    is
       Command        : constant Command_Type :=
         (Kind   => Command_Fill,
-         Parts  => Parts);
+         Parts  =>
+           (if Parts.Bare_Document.Kind = Document_List
+            then Parts
+            else List ([Parts])));
       Bare_Document : constant Bare_Document_Access :=
         new Bare_Document_Record'
           (Kind    => Document_Command,
