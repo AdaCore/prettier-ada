@@ -89,6 +89,20 @@ procedure Builders_Tester is
         Align ((Width, 2), Fill (List (["A", Line, "B"])));
       Document_2 : constant Document_Type :=
         Align ((Width, 2), Fill (["A", Line, "B"]));
+      Document_3 : constant Document_Type :=
+        Indent
+          (List
+             (["begin",
+               Hard_Line,
+               "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+               "(",
+               Align
+                 ((Kind => Inner_Root),
+                  Fill
+                    (["BBBBBBBBBBBBBBBBBBBB,",
+                      Line,
+                      "CCCCCCCCCCCCCCCCCCCC"])),
+               ")"]));
 
    begin
       Put_Line ("=== Align ===");
@@ -100,6 +114,17 @@ procedure Builders_Tester is
       Put_Line (Serialize (Document_2));
       Put_Line ("> Align Document 2 Formatted:");
       Put_Line (Format (Document_2));
+      Put_Line ("> Align Document 3 JSON:");
+      Put_Line (Serialize (Document_3));
+      Put_Line ("> Align Document 3 Formatted:");
+      Put_Line (Format (Document_3));
+      Put_Line ("> Align Document 3 Formatted with Tabs:");
+      Put_Line
+        (Format
+           (Document_3,
+            (Width => 79,
+             Indentation => (Kind => Tabs, Width => 3),
+             End_Of_Line => LF)));
       New_Line;
    end Test_Align;
 
