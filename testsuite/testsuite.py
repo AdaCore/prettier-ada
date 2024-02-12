@@ -12,6 +12,7 @@ import os
 import sys
 
 import e3.testsuite
+from drivers.builders_tester import BuildersTestDriver
 from drivers.document_formatter_driver import DocumentFormatterDriver
 from drivers.serialization import SerializationDriver
 
@@ -21,6 +22,7 @@ class Testsuite(e3.testsuite.Testsuite):
     test_driver_map = {
         "document_formatter": DocumentFormatterDriver,
         "serialization": SerializationDriver,
+        "builders": BuildersTestDriver,
     }
 
     def add_options(self, parser):

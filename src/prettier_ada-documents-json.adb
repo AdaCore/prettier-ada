@@ -1,5 +1,5 @@
 --
---  Copyright (C) 2023, AdaCore
+--  Copyright (C) 2023-2024, AdaCore
 --  SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 --
 
@@ -133,11 +133,9 @@ package body Prettier_Ada.Documents.Json is
                Result.Set_Field ("command", "breakParent");
 
             when Command_Cursor =>
-
-               --  TODO: implement this once the deserialiser handles this
-               --  command.
-
-               raise Program_Error;
+               Result.Set_Field ("command", "cursor");
+               Result.Set_Field
+                 ("placeHolder", Natural (Command.Place_Holder));
 
             when Command_Fill =>
                Result.Set_Field ("command", "fill");
@@ -288,6 +286,12 @@ package body Prettier_Ada.Documents.Json is
          --  TODO: Add description
          --  TODO: Add Pre and Post contracts
 
+         function To_Cursor
+           (Json : GNATCOLL.JSON.JSON_Value)
+            return Command_Type;
+         --  TODO: Add description
+         --  TODO: Add Pre and Post contracts
+
          function To_Command_Fill
            (Json : GNATCOLL.JSON.JSON_Value)
             return Command_Type;
@@ -426,6 +430,17 @@ package body Prettier_Ada.Documents.Json is
                declare
                   Command : constant Command_Access :=
                      new Command_Type'(To_Command_Break_Parent (Json));
+               begin
+                  return
+                     Document_Type'
+                       (Bare_Document =>
+                          new Bare_Document_Record'(Kind, Id, Command));
+               end;
+
+            elsif Command_Text = "cursor" then
+               declare
+                  Command : constant Command_Access :=
+                     new Command_Type'(To_Cursor (Json));
                begin
                   return
                      Document_Type'
@@ -628,6 +643,22 @@ package body Prettier_Ada.Documents.Json is
          begin
             return Command_Type'(Kind => Command_Break_Parent);
          end To_Command_Break_Parent;
+
+         ---------------------
+         -- To_Command_Fill --
+         ---------------------
+
+         function To_Cursor
+           (Json : GNATCOLL.JSON.JSON_Value)
+            return Command_Type
+         is
+            Place_Holder : constant Natural := Get (Json, "placeHolder");
+         begin
+            return
+              Command_Type'
+                (Kind         => Command_Cursor,
+                 Place_Holder => Symbol_Type (Place_Holder));
+         end To_Cursor;
 
          ---------------------
          -- To_Command_Fill --

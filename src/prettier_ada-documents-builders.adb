@@ -1,5 +1,5 @@
 --
---  Copyright (C) 2023, AdaCore
+--  Copyright (C) 2023-2024, AdaCore
 --  SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 --
 
@@ -124,7 +124,10 @@ package body Prettier_Ada.Documents.Builders is
    is
       Command        : constant Command_Type :=
         (Kind   => Command_Fill,
-         Parts  => Parts);
+         Parts  =>
+           (if Parts.Bare_Document.Kind = Document_List
+            then Parts
+            else List ([Parts])));
       Bare_Document : constant Bare_Document_Access :=
         new Bare_Document_Record'
           (Kind    => Document_Command,
@@ -344,22 +347,22 @@ package body Prettier_Ada.Documents.Builders is
 
    function Literal_Line return Document_Type
    is
-      Hard_Line_Command       : constant Command_Access :=
+      Literal_Line_Command       : constant Command_Access :=
         new Command_Type'
               (Kind    => Command_Line,
                Literal => True,
                Hard    => False,
                Soft    => False);
-      Hard_Line_Bare_Document : constant Bare_Document_Access :=
+      Literal_Line_Bare_Document : constant Bare_Document_Access :=
         new Bare_Document_Record'
           (Kind    => Document_Command,
            Id      => New_Document_Id,
-           Command => Hard_Line_Command);
-      Hard_Line_Document      : constant Document_Type :=
-        (Bare_Document => Hard_Line_Bare_Document);
+           Command => Literal_Line_Command);
+      Literal_Line_Document      : constant Document_Type :=
+        (Bare_Document => Literal_Line_Bare_Document);
 
    begin
-      return List ([Hard_Line_Document, Break_Parent]);
+      return List ([Literal_Line_Document, Break_Parent]);
    end Literal_Line;
 
    ------------------------------------
