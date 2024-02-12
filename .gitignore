@@ -16,3 +16,6 @@ testsuite/out
 
 # Clang-Format Style Options
 .clang-format
+
+# Ignore VS Code settings (possibly modified by ancr)
+.vscode
