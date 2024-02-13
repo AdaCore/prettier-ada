@@ -120,6 +120,10 @@ package body Prettier_Ada.Documents.Json is
                         Data := Create_Object;
                         Data.Set_Field ("kind", "root");
 
+                     when Inner_Root =>
+                        Data := Create_Object;
+                        Data.Set_Field ("kind", "innerRoot");
+
                      when None =>
                         Data := Create;
                   end case;
@@ -596,6 +600,7 @@ package body Prettier_Ada.Documents.Json is
                        (if Command_Kind = "dedentToRoot" then Dedent_To_Root
                         elsif Command_Kind = "dedent" then Dedent
                         elsif Command_Kind = "root" then Root
+                        elsif Command_Kind = "innerRoot" then Inner_Root
                         elsif Command_Kind = "text" then Text
                         elsif Command_Kind = "width" then Width
                         else raise Program_Error)));
@@ -607,6 +612,8 @@ package body Prettier_Ada.Documents.Json is
                       Alignment_Data_Type'(Kind => Dedent),
                     when Root =>
                       Alignment_Data_Type'(Kind => Root),
+                    when Inner_Root =>
+                      Alignment_Data_Type'(Kind => Inner_Root),
                     when Text =>
                       Alignment_Data_Type'
                         (Kind => Text,

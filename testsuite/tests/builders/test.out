@@ -93,6 +93,114 @@ A B
 }
 > Align Document 2 Formatted:
 A B
+> Align Document 3 JSON:
+{
+  "id": 26,
+  "kind": "command",
+  "command": {
+    "command": "indent",
+    "indentContents": {
+      "id": 25,
+      "kind": "list",
+      "list": [
+        {
+          "id": 15,
+          "kind": "text",
+          "text": "begin"
+        },
+        {
+          "id": 18,
+          "kind": "list",
+          "list": [
+            {
+              "id": 16,
+              "kind": "command",
+              "command": {
+                "command": "line",
+                "literal": false,
+                "soft": false,
+                "hard": true
+              }
+            },
+            {
+              "id": 17,
+              "kind": "command",
+              "command": {
+                "command": "breakParent"
+              }
+            }
+          ]
+        },
+        {
+          "id": 19,
+          "kind": "text",
+          "text": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+        },
+        {
+          "id": 20,
+          "kind": "text",
+          "text": "("
+        },
+        {
+          "id": 23,
+          "kind": "command",
+          "command": {
+            "command": "align",
+            "alignData": {
+              "kind": "innerRoot"
+            },
+            "alignContents": {
+              "id": 22,
+              "kind": "command",
+              "command": {
+                "command": "fill",
+                "parts": {
+                  "id": 21,
+                  "kind": "list",
+                  "list": [
+                    {
+                      "id": 12,
+                      "kind": "text",
+                      "text": "BBBBBBBBBBBBBBBBBBBB,"
+                    },
+                    {
+                      "id": 13,
+                      "kind": "command",
+                      "command": {
+                        "command": "line",
+                        "literal": false,
+                        "soft": false,
+                        "hard": false
+                      }
+                    },
+                    {
+                      "id": 14,
+                      "kind": "text",
+                      "text": "CCCCCCCCCCCCCCCCCCCC"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        {
+          "id": 24,
+          "kind": "text",
+          "text": ")"
+        }
+      ]
+    }
+  }
+}
+> Align Document 3 Formatted:
+begin
+  AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA(BBBBBBBBBBBBBBBBBBBB,
+                                                 CCCCCCCCCCCCCCCCCCCC)
+> Align Document 3 Formatted with Tabs:
+begin
+	AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA(BBBBBBBBBBBBBBBBBBBB,
+	                                               CCCCCCCCCCCCCCCCCCCC)
 
 === Break_Parent ===
 > Break_Parent Document JSON:
