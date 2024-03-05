@@ -21,7 +21,12 @@ package body Prettier_Ada.Documents.Builders is
       Bare_Document : constant Bare_Document_Access :=
         new Bare_Document_Record'
           (Kind => Document_Text,
-           Text => VSS.Strings.Conversions.To_Virtual_String (T),
+           Text =>
+             (declare
+                T_VSS : constant VSS.Strings.Virtual_String :=
+                  VSS.Strings.Conversions.To_Virtual_String (T);
+              begin
+                (T_VSS, Fast_Display_Width (T_VSS))),
            Id   => New_Document_Id);
 
    begin
@@ -261,7 +266,9 @@ package body Prettier_Ada.Documents.Builders is
    is
       Command       : constant Command_Type :=
         (Kind           => Command_Label,
-         Text           => VSS.Strings.Conversions.To_Virtual_String (Text),
+         Text           =>
+           (VSS.Strings.Conversions.To_Virtual_String (Text),
+            0), -- Labels aren't formatted so their display width is irrelevant
          Label_Contents => Contents);
       Bare_Document : constant Bare_Document_Access :=
         new Bare_Document_Record'

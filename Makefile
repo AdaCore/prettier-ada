@@ -41,6 +41,8 @@ all-libs:
 clean:
 	rm -rf lib;
 	rm -rf obj;
+	rm -rf testsuite/test_programs/bin;
+	rm -rf testsuite/test_programs/obj;
 
 .PHONY: install
 install: install-lib

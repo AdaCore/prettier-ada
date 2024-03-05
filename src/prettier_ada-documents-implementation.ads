@@ -17,6 +17,13 @@ with VSS.Strings;
 
 private package Prettier_Ada.Documents.Implementation is
 
+   function Fast_Display_Width
+     (Text : VSS.Strings.Virtual_String)
+      return Natural;
+   --  Checks if Text consists of only ASCII characters. If so, returns the
+   --  the character count of it. Otherwise dispatches to
+   --  VSS.Strings.Utilities.Display_Width.
+
    function "=" (Left, Right : Document_Type) return Boolean;
    --  Checks that both Left and Right refer to the same document
 
@@ -54,7 +61,17 @@ private package Prettier_Ada.Documents.Implementation is
    --  TODO: Address how this global mutable state affects multi-threaded
    --  programs.
 
-   subtype Prettier_String is VSS.Strings.Virtual_String;
+   type Prettier_String is
+     record
+       Text          : VSS.Strings.Virtual_String :=
+         VSS.Strings.Empty_Virtual_String;
+       Display_Width : Natural := 0;
+       --  Display_Width is used to cache Text's display width since it's a
+       --  costly computation that needs to be computed often.
+     end record;
+
+   Empty_Prettier_String : constant Prettier_String :=
+     (VSS.Strings.Empty_Virtual_String, 0);
 
    type Command_Kind is
      (Command_Align,
