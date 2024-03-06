@@ -1,0 +1,23 @@
+{
+    "ada.projectFile": "prettier_ada.gpr",
+    "files.associations": {
+        // Treat the settings template file as JSON so it benefits from linting
+        // and formatting
+        "*.json.tmpl": "jsonc"
+    },
+    "files.watcherExclude": {
+        "**/.git/objects/**": true,
+        "**/.git/subtree-cache/**": true,
+        "**/lib/**": true,
+        "**/obj/**": true,
+        "**/out/**": true,
+        "**/bin/**": true,
+        "**/testsuite/tests/prettier/**": true
+    },
+    "terminal.integrated.env.linux": {
+        "BUILD_MODE": "dev",
+        "GPR_PROJECT_PATH": "${workspaceFolder}/:${workspaceFolder}/../../wave/x86_64-linux/vss-edge/install/share/gpr:${env:GPR_PROJECT_PATH}",
+        "LD_LIBRARY_PATH": "${workspaceFolder}/lib/relocatable/dev:${workspaceFolder}/../../wave/x86_64-linux/nodejs_16.19.1/install/lib:${workspaceFolder}/../../wave/x86_64-linux/vss-edge/install/lib:${workspaceFolder}/../../wave/x86_64-linux/gnat/install/lib/gcc/x86_64-pc-linux-gnu/13.2.1/rts-native/adalib:${workspaceFolder}/../../wave/x86_64-linux/gnat/install/lib64:${workspaceFolder}/../../wave/x86_64-linux/gnat/install/lib:${workspaceFolder}/../../wave/x86_64-linux/stable-gps/install/lib:${env:LD_LIBRARY_PATH}",
+        "PATH": "${workspaceFolder}/testsuite/test_programs/bin/:${workspaceFolder}/../../wave/x86_64-linux/nodejs_16.19.1/install/bin:${workspaceFolder}/../../wave/x86_64-linux/gnat/install/bin:${workspaceFolder}/../../wave/x86_64-linux/stable-gps/install/bin:${workspaceFolder}/../../venv/bin:${env:PATH}"
+    }
+}
