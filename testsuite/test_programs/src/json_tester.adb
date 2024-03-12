@@ -31,11 +31,11 @@ begin
 
    declare
       Filename : constant String := Argument (1);
-      Text     : constant String_Access :=
-        GNATCOLL.VFS.Read_File (Create (+Filename));
+      Text     : String_Access := GNATCOLL.VFS.Read_File (Create (+Filename));
       Doc      : Document_Type;
    begin
       Doc := Deserialize (Text.all);
+      Free (Text);
       Put_Line (Serialize (Doc));
    end;
 end JSON_Tester;
