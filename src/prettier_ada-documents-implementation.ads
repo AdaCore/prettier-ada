@@ -17,13 +17,6 @@ with VSS.Strings;
 
 private package Prettier_Ada.Documents.Implementation is
 
-   function Fast_Display_Width
-     (Text : VSS.Strings.Virtual_String)
-      return VSS.Strings.Display_Cell_Count;
-   --  Checks if Text consists of only ASCII characters. If so, returns the
-   --  the character count of it. Otherwise dispatches to
-   --  VSS.Strings.Utilities.Display_Width.
-
    function "=" (Left, Right : Document_Type) return Boolean;
    --  Checks that both Left and Right refer to the same document
 

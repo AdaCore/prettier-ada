@@ -4,6 +4,7 @@
 --
 
 with VSS.Strings.Conversions;
+with VSS.Strings.Utilities;
 
 with Prettier_Ada.Documents.Implementation;
 use Prettier_Ada.Documents.Implementation;
@@ -26,7 +27,7 @@ package body Prettier_Ada.Documents.Builders is
                 T_VSS : constant VSS.Strings.Virtual_String :=
                   VSS.Strings.Conversions.To_Virtual_String (T);
               begin
-                (T_VSS, Fast_Display_Width (T_VSS))),
+                (T_VSS, VSS.Strings.Utilities.Display_Width (T_VSS))),
            Id   => New_Document_Id);
 
    begin

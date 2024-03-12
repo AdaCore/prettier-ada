@@ -241,49 +241,6 @@ package body Prettier_Ada.Documents.Implementation is
       end if;
    end Break_Parent_Group;
 
-   ------------------------
-   -- Fast_Display_Width --
-   ------------------------
-
-   function Fast_Display_Width
-     (Text : VSS.Strings.Virtual_String)
-      return VSS.Strings.Display_Cell_Count
-   is
-      function Is_ASCII (Item : VSS.Strings.Virtual_String) return Boolean;
-      --  Check if Text consists of only ASCII characters
-
-      --------------
-      -- Is_ASCII --
-      --------------
-
-      function Is_ASCII (Item : VSS.Strings.Virtual_String) return Boolean is
-         J : constant VSS.Strings.Character_Iterators.Character_Iterator :=
-           Item.At_Last_Character;
-
-      begin
-         --  This implementation is based on fact that all ASCII characters are
-         --- encoded by the single byte in UTF-8 encoding.
-
-         if Item.Is_Empty then
-            return True;
-
-         elsif Integer (J.Last_UTF8_Offset) + Integer (1)
-                 = Integer (J.Character_Index)
-         then
-            return True;
-
-         else
-            return False;
-         end if;
-      end Is_ASCII;
-
-   begin
-      return
-        (if Is_ASCII (Text)
-         then VSS.Strings.Display_Cell_Count (Text.Character_Length)
-         else VSS.Strings.Utilities.Display_Width (Text));
-   end Fast_Display_Width;
-
    ----------
    -- Fits --
    ----------
@@ -1689,7 +1646,7 @@ package body Prettier_Ada.Documents.Implementation is
                          VSS.Strings.Conversions.To_Virtual_String
                            (Align_Data.T);
                      begin
-                       (Text, Fast_Display_Width (Text)))),
+                       (Text, VSS.Strings.Utilities.Display_Width (Text)))),
                  Options.Indentation);
 
          when Dedent_To_Root =>
@@ -1922,7 +1879,7 @@ package body Prettier_Ada.Documents.Implementation is
                 Text_VSS : constant VSS.Strings.Virtual_String :=
                   VSS.Strings.To_Virtual_String (Text);
               begin
-                (Text_VSS, Fast_Display_Width (Text_VSS))),
+                (Text_VSS, VSS.Strings.Utilities.Display_Width (Text_VSS))),
            Id   => New_Document_Id);
 
    begin

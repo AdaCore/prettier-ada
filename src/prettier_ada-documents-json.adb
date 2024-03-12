@@ -3,10 +3,14 @@
 --  SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 --
 
-with GNATCOLL.JSON;
 with Ada.Containers;
 with Ada.Containers.Hashed_Maps;
+
 with VSS.Strings.Conversions;
+with VSS.Strings.Utilities;
+
+with GNATCOLL.JSON;
+
 with Prettier_Ada.Documents.Implementation;
 use Prettier_Ada.Documents.Implementation;
 with Prettier_Ada.Document_Vectors;
@@ -370,7 +374,7 @@ package body Prettier_Ada.Documents.Json is
               VSS.Strings.Conversions.To_Virtual_String
                 (UTF8_String'(Get (Json)));
             Display_Width : constant VSS.Strings.Display_Cell_Count :=
-              Fast_Display_Width (Text);
+              VSS.Strings.Utilities.Display_Width (Text);
 
          begin
             return
@@ -781,7 +785,7 @@ package body Prettier_Ada.Documents.Json is
               VSS.Strings.Conversions.To_Virtual_String
                 (UTF8_String'(Get (Json, "text")));
             Display_Width : constant VSS.Strings.Display_Cell_Count :=
-              Fast_Display_Width (Text);
+              VSS.Strings.Utilities.Display_Width (Text);
 
          begin
             return
