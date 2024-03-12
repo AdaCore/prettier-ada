@@ -14,6 +14,12 @@ with Prettier_Ada.Document_Vectors;
 package body Prettier_Ada.Documents.Json is
    subtype Document_Vector is Prettier_Ada.Document_Vectors.Vector;
 
+   function Wrap_Command
+     (Command : Command_Access; Id : Natural) return Document_Type
+   is (Bare_Document => new Bare_Document_Record'
+                              (Document_Command, Id, Command));
+   --  Allocate a new document to wrap the given command
+
    function Serialize
      (Document : Document_Type) return GNATCOLL.JSON.JSON_Value;
    --  Serialize a document into a JSON representation
@@ -416,152 +422,65 @@ package body Prettier_Ada.Documents.Json is
          is
             Command_Text : constant UTF8_String :=  Get (Json, "command");
 
-            Kind : constant Document_Kind := Document_Command;
-
          begin
             if Command_Text = "align" then
-               declare
-                  Command : constant Command_Access :=
-                     new Command_Type'(To_Command_Align (Json));
-               begin
-                  return
-                     Document_Type'
-                       (Bare_Document =>
-                          new Bare_Document_Record'(Kind, Id, Command));
-               end;
+               return
+                 Wrap_Command (new Command_Type'(To_Command_Align (Json)), Id);
 
             elsif Command_Text = "breakParent" then
-               declare
-                  Command : constant Command_Access :=
-                     new Command_Type'(To_Command_Break_Parent (Json));
-               begin
-                  return
-                     Document_Type'
-                       (Bare_Document =>
-                          new Bare_Document_Record'(Kind, Id, Command));
-               end;
+               return
+                 Wrap_Command
+                   (new Command_Type'(To_Command_Break_Parent (Json)), Id);
 
             elsif Command_Text = "cursor" then
-               declare
-                  Command : constant Command_Access :=
-                     new Command_Type'(To_Cursor (Json));
-               begin
-                  return
-                     Document_Type'
-                       (Bare_Document =>
-                          new Bare_Document_Record'(Kind, Id, Command));
-               end;
+               return
+                 Wrap_Command (new Command_Type'(To_Cursor (Json)), Id);
 
             elsif Command_Text = "fill" then
-               declare
-                  Command : constant Command_Access :=
-                     new Command_Type'(To_Command_Fill (Json));
-               begin
-                  return
-                     Document_Type'
-                       (Bare_Document =>
-                          new Bare_Document_Record'(Kind, Id, Command));
-               end;
+               return
+                 Wrap_Command (new Command_Type'(To_Command_Fill (Json)), Id);
 
             elsif Command_Text = "group" then
-               declare
-                  Command : constant Command_Access :=
-                     new Command_Type'(To_Command_Group (Json));
-               begin
-                  return
-                     Document_Type'
-                       (Bare_Document =>
-                          new Bare_Document_Record'(Kind, Id, Command));
-               end;
+               return
+                 Wrap_Command (new Command_Type'(To_Command_Group (Json)), Id);
 
             elsif Command_Text = "ifBreak" then
-               declare
-                  Command : constant Command_Access :=
-                     new Command_Type'(To_Command_If_Break (Json));
-               begin
-                  return
-                     Document_Type'
-                       (Bare_Document =>
-                          new Bare_Document_Record'(Kind, Id, Command));
-               end;
+               return
+                 Wrap_Command
+                   (new Command_Type'(To_Command_If_Break (Json)), Id);
 
             elsif Command_Text = "indent" then
-               declare
-                  Command : constant Command_Access :=
-                     new Command_Type'(To_Command_Indent (Json));
-               begin
-                  return
-                     Document_Type'
-                       (Bare_Document =>
-                          new Bare_Document_Record'(Kind, Id, Command));
-               end;
+               return
+                 Wrap_Command
+                   (new Command_Type'(To_Command_Indent (Json)), Id);
 
             elsif Command_Text = "indentIfBreak" then
-               declare
-                  Command : constant Command_Access :=
-                     new Command_Type'(To_Command_Indent_If_Break (Json));
-               begin
-                  return
-                     Document_Type'
-                       (Bare_Document =>
-                          new Bare_Document_Record'(Kind, Id, Command));
-               end;
+               return
+                 Wrap_Command
+                   (new Command_Type'(To_Command_Indent_If_Break (Json)), Id);
 
             elsif Command_Text = "line" then
-               declare
-                  Command : constant Command_Access :=
-                     new Command_Type'(To_Command_Line (Json));
-               begin
-                  return
-                     Document_Type'
-                       (Bare_Document =>
-                          new Bare_Document_Record'(Kind, Id, Command));
-               end;
+               return
+                 Wrap_Command (new Command_Type'(To_Command_Line (Json)), Id);
 
             elsif Command_Text = "label" then
-               declare
-                  Command : constant Command_Access :=
-                     new Command_Type'(To_Command_Label (Json));
-               begin
-                  return
-                     Document_Type'
-                       (Bare_Document =>
-                          new Bare_Document_Record'(Kind, Id, Command));
-               end;
+               return
+                 Wrap_Command (new Command_Type'(To_Command_Label (Json)), Id);
 
             elsif Command_Text = "lineSuffix" then
-               declare
-                  Command : constant Command_Access :=
-                     new Command_Type'(To_Command_Line_Suffix (Json));
-               begin
-                  return
-                     Document_Type'
-                       (Bare_Document =>
-                          new Bare_Document_Record'(Kind, Id, Command));
-               end;
+               return
+                 Wrap_Command
+                   (new Command_Type'(To_Command_Line_Suffix (Json)), Id);
 
             elsif Command_Text = "lineSuffixBoundary" then
-               declare
-                  Command : constant Command_Access :=
-                     new Command_Type'
-                           (To_Command_Line_Suffix_Boundary (Json));
-               begin
-                  return
-                     Document_Type'
-                       (Bare_Document =>
-                          new Bare_Document_Record'(Kind, Id, Command));
-               end;
+               return
+                 Wrap_Command
+                   (new Command_Type'(To_Command_Line_Suffix_Boundary (Json)),
+                    Id);
 
             elsif Command_Text = "trim" then
-               declare
-                  Command : constant Command_Access :=
-                     new Command_Type'(To_Command_Trim (Json));
-               begin
-                  return
-                     Document_Type'
-                       (Bare_Document =>
-                          new Bare_Document_Record'(Kind, Id, Command));
-               end;
+               return
+                 Wrap_Command (new Command_Type'(To_Command_Trim (Json)), Id);
 
             else
                --  TODO: Raise a better exception
