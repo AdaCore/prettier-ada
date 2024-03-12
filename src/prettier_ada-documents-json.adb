@@ -369,7 +369,8 @@ package body Prettier_Ada.Documents.Json is
             Text          : constant VSS.Strings.Virtual_String :=
               VSS.Strings.Conversions.To_Virtual_String
                 (UTF8_String'(Get (Json)));
-            Display_Width : constant Natural := Fast_Display_Width (Text);
+            Display_Width : constant VSS.Strings.Display_Cell_Count :=
+              Fast_Display_Width (Text);
 
          begin
             return
@@ -776,10 +777,11 @@ package body Prettier_Ada.Documents.Json is
            (Json : GNATCOLL.JSON.JSON_Value)
             return Command_Type
          is
-            Text : constant VSS.Strings.Virtual_String :=
+            Text          : constant VSS.Strings.Virtual_String :=
               VSS.Strings.Conversions.To_Virtual_String
                 (UTF8_String'(Get (Json, "text")));
-            Display_Width : constant Natural := Fast_Display_Width (Text);
+            Display_Width : constant VSS.Strings.Display_Cell_Count :=
+              Fast_Display_Width (Text);
 
          begin
             return

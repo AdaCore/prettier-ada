@@ -1,5 +1,5 @@
 --
---  Copyright (C) 2023, AdaCore
+--  Copyright (C) 2023-2024, AdaCore
 --  SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 --
 
@@ -19,7 +19,7 @@ private package Prettier_Ada.Documents.Implementation is
 
    function Fast_Display_Width
      (Text : VSS.Strings.Virtual_String)
-      return Natural;
+      return VSS.Strings.Display_Cell_Count;
    --  Checks if Text consists of only ASCII characters. If so, returns the
    --  the character count of it. Otherwise dispatches to
    --  VSS.Strings.Utilities.Display_Width.
@@ -63,9 +63,8 @@ private package Prettier_Ada.Documents.Implementation is
 
    type Prettier_String is
      record
-       Text          : VSS.Strings.Virtual_String :=
-         VSS.Strings.Empty_Virtual_String;
-       Display_Width : Natural := 0;
+       Text          : VSS.Strings.Virtual_String;
+       Display_Width : VSS.Strings.Display_Cell_Count := 0;
        --  Display_Width is used to cache Text's display width since it's a
        --  costly computation that needs to be computed often.
      end record;
