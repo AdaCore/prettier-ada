@@ -12,8 +12,9 @@ package body Prettier_Ada.Documents.Builders is
 
    function Wrap_Command
      (Command : Command_Access) return Document_Type
-   is (Bare_Document => new Bare_Document_Record'
-                              (Document_Command, New_Document_Id, Command));
+   is (Ada.Finalization.Controlled with
+       Bare_Document => new Bare_Document_Record'
+                              (Document_Command, 1, New_Document_Id, Command));
    --  Allocate a new document to wrap the given command
 
    ----------
@@ -26,12 +27,13 @@ package body Prettier_Ada.Documents.Builders is
    is
       Bare_Document : constant Bare_Document_Access :=
         new Bare_Document_Record'
-          (Kind => Document_Text,
-           Text => VSS.Strings.Conversions.To_Virtual_String (T),
-           Id   => New_Document_Id);
+          (Kind      => Document_Text,
+           Ref_Count => 1,
+           Text      => VSS.Strings.Conversions.To_Virtual_String (T),
+           Id        => New_Document_Id);
 
    begin
-      return Document_Type'(Bare_Document => Bare_Document);
+      return (Ada.Finalization.Controlled with Bare_Document => Bare_Document);
    end Text;
 
    -----------
@@ -44,12 +46,13 @@ package body Prettier_Ada.Documents.Builders is
    is
       Bare_Document : constant Bare_Document_Access :=
         new Bare_Document_Record'
-          (Kind => Document_List,
-           Id   => New_Document_Id,
-           List => Documents);
+          (Kind      => Document_List,
+           Ref_Count => 1,
+           Id        => New_Document_Id,
+           List      => Documents);
 
    begin
-      return Document_Type'(Bare_Document => Bare_Document);
+      return (Ada.Finalization.Controlled with Bare_Document => Bare_Document);
    end List;
 
    -----------

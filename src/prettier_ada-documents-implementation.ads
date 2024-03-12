@@ -130,7 +130,8 @@ private package Prettier_Ada.Documents.Implementation is
    type Document_Kind is (Document_Text, Document_List, Document_Command);
 
    type Bare_Document_Record (Kind : Document_Kind) is record
-      Id : Natural;
+      Ref_Count : Natural;
+      Id        : Natural;
       case Kind is
          when Document_Text =>
             Text : Prettier_String;

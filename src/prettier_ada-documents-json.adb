@@ -16,8 +16,9 @@ package body Prettier_Ada.Documents.Json is
 
    function Wrap_Command
      (Command : Command_Access; Id : Natural) return Document_Type
-   is (Bare_Document => new Bare_Document_Record'
-                              (Document_Command, Id, Command));
+   is (Ada.Finalization.Controlled with
+       Bare_Document => new Bare_Document_Record'
+                              (Document_Command, 1, Id, Command));
    --  Allocate a new document to wrap the given command
 
    function Serialize
@@ -373,14 +374,15 @@ package body Prettier_Ada.Documents.Json is
          is
          begin
             return
-              Document_Type'
-                (Bare_Document =>
-                   new Bare_Document_Record'
-                         (Kind => Document_Text,
-                          Id   => Id,
-                          Text =>
-                            VSS.Strings.Conversions.To_Virtual_String
-                              (UTF8_String'(Get (Json)))));
+              (Ada.Finalization.Controlled with
+               Bare_Document =>
+                 new Bare_Document_Record'
+                       (Kind      => Document_Text,
+                        Ref_Count => 1,
+                        Id        => Id,
+                        Text      =>
+                          VSS.Strings.Conversions.To_Virtual_String
+                            (UTF8_String'(Get (Json)))));
          end To_Document_Text;
 
          ----------------------
@@ -403,12 +405,13 @@ package body Prettier_Ada.Documents.Json is
             end loop;
 
             return
-              Document_Type'
-                (Bare_Document =>
-                   new Bare_Document_Record'
-                         (Kind => Document_List,
-                          Id   => Id,
-                          List => Documents));
+              (Ada.Finalization.Controlled with
+               Bare_Document =>
+                 new Bare_Document_Record'
+                       (Kind      => Document_List,
+                        Ref_Count => 1,
+                        Id        => Id,
+                        List      => Documents));
          end To_Document_List;
 
          -------------------------

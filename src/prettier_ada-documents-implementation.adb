@@ -1876,12 +1876,13 @@ package body Prettier_Ada.Documents.Implementation is
    is
       Bare_Document : constant Bare_Document_Access :=
         new Bare_Document_Record'
-          (Kind => Document_Text,
-           Text => VSS.Strings.To_Virtual_String (Text),
-           Id   => New_Document_Id);
+          (Kind      => Document_Text,
+           Ref_Count => 1,
+           Text      => VSS.Strings.To_Virtual_String (Text),
+           Id        => New_Document_Id);
 
    begin
-      return Document_Type'(Bare_Document => Bare_Document);
+      return (Ada.Finalization.Controlled with Bare_Document => Bare_Document);
    end To_Document_Type;
 
    -----------------------
