@@ -10,6 +10,13 @@ use Prettier_Ada.Documents.Implementation;
 
 package body Prettier_Ada.Documents.Builders is
 
+   function Wrap_Command
+     (Command : Command_Access) return Document_Type
+   is (Ada.Finalization.Controlled with
+       Bare_Document => new Bare_Document_Record'
+                              (Document_Command, 1, New_Document_Id, Command));
+   --  Allocate a new document to wrap the given command
+
    ----------
    -- Text --
    ----------
@@ -20,12 +27,13 @@ package body Prettier_Ada.Documents.Builders is
    is
       Bare_Document : constant Bare_Document_Access :=
         new Bare_Document_Record'
-          (Kind => Document_Text,
-           Text => VSS.Strings.Conversions.To_Virtual_String (T),
-           Id   => New_Document_Id);
+          (Kind      => Document_Text,
+           Ref_Count => 1,
+           Text      => VSS.Strings.Conversions.To_Virtual_String (T),
+           Id        => New_Document_Id);
 
    begin
-      return Document_Type'(Bare_Document => Bare_Document);
+      return (Ada.Finalization.Controlled with Bare_Document => Bare_Document);
    end Text;
 
    -----------
@@ -38,12 +46,13 @@ package body Prettier_Ada.Documents.Builders is
    is
       Bare_Document : constant Bare_Document_Access :=
         new Bare_Document_Record'
-          (Kind => Document_List,
-           Id   => New_Document_Id,
-           List => Documents);
+          (Kind      => Document_List,
+           Ref_Count => 1,
+           Id        => New_Document_Id,
+           List      => Documents);
 
    begin
-      return Document_Type'(Bare_Document => Bare_Document);
+      return (Ada.Finalization.Controlled with Bare_Document => Bare_Document);
    end List;
 
    -----------
@@ -55,18 +64,12 @@ package body Prettier_Ada.Documents.Builders is
       Contents : Document_Type)
       return Document_Type
    is
-      Command       : constant Command_Type :=
-        (Kind            => Command_Align,
-         Align_Data      => Data,
-         Align_Contents  => Contents);
-      Bare_Document : constant Bare_Document_Access :=
-        new Bare_Document_Record'
-          (Kind    => Document_Command,
-           Id      => New_Document_Id,
-           Command => new Command_Type'(Command));
-
    begin
-      return Document_Type'(Bare_Document => Bare_Document);
+      return
+        Wrap_Command
+          (new Command_Type'(Kind            => Command_Align,
+                             Align_Data      => Data,
+                             Align_Contents  => Contents));
    end Align;
 
    -----------
@@ -85,15 +88,8 @@ package body Prettier_Ada.Documents.Builders is
 
    function Break_Parent return Document_Type
    is
-      Command       : constant Command_Type := (Kind => Command_Break_Parent);
-      Bare_Document : constant Bare_Document_Access :=
-        new Bare_Document_Record'
-          (Kind    => Document_Command,
-           Id      => New_Document_Id,
-           Command => new Command_Type'(Command));
-
    begin
-      return Document_Type'(Bare_Document => Bare_Document);
+      return Wrap_Command (new Command_Type'(Kind => Command_Break_Parent));
    end Break_Parent;
 
    ------------
@@ -102,16 +98,11 @@ package body Prettier_Ada.Documents.Builders is
 
    function Cursor return Document_Type
    is
-      Command       : constant Command_Type :=
-        (Kind => Command_Cursor, Place_Holder => New_Symbol);
-      Bare_Document : constant Bare_Document_Access :=
-        new Bare_Document_Record'
-          (Kind    => Document_Command,
-           Id      => New_Document_Id,
-           Command => new Command_Type'(Command));
-
    begin
-      return Document_Type'(Bare_Document => Bare_Document);
+      return
+        Wrap_Command
+          (new Command_Type'(Kind => Command_Cursor,
+                             Place_Holder => New_Symbol));
    end Cursor;
 
    ----------
@@ -122,20 +113,15 @@ package body Prettier_Ada.Documents.Builders is
      (Parts : Document_Type)
       return Document_Type
    is
-      Command        : constant Command_Type :=
-        (Kind   => Command_Fill,
-         Parts  =>
-           (if Parts.Bare_Document.Kind = Document_List
-            then Parts
-            else List ([Parts])));
-      Bare_Document : constant Bare_Document_Access :=
-        new Bare_Document_Record'
-          (Kind    => Document_Command,
-           Id      => New_Document_Id,
-           Command => new Command_Type'(Command));
-
    begin
-      return Document_Type'(Bare_Document => Bare_Document);
+      return
+        Wrap_Command
+          (new Command_Type'
+             (Kind   => Command_Fill,
+              Parts  =>
+                (if Parts.Bare_Document.Kind = Document_List
+                 then Parts
+                 else List ([Parts]))));
    end Fill;
 
    ----------
@@ -156,20 +142,15 @@ package body Prettier_Ada.Documents.Builders is
       Options   : Group_Options_Type := No_Group_Options)
       return Document_Type
    is
-      Command        : constant Command_Type :=
-        (Kind            => Command_Group,
-         Id              => Options.Id,
-         Group_Contents  => Documents,
-         Break           => Options.Should_Break,
-         Expanded_States => Options.Expanded_States);
-      Bare_Document : constant Bare_Document_Access :=
-        new Bare_Document_Record'
-          (Kind    => Document_Command,
-           Id      => New_Document_Id,
-           Command => new Command_Type'(Command));
-
    begin
-      return Document_Type'(Bare_Document => Bare_Document);
+      return
+        Wrap_Command
+          (new Command_Type'
+             (Kind            => Command_Group,
+              Id              => Options.Id,
+              Group_Contents  => Documents,
+              Break           => Options.Should_Break,
+              Expanded_States => Options.Expanded_States));
    end Group;
 
    -----------
@@ -192,19 +173,14 @@ package body Prettier_Ada.Documents.Builders is
       Options        : If_Break_Options_Type := No_If_Break_Options)
       return Document_Type
    is
-      Command        : constant Command_Type :=
-        (Kind              => Command_If_Break,
-         If_Break_Group_Id => Options.Group_Id,
-         Break_Contents    => Break_Contents,
-         Flat_Contents     => Flat_Contents);
-      Bare_Document : constant Bare_Document_Access :=
-        new Bare_Document_Record'
-          (Kind    => Document_Command,
-           Id      => New_Document_Id,
-           Command => new Command_Type'(Command));
-
    begin
-      return Document_Type'(Bare_Document => Bare_Document);
+      return
+        Wrap_Command
+          (new Command_Type'
+             (Kind              => Command_If_Break,
+              If_Break_Group_Id => Options.Group_Id,
+              Break_Contents    => Break_Contents,
+              Flat_Contents     => Flat_Contents));
    end If_Break;
 
    ------------
@@ -213,17 +189,12 @@ package body Prettier_Ada.Documents.Builders is
 
    function Indent (Contents : Document_Type) return Document_Type
    is
-      Command       : constant Command_Type :=
-        (Kind            => Command_Indent,
-         Indent_Contents => Contents);
-      Bare_Document : constant Bare_Document_Access :=
-        new Bare_Document_Record'
-          (Kind    => Document_Command,
-           Id      => New_Document_Id,
-           Command => new Command_Type'(Command));
-
    begin
-      return Document_Type'(Bare_Document => Bare_Document);
+      return
+        Wrap_Command
+          (new Command_Type'
+             (Kind            => Command_Indent,
+              Indent_Contents => Contents));
    end Indent;
 
    ---------------------
@@ -235,19 +206,14 @@ package body Prettier_Ada.Documents.Builders is
       Options : Indent_If_Break_Options_Type := No_Indent_If_Break_Options)
       return Document_Type
    is
-      Command       : constant Command_Type :=
-        (Kind                     => Command_Indent_If_Break,
-         Indent_If_Break_Contents => Contents,
-         Indent_If_Break_Group_Id => Options.Group_Id,
-         Negate                   => Options.Negate);
-      Bare_Document : constant Bare_Document_Access :=
-        new Bare_Document_Record'
-          (Kind    => Document_Command,
-           Id      => New_Document_Id,
-           Command => new Command_Type'(Command));
-
    begin
-      return Document_Type'(Bare_Document => Bare_Document);
+      return
+        Wrap_Command
+          (new Command_Type'
+             (Kind                     => Command_Indent_If_Break,
+              Indent_If_Break_Contents => Contents,
+              Indent_If_Break_Group_Id => Options.Group_Id,
+              Negate                   => Options.Negate));
    end Indent_If_Break;
 
    -----------
@@ -259,18 +225,14 @@ package body Prettier_Ada.Documents.Builders is
       Contents : Document_Type)
       return Document_Type
    is
-      Command       : constant Command_Type :=
-        (Kind           => Command_Label,
-         Text           => VSS.Strings.Conversions.To_Virtual_String (Text),
-         Label_Contents => Contents);
-      Bare_Document : constant Bare_Document_Access :=
-        new Bare_Document_Record'
-          (Kind    => Document_Command,
-           Id      => New_Document_Id,
-           Command => new Command_Type'(Command));
-
    begin
-      return Document_Type'(Bare_Document => Bare_Document);
+      return
+        Wrap_Command
+          (new Command_Type'
+             (Kind           => Command_Label,
+              Text           => VSS.Strings.Conversions.To_Virtual_String
+                                  (Text),
+              Label_Contents => Contents));
    end Label;
 
    ----------
@@ -279,20 +241,14 @@ package body Prettier_Ada.Documents.Builders is
 
    function Line return Document_Type
    is
-      Command       : constant Command_Access :=
-        new Command_Type'
-              (Kind    => Command_Line,
-               Literal => False,
-               Hard    => False,
-               Soft    => False);
-      Bare_Document : constant Bare_Document_Access :=
-        new Bare_Document_Record'
-         (Kind    => Document_Command,
-          Id      => New_Document_Id,
-          Command => Command);
-
    begin
-      return Document_Type'(Bare_Document => Bare_Document);
+      return
+        Wrap_Command
+          (new Command_Type'
+             (Kind    => Command_Line,
+              Literal => False,
+              Hard    => False,
+              Soft    => False));
    end Line;
 
    ---------------
@@ -301,20 +257,14 @@ package body Prettier_Ada.Documents.Builders is
 
    function Soft_Line return Document_Type
    is
-      Command       : constant Command_Access :=
-        new Command_Type'
-              (Kind    => Command_Line,
-               Literal => False,
-               Hard    => False,
-               Soft    => True);
-      Bare_Document : constant Bare_Document_Access :=
-        new Bare_Document_Record'
-          (Kind    => Document_Command,
-           Id      => New_Document_Id,
-           Command => Command);
-
    begin
-      return Document_Type'(Bare_Document => Bare_Document);
+      return
+        Wrap_Command
+          (new Command_Type'
+             (Kind    => Command_Line,
+              Literal => False,
+              Hard    => False,
+              Soft    => True));
    end Soft_Line;
 
    ---------------
@@ -323,22 +273,16 @@ package body Prettier_Ada.Documents.Builders is
 
    function Hard_Line return Document_Type
    is
-      Command       : constant Command_Access :=
-        new Command_Type'
-              (Kind    => Command_Line,
-               Literal => False,
-               Hard    => True,
-               Soft    => False);
-      Hard_Line_Bare_Document      : constant Bare_Document_Access :=
-        new Bare_Document_Record'
-          (Kind    => Document_Command,
-           Id      => New_Document_Id,
-           Command => Command);
-      Hard_Line_Document : constant Document_Type :=
-        (Bare_Document => Hard_Line_Bare_Document);
+      Literal_Line_Document : constant Document_Type :=
+        Wrap_Command
+          (new Command_Type'
+             (Kind    => Command_Line,
+              Literal => False,
+              Hard    => True,
+              Soft    => False));
 
    begin
-      return List ([Hard_Line_Document, Break_Parent]);
+      return List ([Literal_Line_Document, Break_Parent]);
    end Hard_Line;
 
    ------------------
@@ -347,19 +291,13 @@ package body Prettier_Ada.Documents.Builders is
 
    function Literal_Line return Document_Type
    is
-      Literal_Line_Command       : constant Command_Access :=
-        new Command_Type'
-              (Kind    => Command_Line,
-               Literal => True,
-               Hard    => False,
-               Soft    => False);
-      Literal_Line_Bare_Document : constant Bare_Document_Access :=
-        new Bare_Document_Record'
-          (Kind    => Document_Command,
-           Id      => New_Document_Id,
-           Command => Literal_Line_Command);
-      Literal_Line_Document      : constant Document_Type :=
-        (Bare_Document => Literal_Line_Bare_Document);
+      Literal_Line_Document : constant Document_Type :=
+        Wrap_Command
+          (new Command_Type'
+             (Kind    => Command_Line,
+              Literal => True,
+              Hard    => False,
+              Soft    => False));
 
    begin
       return List ([Literal_Line_Document, Break_Parent]);
@@ -371,20 +309,14 @@ package body Prettier_Ada.Documents.Builders is
 
    function Hard_Line_Without_Break_Parent return Document_Type
    is
-      Command       : constant Command_Access :=
-        new Command_Type'
-              (Kind    => Command_Line,
-               Literal => False,
-               Hard    => True,
-               Soft    => False);
-      Bare_Document : constant Bare_Document_Access :=
-        new Bare_Document_Record'
-          (Kind    => Document_Command,
-           Id      => New_Document_Id,
-           Command => Command);
-
    begin
-      return Document_Type'(Bare_Document => Bare_Document);
+      return
+        Wrap_Command
+          (new Command_Type'
+             (Kind    => Command_Line,
+              Literal => False,
+              Hard    => True,
+              Soft    => False));
    end Hard_Line_Without_Break_Parent;
 
    ---------------------------------------
@@ -393,20 +325,14 @@ package body Prettier_Ada.Documents.Builders is
 
    function Literal_Line_Without_Break_Parent return Document_Type
    is
-      Command       : constant Command_Access :=
-        new Command_Type'
-              (Kind    => Command_Line,
-               Literal => True,
-               Hard    => False,
-               Soft    => False);
-      Bare_Document : constant Bare_Document_Access :=
-        new Bare_Document_Record'
-          (Kind    => Document_Command,
-           Id      => New_Document_Id,
-           Command => Command);
-
    begin
-      return Document_Type'(Bare_Document => Bare_Document);
+      return
+        Wrap_Command
+          (new Command_Type'
+             (Kind    => Command_Line,
+              Literal => True,
+              Hard    => False,
+              Soft    => False));
    end Literal_Line_Without_Break_Parent;
 
    ---------------------
@@ -415,18 +341,12 @@ package body Prettier_Ada.Documents.Builders is
 
    function Line_Suffix (Contents : Document_Type) return Document_Type
    is
-      Command       : constant Command_Access :=
-        new Command_Type'
-          (Kind                 => Command_Line_Suffix,
-           Line_Suffix_Contents => Contents);
-      Bare_Document : constant Bare_Document_Access :=
-        new Bare_Document_Record'
-         (Kind    => Document_Command,
-          Id      => New_Document_Id,
-          Command => Command);
-
    begin
-      return Document_Type'(Bare_Document => Bare_Document);
+      return
+        Wrap_Command
+          (new Command_Type'
+             (Kind                 => Command_Line_Suffix,
+              Line_Suffix_Contents => Contents));
    end Line_Suffix;
 
    ------------------------------
@@ -435,16 +355,9 @@ package body Prettier_Ada.Documents.Builders is
 
    function Line_Suffix_Boundary return Document_Type
    is
-      Command       : constant Command_Type :=
-        (Kind => Command_Line_Suffix_Boundary);
-      Bare_Document : constant Bare_Document_Access :=
-        new Bare_Document_Record'
-          (Kind    => Document_Command,
-           Id      => New_Document_Id,
-           Command => new Command_Type'(Command));
-
    begin
-      return Document_Type'(Bare_Document => Bare_Document);
+      return
+        Wrap_Command (new Command_Type'(Kind => Command_Line_Suffix_Boundary));
    end Line_Suffix_Boundary;
 
    ----------
@@ -453,15 +366,8 @@ package body Prettier_Ada.Documents.Builders is
 
    function Trim return Document_Type
    is
-      Command       : constant Command_Type      := (Kind => Command_Trim);
-      Bare_Document : constant Bare_Document_Access :=
-        new Bare_Document_Record'
-          (Kind    => Document_Command,
-           Id      => New_Document_Id,
-           Command => new Command_Type'(Command));
-
    begin
-      return Document_Type'(Bare_Document => Bare_Document);
+      return Wrap_Command (new Command_Type'(Kind => Command_Trim));
    end Trim;
 
    ----------

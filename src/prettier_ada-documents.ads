@@ -4,6 +4,7 @@
 --
 
 with Ada.Containers;
+private with Ada.Finalization;
 with Ada.Strings.Unbounded;
 
 limited private with Prettier_Ada.Documents.Implementation;
@@ -111,11 +112,15 @@ private
    type Bare_Document_Access is
      access all Prettier_Ada.Documents.Implementation.Bare_Document_Record;
 
-   type Document_Type is record
+   type Document_Type is new Ada.Finalization.Controlled with record
       Bare_Document : Bare_Document_Access := null;
    end record;
 
-   No_Document : constant Document_Type := (Bare_Document => null);
+   overriding procedure Adjust (Self : in out Document_Type);
+   overriding procedure Finalize (Self : in out Document_Type);
+
+   No_Document : constant Document_Type :=
+     (Ada.Finalization.Controlled with Bare_Document => null);
 
    type Symbol_Type is new Natural;
 
