@@ -104,16 +104,16 @@ A B
       "kind": "list",
       "list": [
         {
-          "id": 15,
+          "id": 12,
           "kind": "text",
           "text": "begin"
         },
         {
-          "id": 18,
+          "id": 15,
           "kind": "list",
           "list": [
             {
-              "id": 16,
+              "id": 13,
               "kind": "command",
               "command": {
                 "command": "line",
@@ -123,7 +123,7 @@ A B
               }
             },
             {
-              "id": 17,
+              "id": 14,
               "kind": "command",
               "command": {
                 "command": "breakParent"
@@ -132,12 +132,12 @@ A B
           ]
         },
         {
-          "id": 19,
+          "id": 16,
           "kind": "text",
           "text": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
         },
         {
-          "id": 20,
+          "id": 17,
           "kind": "text",
           "text": "("
         },
@@ -159,12 +159,12 @@ A B
                   "kind": "list",
                   "list": [
                     {
-                      "id": 12,
+                      "id": 18,
                       "kind": "text",
                       "text": "BBBBBBBBBBBBBBBBBBBB,"
                     },
                     {
-                      "id": 13,
+                      "id": 19,
                       "kind": "command",
                       "command": {
                         "command": "line",
@@ -174,7 +174,7 @@ A B
                       }
                     },
                     {
-                      "id": 14,
+                      "id": 20,
                       "kind": "text",
                       "text": "CCCCCCCCCCCCCCCCCCCC"
                     }
@@ -706,12 +706,12 @@ B C
             "command": "ifBreak",
             "ifBreakGroupId": 0,
             "breakContents": {
-              "id": 5,
+              "id": 4,
               "kind": "text",
               "text": "C"
             },
             "flatContents": {
-              "id": 4,
+              "id": 5,
               "kind": "text",
               "text": "D"
             }
@@ -775,12 +775,12 @@ C
             "command": "ifBreak",
             "ifBreakGroupId": 0,
             "breakContents": {
-              "id": 14,
+              "id": 13,
               "kind": "text",
               "text": "C"
             },
             "flatContents": {
-              "id": 13,
+              "id": 14,
               "kind": "text",
               "text": "D"
             }
@@ -921,16 +921,16 @@ A
   "kind": "list",
   "list": [
     {
-      "id": 0,
+      "id": 3,
       "kind": "text",
       "text": "A"
     },
     {
-      "id": 4,
+      "id": 2,
       "kind": "list",
       "list": [
         {
-          "id": 2,
+          "id": 0,
           "kind": "command",
           "command": {
             "command": "line",
@@ -940,7 +940,7 @@ A
           }
         },
         {
-          "id": 3,
+          "id": 1,
           "kind": "command",
           "command": {
             "command": "breakParent"
@@ -949,7 +949,7 @@ A
       ]
     },
     {
-      "id": 1,
+      "id": 4,
       "kind": "text",
       "text": "B"
     }

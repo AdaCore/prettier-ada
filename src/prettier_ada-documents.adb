@@ -5,6 +5,7 @@
 
 with Ada.Strings;       use Ada.Strings;
 with Ada.Strings.Fixed; use Ada.Strings.Fixed;
+with Ada.Unchecked_Deallocation;
 
 with Prettier_Ada.Documents.Implementation;
 
@@ -63,5 +64,40 @@ package body Prettier_Ada.Documents is
 
    function To_Document_Type (Text : Wide_Wide_String) return Document_Type
      renames Prettier_Ada.Documents.Implementation.To_Document_Type;
+
+   ------------
+   -- Adjust --
+   ------------
+
+   overriding procedure Adjust (Self : in out Document_Type) is
+   begin
+      if Self.Bare_Document /= null then
+         Self.Bare_Document.Ref_Count := @ + 1;
+      end if;
+   end Adjust;
+
+   --------------
+   -- Finalize --
+   --------------
+
+   overriding procedure Finalize (Self : in out Document_Type) is
+      use Prettier_Ada.Documents.Implementation;
+
+      procedure Free is new Ada.Unchecked_Deallocation
+        (Bare_Document_Record, Bare_Document_Access);
+      procedure Free is new Ada.Unchecked_Deallocation
+        (Command_Type, Command_Access);
+   begin
+      if Self.Bare_Document /= null then
+         if Self.Bare_Document.Ref_Count = 1 then
+            if Self.Bare_Document.Kind = Document_Command then
+               Free (Self.Bare_Document.Command);
+            end if;
+            Free (Self.Bare_Document);
+         else
+            Self.Bare_Document.Ref_Count := @ - 1;
+         end if;
+      end if;
+   end Finalize;
 
 end Prettier_Ada.Documents;
