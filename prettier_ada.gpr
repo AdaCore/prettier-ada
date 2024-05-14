@@ -38,9 +38,7 @@ library project Prettier_Ada is
                  "-gnatVa");
          when "prod" =>
             for Default_Switches ("Ada") use
-              Common_Switches
-              & ("-Ofast",
-                 "-gnatn2");
+              Common_Switches & ("-Ofast");
       end case;
    end Compiler;
 
