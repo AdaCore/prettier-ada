@@ -13,11 +13,13 @@ with Prettier_Ada.Optionals;
 
 with VSS.Characters.Latin;
 with VSS.Strings.Character_Iterators;
-with VSS.Strings.Grapheme_Cluster_Iterators;
 with VSS.Strings.Conversions;
 with VSS.Strings.Markers;
+with VSS.Strings.Utilities;
 
 package body Prettier_Ada.Documents.Implementation is
+
+   use type VSS.Strings.Display_Cell_Count;
 
    Current_Symbol : Symbol_Type := No_Symbol + 1;
 
@@ -51,9 +53,9 @@ package body Prettier_Ada.Documents.Implementation is
             when Inner_Root =>
                Margin : Natural;
             when String_Align =>
-               Text : Prettier_String;
+               Text   : Prettier_String;
             when Number_Align =>
-               Width : Natural;
+               Width  : Natural;
          end case;
       end record;
 
@@ -67,10 +69,9 @@ package body Prettier_Ada.Documents.Implementation is
    type Indentation_Head_Type_Access is access Indentation_Queue_Type;
 
    type Indentation_Queue_Type is record
-      Value  : Prettier_String;
-      Length : Natural;
-      Queue  : Indentation_Data_Vector;
-      Root   : Indentation_Head_Type_Access;
+      Value : Prettier_String;
+      Queue : Indentation_Data_Vector;
+      Root  : Indentation_Head_Type_Access;
    end record;
 
    type Print_Command_Type is record
@@ -164,11 +165,6 @@ package body Prettier_Ada.Documents.Implementation is
    --  TODO: Description
    --  TODO: Refactor so that Optional_Boolean is not needed
 
-   function Text_Width
-     (Text : Prettier_String)
-      return Natural;
-   --  TODO: Description
-
    type Trim_End is (Left, Right, Both);
 
    procedure Trim
@@ -182,6 +178,16 @@ package body Prettier_Ada.Documents.Implementation is
       return Natural;
    --  Removes leading whitespaces and horizontal tab characters from Text.
    --  Returns how many characters were removed.
+
+   function "-"
+     (Left  : Integer;
+      Right : VSS.Strings.Display_Cell_Count) return Integer is
+      (Left - Integer (Right));
+
+   function "+"
+     (Left  : Integer;
+      Right : VSS.Strings.Display_Cell_Count) return Integer is
+      (Left + Integer (Right));
 
    ---------
    -- "=" --
@@ -200,7 +206,8 @@ package body Prettier_Ada.Documents.Implementation is
    procedure Append (To : in out Prettier_String; Source : Prettier_String)
    is
    begin
-      VSS.Strings.Append (To, Source);
+      VSS.Strings.Append (To.Text, Source.Text);
+      To.Display_Width := @ + Source.Display_Width;
    end Append;
 
    ------------------------
@@ -233,27 +240,6 @@ package body Prettier_Ada.Documents.Implementation is
          end;
       end if;
    end Break_Parent_Group;
-
-   ----------------
-   -- Text_Width --
-   ----------------
-
-   function Text_Width
-     (Text : Prettier_String)
-      return Natural
-   is
-      --  TODO: For now simply count the grapheme clusters.
-      --  When VSS has support to East Asian Width, rewrite this function
-      J : VSS.Strings.Grapheme_Cluster_Iterators.Grapheme_Cluster_Iterator :=
-         Text.Before_First_Grapheme_Cluster;
-      Count : Natural := 0;
-   begin
-      while J.Forward loop
-         Count := @ + 1;
-      end loop;
-
-      return Count;
-   end Text_Width;
 
    ----------
    -- Fits --
@@ -321,7 +307,7 @@ package body Prettier_Ada.Documents.Implementation is
             end if;
 
             Fit_Commands.Append (+Rest_Commands.Element (Rest_Idx));
-            Rest_Idx := @ - 1;
+            Rest_Idx := @ - Natural (1);
 
          else
             Gnatfmt_Trace.Trace ("F6");
@@ -343,7 +329,7 @@ package body Prettier_Ada.Documents.Implementation is
                      Append
                        (Current_Line, Document.Bare_Document.Text);
                      Remaining_Width :=
-                       @ - Text_Width (Document.Bare_Document.Text);
+                       @ - Document.Bare_Document.Text.Display_Width;
 
                   when Document_List =>
                      Gnatfmt_Trace.Trace ("F9");
@@ -519,7 +505,6 @@ package body Prettier_Ada.Documents.Implementation is
                                      .Bare_Document
                                      .Command
                                  .Flat_Contents);
-                              use type Prettier_String;
 
                            begin
                               Gnatfmt_Trace.Trace ("F16");
@@ -527,7 +512,11 @@ package body Prettier_Ada.Documents.Implementation is
                                 and then (if Contents.Bare_Document.Kind in
                                                Document_Text
                                           then
-                                            Contents.Bare_Document.Text /= "")
+                                            not Contents
+                                                  .Bare_Document
+                                                  .Text
+                                                  .Text
+                                                  .Is_Empty)
                               then
                                  Gnatfmt_Trace.Trace ("F17");
                                  Fit_Commands.Append
@@ -546,8 +535,8 @@ package body Prettier_Ada.Documents.Implementation is
 
                            if not Document.Bare_Document.Command.Soft then
                               Gnatfmt_Trace.Trace ("F20");
-                              Append (Current_Line, " ");
-                              Remaining_Width := @ - 1;
+                              Append (Current_Line, (" ", 1));
+                              Remaining_Width := @ - Natural (1);
                            end if;
 
                         when Command_Line_Suffix =>
@@ -584,20 +573,23 @@ package body Prettier_Ada.Documents.Implementation is
       return Ada.Strings.Unbounded.Unbounded_String
    is
       use type Ada.Containers.Count_Type;
-      use type Prettier_String;
+      use type VSS.Strings.Virtual_String;
 
       End_Of_Line : constant Prettier_String :=
         (case Options.End_Of_Line is
             when LF =>
-              VSS.Strings.Empty_Virtual_String
-              & VSS.Characters.Latin.Line_Feed,
+              (VSS.Strings.Empty_Virtual_String
+               & VSS.Characters.Latin.Line_Feed,
+               0),
             when CR =>
-              VSS.Strings.Empty_Virtual_String
-              & VSS.Characters.Latin.Carriage_Return,
+              (VSS.Strings.Empty_Virtual_String
+               & VSS.Characters.Latin.Carriage_Return,
+               0),
             when CRLF =>
-              VSS.Strings.Empty_Virtual_String
-              & VSS.Characters.Latin.Carriage_Return
-              & VSS.Characters.Latin.Line_Feed);
+              (VSS.Strings.Empty_Virtual_String
+               & VSS.Characters.Latin.Carriage_Return
+               & VSS.Characters.Latin.Line_Feed,
+               0));
 
       Group_Mode_Map : Symbol_To_Mode_Map;
 
@@ -612,7 +604,7 @@ package body Prettier_Ada.Documents.Implementation is
 
       Printed_Cursor_Count : Natural := 0;
 
-      Result : Prettier_String := VSS.Strings.Empty_Virtual_String;
+      Result : Prettier_String := Empty_Prettier_String;
 
    begin
 
@@ -735,11 +727,11 @@ package body Prettier_Ada.Documents.Implementation is
                            else
                               Gnatfmt_Trace.Trace ("72212");
                               for J in
-                                 Expanded_States.First_Index + 1
-                                 .. Expanded_States.Last_Index + 1
+                                 Expanded_States.First_Index + Natural (1)
+                                 .. Expanded_States.Last_Index + Natural (1)
                               loop
                                  if J
-                                    >= Expanded_States.Last_Index + 1
+                                    >= Expanded_States.Last_Index + Natural (1)
                                  then
                                     Gnatfmt_Trace.Trace ("722121");
                                     Gnatfmt_Trace.Trace ("break");
@@ -900,11 +892,11 @@ package body Prettier_Ada.Documents.Implementation is
                      White_Flat_Command    : constant Print_Command_Type :=
                         (Indentation,
                          Mode_Flat,
-                         Parts.Element (Parts.First_Index + 1));
+                         Parts.Element (Parts.First_Index + Natural (1)));
                      White_Break_Command   : constant Print_Command_Type :=
                         (Indentation,
                          Mode_Break,
-                         Parts (Parts.First_Index + 1));
+                         Parts (Parts.First_Index + Natural (1)));
                      Content_Fits : constant Boolean :=
                        Fits
                          (Content_Flat_Command,
@@ -937,12 +929,12 @@ package body Prettier_Ada.Documents.Implementation is
                        constant Print_Command_Type :=
                          (Indentation,
                           Mode_Flat,
-                          Parts.Element (Parts.First_Index + 1));
+                          Parts.Element (Parts.First_Index + Natural (1)));
                      White_Break_Command   :
                        constant Print_Command_Type :=
                          (Indentation,
                           Mode_Break,
-                          Parts.Element (Parts.First_Index + 1));
+                          Parts.Element (Parts.First_Index + Natural (1)));
 
                      Content_Fits : constant Boolean :=
                        Fits
@@ -956,7 +948,7 @@ package body Prettier_Ada.Documents.Implementation is
                      Remaining_Parts         : constant Document_Vector :=
                        Slice
                          (Parts,
-                          Positive (Parts.First_Index + 2),
+                          Positive (Parts.First_Index + Natural (2)),
                           Positive (Parts.Last_Index));
                      Remaining_Print_Command : constant Print_Command_Type :=
                        (Indentation,
@@ -972,7 +964,7 @@ package body Prettier_Ada.Documents.Implementation is
                             (Slice
                                (Parts,
                                 Positive (Parts.First_Index),
-                                Positive (Parts.First_Index + 2))));
+                                Positive (Parts.First_Index + Natural (2)))));
                      First_And_Second_Content_Fits         :
                        constant Boolean :=
                          Fits
@@ -1039,9 +1031,9 @@ package body Prettier_Ada.Documents.Implementation is
                         if Indentation.Root /= null then
                            Gnatfmt_Trace.Trace ("131211");
                            Append (Result, End_Of_Line);
-                           Append
-                             (Result, Indentation.Root.Value);
-                           Pos := Indentation.Root.Length;
+                           Append (Result, Indentation.Root.Value);
+                           Pos :=
+                             Natural (Indentation.Root.Value.Display_Width);
 
                         else
                            Gnatfmt_Trace.Trace ("131212");
@@ -1053,9 +1045,8 @@ package body Prettier_Ada.Documents.Implementation is
                         Gnatfmt_Trace.Trace ("13122");
                         Pos := @ - Trim (Result);
                         Append (Result, End_Of_Line);
-                        Append
-                          (Result, Indentation.Value);
-                        Pos := Indentation.Length;
+                        Append (Result, Indentation.Value);
+                        Pos := Natural (Indentation.Value.Display_Width);
                      end if;
                   end if;
                end Process_Mode_Break;
@@ -1075,8 +1066,8 @@ package body Prettier_Ada.Documents.Implementation is
                               .Soft
                      then
                         Gnatfmt_Trace.Trace ("13211");
-                        Append (Result, " ");
-                        Pos := @ + 1;
+                        Append (Result, (" ", 1));
+                        Pos := @ + Natural (1);
                      end if;
 
                   else
@@ -1110,7 +1101,7 @@ package body Prettier_Ada.Documents.Implementation is
                Append
                  (Result, Document.Bare_Document.Text);
                if Print_Commands.Length > 0 then
-                  Pos := @ + Text_Width (Document.Bare_Document.Text);
+                  Pos := @ + Document.Bare_Document.Text.Display_Width;
                end if;
             end Process_Document_Text;
 
@@ -1155,7 +1146,7 @@ package body Prettier_Ada.Documents.Implementation is
                         --  TODO: How to add this command to Result?
                         --  Should Result be instead a Document_Type_Vector
                         --  with only Document_Text and Command_Cursor?
-                        Printed_Cursor_Count := @ + 1;
+                        Printed_Cursor_Count := @ + Natural (1);
 
                      when Command_Indent =>
                         Gnatfmt_Trace.Trace ("4");
@@ -1240,7 +1231,9 @@ package body Prettier_Ada.Documents.Implementation is
                                              in Document_Text
                                              and then Break_Contents
                                                         .Bare_Document
-                                                        .Text = "")
+                                                        .Text
+                                                        .Text
+                                                        .Is_Empty)
                                     then
                                        Gnatfmt_Trace.Trace ("911");
                                        Print_Commands.Append
@@ -1267,7 +1260,9 @@ package body Prettier_Ada.Documents.Implementation is
                                              in Document_Text
                                              and then Flat_Contents
                                                         .Bare_Document
-                                                        .Text = "")
+                                                        .Text
+                                                        .Text
+                                                        .Is_Empty)
 
                                     then
                                        Gnatfmt_Trace.Trace ("921");
@@ -1420,7 +1415,7 @@ package body Prettier_Ada.Documents.Implementation is
 
       Prettier_Ada.Documents.Builders.Reset_Document_Id;
 
-      return VSS.Strings.Conversions.To_Unbounded_UTF_8_String (Result);
+      return VSS.Strings.Conversions.To_Unbounded_UTF_8_String (Result.Text);
 
    exception
       when others =>
@@ -1452,9 +1447,8 @@ package body Prettier_Ada.Documents.Implementation is
       Options : Indentation_Options_Type)
       return Indentation_Queue_Type
    is
-      Value  : Prettier_String;
-      Length : Natural := 0;
-      Queue  : Indentation_Data_Vector := From.Queue;
+      Value : Prettier_String;
+      Queue : Indentation_Data_Vector := From.Queue;
 
       Last_Tabs   : Natural := 0;
       Last_Spaces : Natural := 0;
@@ -1481,15 +1475,15 @@ package body Prettier_Ada.Documents.Implementation is
       -- Add_Tabs --
       --------------
 
-      procedure Add_Tabs (Count : Natural)
-      is
+      procedure Add_Tabs (Count : Natural) is
       begin
          VSS.Strings.Append
-           (Value,
+           (Value.Text,
             VSS.Strings."*"
               (VSS.Strings.Character_Count (Count),
                VSS.Characters.Latin.Character_Tabulation));
-         Length := @ + Options.Width * Count;
+         Value.Display_Width :=
+           @ + VSS.Strings.Display_Cell_Count (Options.Width * Count);
       end Add_Tabs;
 
       ----------------
@@ -1500,11 +1494,11 @@ package body Prettier_Ada.Documents.Implementation is
       is
       begin
          VSS.Strings.Append
-           (Value,
+           (Value.Text,
             VSS.Strings."*"
               (VSS.Strings.Character_Count (Count),
                VSS.Characters.Latin.Space));
-         Length := @ + Count;
+         Value.Display_Width := @ + VSS.Strings.Display_Cell_Count (Count);
       end Add_Spaces;
 
       -----------
@@ -1577,10 +1571,9 @@ package body Prettier_Ada.Documents.Implementation is
             when String_Align =>
                Flush;
                Append (Value, Part.Text);
-               Length := @ + Text_Width (Part.Text);
 
             when Number_Align =>
-               Last_Tabs := @ + 1;
+               Last_Tabs := @ + Natural (1);
                Last_Spaces := @ + Part.Width;
 
             when Inner_Root =>
@@ -1589,7 +1582,7 @@ package body Prettier_Ada.Documents.Implementation is
                --  based on the current line length, any previously unflushed
                --  Last_Tabs and Last_Spaces become irrelevant, and the number
                --  of tabs added when Part.Kind = Indent is kept.
-               Last_Spaces := Part.Margin - Length;
+               Last_Spaces := Part.Margin - Value.Display_Width;
 
             when Dedent =>
                raise Program_Error; -- TODO: Make this a logic error
@@ -1598,7 +1591,7 @@ package body Prettier_Ada.Documents.Implementation is
 
       Flush_Spaces;
 
-      return Indentation_Queue_Type'(Value, Length, Queue, From.Root);
+      return Indentation_Queue_Type'(Value, Queue, From.Root);
    end Generate_Indentation;
 
    ------------------------
@@ -1648,7 +1641,12 @@ package body Prettier_Ada.Documents.Implementation is
                 (From,
                  Indentation_Data_Type'
                    (String_Align,
-                    VSS.Strings.Conversions.To_Virtual_String (Align_Data.T)),
+                    (declare
+                       Text : constant VSS.Strings.Virtual_String :=
+                         VSS.Strings.Conversions.To_Virtual_String
+                           (Align_Data.T);
+                     begin
+                       (Text, VSS.Strings.Utilities.Display_Width (Text)))),
                  Options.Indentation);
 
          when Dedent_To_Root =>
@@ -1703,7 +1701,7 @@ package body Prettier_Ada.Documents.Implementation is
    function New_Document_Id return Natural is
    begin
       return Result : constant Natural := Document_Id do
-         Document_Id := @ + 1;
+         Document_Id := @ + Natural (1);
       end return;
    end New_Document_Id;
 
@@ -1844,8 +1842,7 @@ package body Prettier_Ada.Documents.Implementation is
 
    function Root_Indent return Indentation_Queue_Type is
       (Indentation_Queue_Type'
-         (Value  => VSS.Strings.Empty_Virtual_String,
-          Length => 0,
+         (Value  => Empty_Prettier_String,
           Queue  => [],
           Root   => null));
 
@@ -1861,7 +1858,7 @@ package body Prettier_Ada.Documents.Implementation is
    begin
       return Result : Document_Vector do
          Result.Reserve_Capacity
-           (Ada.Containers.Count_Type (Last - First + 1));
+           (Ada.Containers.Count_Type (Last - First + Natural (1)));
          for J in First .. Last loop
             Result.Append (Documents.Element (J));
          end loop;
@@ -1878,7 +1875,12 @@ package body Prettier_Ada.Documents.Implementation is
         new Bare_Document_Record'
           (Kind      => Document_Text,
            Ref_Count => 1,
-           Text      => VSS.Strings.To_Virtual_String (Text),
+           Text      =>
+             (declare
+                Text_VSS : constant VSS.Strings.Virtual_String :=
+                  VSS.Strings.To_Virtual_String (Text);
+              begin
+                (Text_VSS, VSS.Strings.Utilities.Display_Width (Text_VSS))),
            Id        => New_Document_Id);
 
    begin
@@ -1905,7 +1907,7 @@ package body Prettier_Ada.Documents.Implementation is
 
       Traverse_Doc_On_Exit_Stack_Marker : constant Document_Type :=
         Prettier_Ada.Documents.Builders.Text
-          (Ada.Strings.Unbounded.To_Unbounded_String (""));
+          (Ada.Strings.Unbounded.Null_Unbounded_String);
 
       use type Ada.Containers.Count_Type;
 
@@ -2124,37 +2126,42 @@ package body Prettier_Ada.Documents.Implementation is
       MF : VSS.Strings.Markers.Character_Marker;
       ML : VSS.Strings.Markers.Character_Marker;
 
+      Trim_Count : VSS.Strings.Display_Cell_Count := 0;
+
    begin
       if Side in Left | Both then
          declare
             J : VSS.Strings.Character_Iterators.Character_Iterator :=
-              Item.Before_First_Character;
+              Item.Text.Before_First_Character;
             C : VSS.Characters.Virtual_Character'Base;
 
          begin
             while J.Forward (C) loop
                exit when C not in ' '
                                   | VSS.Characters.Latin.Character_Tabulation;
+
+               Trim_Count := @ + 1;
             end loop;
 
             if J.Has_Element then
                MF := J.Marker;
 
             else
-               Item.Clear;
+               Item.Text.Clear;
+               Item.Display_Width := 0;
 
                return;
             end if;
          end;
 
       else
-         MF := Item.At_First_Character.Marker;
+         MF := Item.Text.At_First_Character.Marker;
       end if;
 
       if Side in Right | Both then
          declare
             J : VSS.Strings.Character_Iterators.Character_Iterator :=
-              Item.After_Last_Character;
+              Item.Text.After_Last_Character;
             C : VSS.Characters.Virtual_Character'Base;
 
          begin
@@ -2163,23 +2170,27 @@ package body Prettier_Ada.Documents.Implementation is
 
                exit when C not in ' '
                                   | VSS.Characters.Latin.Character_Tabulation;
+
+               Trim_Count := @ + 1;
             end loop;
 
             if J.Has_Element then
                ML := J.Marker;
 
             else
-               Item.Clear;
+               Item.Text.Clear;
+               Item.Display_Width := 0;
 
                return;
             end if;
          end;
 
       else
-         ML := Item.At_Last_Character.Marker;
+         ML := Item.Text.At_Last_Character.Marker;
       end if;
 
-      Item := Item.Slice (MF, ML);
+      Item.Text := Item.Text.Slice (MF, ML);
+      Item.Display_Width := @ - Trim_Count;
    end Trim;
 
    ----------
@@ -2190,11 +2201,13 @@ package body Prettier_Ada.Documents.Implementation is
      (Text : in out Prettier_String)
       return Natural
    is
-      Initial_Length : constant Natural := Text_Width (Text);
+      Initial_Display_Width : constant VSS.Strings.Display_Cell_Count :=
+        Text.Display_Width;
 
    begin
       Trim (Text, Right);
-      return Initial_Length - Text_Width (Text);
+
+      return Natural (Initial_Display_Width - Text.Display_Width);
    end Trim;
 
 end Prettier_Ada.Documents.Implementation;

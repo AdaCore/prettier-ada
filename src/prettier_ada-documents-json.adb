@@ -3,10 +3,14 @@
 --  SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 --
 
-with GNATCOLL.JSON;
 with Ada.Containers;
 with Ada.Containers.Hashed_Maps;
+
 with VSS.Strings.Conversions;
+with VSS.Strings.Utilities;
+
+with GNATCOLL.JSON;
+
 with Prettier_Ada.Documents.Implementation;
 use Prettier_Ada.Documents.Implementation;
 with Prettier_Ada.Document_Vectors;
@@ -60,7 +64,8 @@ package body Prettier_Ada.Documents.Json is
                when Document_Text =>
                   Result.Set_Field ("kind", "text");
                   Result.Set_Field
-                    ("text", VSS.Strings.Conversions.To_UTF_8_String (D.Text));
+                    ("text",
+                     VSS.Strings.Conversions.To_UTF_8_String (D.Text.Text));
 
                when Document_List =>
                   Result.Set_Field ("kind", "list");
@@ -189,7 +194,7 @@ package body Prettier_Ada.Documents.Json is
                Result.Set_Field ("command", "label");
                Result.Set_Field
                  ("text",
-                  VSS.Strings.Conversions.To_UTF_8_String (Command.Text));
+                  VSS.Strings.Conversions.To_UTF_8_String (Command.Text.Text));
                Result.Set_Field
                  ("labelContents", From_Document (Command.Label_Contents));
 
@@ -372,6 +377,12 @@ package body Prettier_Ada.Documents.Json is
             Id   : Natural)
             return Document_Type
          is
+            Text          : constant VSS.Strings.Virtual_String :=
+              VSS.Strings.Conversions.To_Virtual_String
+                (UTF8_String'(Get (Json)));
+            Display_Width : constant VSS.Strings.Display_Cell_Count :=
+              VSS.Strings.Utilities.Display_Width (Text);
+
          begin
             return
               (Ada.Finalization.Controlled with
@@ -380,9 +391,7 @@ package body Prettier_Ada.Documents.Json is
                        (Kind      => Document_Text,
                         Ref_Count => 1,
                         Id        => Id,
-                        Text      =>
-                          VSS.Strings.Conversions.To_Virtual_String
-                            (UTF8_String'(Get (Json)))));
+                        Text      => (Text, Display_Width)));
          end To_Document_Text;
 
          ----------------------
@@ -694,13 +703,17 @@ package body Prettier_Ada.Documents.Json is
            (Json : GNATCOLL.JSON.JSON_Value)
             return Command_Type
          is
+            Text          : constant VSS.Strings.Virtual_String :=
+              VSS.Strings.Conversions.To_Virtual_String
+                (UTF8_String'(Get (Json, "text")));
+            Display_Width : constant VSS.Strings.Display_Cell_Count :=
+              VSS.Strings.Utilities.Display_Width (Text);
+
          begin
             return
               Command_Type'
                 (Kind           => Command_Label,
-                 Text           =>
-                   VSS.Strings.Conversions.To_Virtual_String
-                     (UTF8_String'(Get (Json, "text"))),
+                 Text           => (Text, Display_Width),
                  Label_Contents =>
                    To_Document_Type (Get (Json, "labelContents")));
          end To_Command_Label;
