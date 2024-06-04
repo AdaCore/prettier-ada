@@ -65,6 +65,10 @@ private package Prettier_Ada.Documents.Implementation is
    Empty_Prettier_String : constant Prettier_String :=
      (VSS.Strings.Empty_Virtual_String, 0);
 
+   function To_Prettier_String
+     (Text : Ada.Strings.Unbounded.Unbounded_String) return Prettier_String;
+   --  Converts an Unbounded_String into a Prettier_String
+
    type Command_Kind is
      (Command_Align,
       Command_Break_Parent,

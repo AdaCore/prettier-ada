@@ -122,9 +122,10 @@ procedure Builders_Tester is
       Put_Line
         (Format
            (Document_3,
-            (Width => 79,
-             Indentation => (Kind => Tabs, Width => 3),
-             End_Of_Line => LF)));
+            (Width              => 79,
+             Indentation        => (Kind => Tabs, Width => 3),
+             End_Of_Line        => LF,
+             Indentation_Offset => 0)));
       New_Line;
    end Test_Align;
 

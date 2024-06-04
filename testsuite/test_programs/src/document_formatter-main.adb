@@ -53,6 +53,8 @@ procedure Document_Formatter.Main is
                 Prettier_Ada.Documents.CRLF,
               when Document_Formatter.Command_Line.AUTO =>
                 Detect_End_Of_Line);
+         Options.Indentation_Offset :=
+           Document_Formatter.Command_Line.Indentation_Offset.Get;
       end return;
    end Build_Format_Options;
 

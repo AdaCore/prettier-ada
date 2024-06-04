@@ -62,4 +62,12 @@ package Document_Formatter.Command_Line is
       Convert     => End_Of_Line_Kind'Value,
       Default_Val => LF);
 
+   package Indentation_Offset is new Parse_Option
+     (Parser      => Parser,
+      Long        => "--indentation-offset",
+      Help        => "",
+      Arg_Type    => Natural,
+      Convert     => Natural'Value,
+      Default_Val => 0);
+
 end Document_Formatter.Command_Line;
