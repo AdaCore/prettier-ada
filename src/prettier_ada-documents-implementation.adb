@@ -141,8 +141,12 @@ package body Prettier_Ada.Documents.Implementation is
    procedure Propagate_Breaks (Document : Document_Type);
    --  TODO: Description
 
-   function Root_Indent return Indentation_Queue_Type;
-   --  TODO: Description
+   function Root_Indent
+     (Indentation : Natural := 0) return Indentation_Queue_Type;
+   --  Creates an initial indentation queue with no indentation by default.
+   --
+   --  If ``Indentation`` is /= 0 then a document formatted with this
+   --  indentation queue will have this value as indentation offset.
 
    function Slice
      (Documents : Document_Vector;
@@ -593,14 +597,15 @@ package body Prettier_Ada.Documents.Implementation is
 
       Group_Mode_Map : Symbol_To_Mode_Map;
 
-      Pos : Natural := 0;
+      Pos : Natural := Options.Indentation_Offset;
 
       Should_Remeasure : Boolean := False;
 
       Line_Suffix : Print_Command_Type_Vector := [];
 
       Print_Commands : Print_Command_Type_Vector :=
-        [Print_Command_Type'(Root_Indent, Mode_Break, Document)];
+        [Print_Command_Type'
+           (Root_Indent (Options.Indentation_Offset), Mode_Break, Document)];
 
       Printed_Cursor_Count : Natural := 0;
 
@@ -1038,7 +1043,7 @@ package body Prettier_Ada.Documents.Implementation is
                         else
                            Gnatfmt_Trace.Trace ("131212");
                            Append (Result, End_Of_Line);
-                           Pos := 0;
+                           Pos := Options.Indentation_Offset;
                         end if;
 
                      else
@@ -1641,17 +1646,12 @@ package body Prettier_Ada.Documents.Implementation is
                 (From,
                  Indentation_Data_Type'
                    (String_Align,
-                    (declare
-                       Text : constant VSS.Strings.Virtual_String :=
-                         VSS.Strings.Conversions.To_Virtual_String
-                           (Align_Data.T);
-                     begin
-                       (Text, VSS.Strings.Utilities.Display_Width (Text)))),
+                    To_Prettier_String (Align_Data.T)),
                  Options.Indentation);
 
          when Dedent_To_Root =>
             if From.Root = null then
-               return Root_Indent;
+               return Root_Indent (Options.Indentation_Offset);
             end if;
 
             return From.Root.all;
@@ -1840,11 +1840,19 @@ package body Prettier_Ada.Documents.Implementation is
    -- Root_Indent --
    -----------------
 
-   function Root_Indent return Indentation_Queue_Type is
-      (Indentation_Queue_Type'
-         (Value  => Empty_Prettier_String,
-          Queue  => [],
-          Root   => null));
+   function Root_Indent
+     (Indentation : Natural := 0) return Indentation_Queue_Type
+   is (if Indentation = 0
+       then Indentation_Queue_Type'
+              (Value  => Empty_Prettier_String,
+               Queue  => [],
+               Root   => null)
+       else Indentation_Queue_Type'
+              (Value  =>
+                 To_Prettier_String
+                   (Ada.Strings.Unbounded."*" (Indentation, " ")),
+               Queue  => [(Kind => Inner_Root, Margin => Indentation)],
+               Root   => null));
 
    -----------
    -- Slice --
@@ -1886,6 +1894,19 @@ package body Prettier_Ada.Documents.Implementation is
    begin
       return (Ada.Finalization.Controlled with Bare_Document => Bare_Document);
    end To_Document_Type;
+
+   ------------------------
+   -- To_Prettier_String --
+   ------------------------
+
+   function To_Prettier_String
+     (Text : Ada.Strings.Unbounded.Unbounded_String) return Prettier_String
+   is
+      Text_VSS : constant VSS.Strings.Virtual_String :=
+        VSS.Strings.Conversions.To_Virtual_String (Text);
+   begin
+      return (Text_VSS, VSS.Strings.Utilities.Display_Width (Text_VSS));
+   end To_Prettier_String;
 
    -----------------------
    -- Traverse_Document --

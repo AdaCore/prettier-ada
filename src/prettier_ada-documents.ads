@@ -25,13 +25,17 @@ package Prettier_Ada.Documents is
    type End_Of_Line_Kind is (LF, CR, CRLF);
 
    type Format_Options_Type is record
-      Width       : Natural;
-      Indentation : Indentation_Options_Type;
-      End_Of_Line : End_Of_Line_Kind;
+      Width               : Natural;
+      Indentation         : Indentation_Options_Type;
+      End_Of_Line         : End_Of_Line_Kind;
+      Indentation_Offset  : Natural := 0;
    end record;
 
    Default_Format_Options : constant Format_Options_Type :=
-     (Width => 80, Indentation => (Spaces, 2), End_Of_Line => LF);
+     (Width               => 80,
+      Indentation         => (Spaces, 2),
+      End_Of_Line         => LF,
+      Indentation_Offset  => 0);
 
    type Document_Type is private
      with String_Literal => To_Document_Type;

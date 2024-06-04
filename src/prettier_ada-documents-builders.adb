@@ -3,9 +3,6 @@
 --  SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 --
 
-with VSS.Strings.Conversions;
-with VSS.Strings.Utilities;
-
 with Prettier_Ada.Documents.Implementation;
 use Prettier_Ada.Documents.Implementation;
 
@@ -30,13 +27,8 @@ package body Prettier_Ada.Documents.Builders is
         new Bare_Document_Record'
           (Kind      => Document_Text,
            Ref_Count => 1,
-           Text      =>
-             (declare
-                T_VSS : constant VSS.Strings.Virtual_String :=
-                  VSS.Strings.Conversions.To_Virtual_String (T);
-              begin
-                (T_VSS, VSS.Strings.Utilities.Display_Width (T_VSS))),
-           Id   => New_Document_Id);
+           Text      => To_Prettier_String (T),
+           Id        => New_Document_Id);
 
    begin
       return (Ada.Finalization.Controlled with Bare_Document => Bare_Document);
@@ -236,10 +228,7 @@ package body Prettier_Ada.Documents.Builders is
         Wrap_Command
           (new Command_Type'
              (Kind           => Command_Label,
-              Text           =>
-                --  Labels are not printed, so its display width can be
-                --  ignored.
-                (VSS.Strings.Conversions.To_Virtual_String (Text), 1),
+              Text           => To_Prettier_String (Text),
               Label_Contents => Contents));
    end Label;
 
