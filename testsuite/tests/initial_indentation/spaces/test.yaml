@@ -1,0 +1,6 @@
+title: Initial indentation different than 0
+description: Test the amount of spaces added as indentation offset
+driver: document_formatter
+format_options:
+  - --indentation-offset-spaces=3
+  - --print-width=1
