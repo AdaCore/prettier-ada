@@ -21,10 +21,7 @@ lib:
 		-j$(PROCESSORS) ; \
 
 .PHONY: all
-all: all-libs
-
-.PHONY: all-libs
-all-libs:
+all:
 	for library_type in $(ALL_LIBRARY_TYPES) ; do \
 		gprbuild \
 			-v \
@@ -45,10 +42,20 @@ clean:
 	rm -rf testsuite/test_programs/obj;
 
 .PHONY: install
-install: install-lib
+install:
+	gprinstall \
+		-XPRETTIER_ADA_LIBRARY_TYPE=$(LIBRARY_TYPE) \
+		-XLIBRARY_TYPE=$(LIBRARY_TYPE) \
+		-XPRETTIER_ADA_BUILD_MODE=$(BUILD_MODE) \
+		--prefix="$(PREFIX)" \
+		--install-name=prettier_ada \
+		--sources-subdir=include/prettier_ada \
+		--build-name=$(LIBRARY_TYPE) \
+		--build-var=LIBRARY_TYPE \
+		-P $(LIB_PROJECT) -p -f ; \
 
-.PHONY: install-lib
-install-lib:
+.PHONY: install-all
+install-all:
 	for library_type in $(ALL_LIBRARY_TYPES) ; do \
 		gprinstall \
 			-XPRETTIER_ADA_LIBRARY_TYPE=$$library_type \
@@ -90,4 +97,3 @@ install-test-programs:
 .PHONY: test
 test: test-programs
 	python3 testsuite/testsuite.py
-
