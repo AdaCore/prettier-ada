@@ -142,11 +142,10 @@ package body Prettier_Ada.Documents.Implementation is
    --  TODO: Description
 
    function Root_Indent
-     (Indentation : Natural := 0) return Indentation_Queue_Type;
-   --  Creates an initial indentation queue with no indentation by default.
-   --
-   --  If ``Indentation`` is /= 0 then a document formatted with this
-   --  indentation queue will have this value as indentation offset.
+     (Options : Indentation_Options_Type)
+      return Indentation_Queue_Type;
+   --  Creates an initial indentation queue with Options.Offset as indentation
+   --  offset.
 
    function Slice
      (Documents : Document_Vector;
@@ -597,7 +596,9 @@ package body Prettier_Ada.Documents.Implementation is
 
       Group_Mode_Map : Symbol_To_Mode_Map;
 
-      Pos : Natural := Options.Indentation_Offset;
+      Pos : Natural :=
+        Options.Indentation.Offset.Spaces
+        + Options.Indentation.Offset.Tabs * Options.Indentation.Width;
 
       Should_Remeasure : Boolean := False;
 
@@ -605,11 +606,23 @@ package body Prettier_Ada.Documents.Implementation is
 
       Print_Commands : Print_Command_Type_Vector :=
         [Print_Command_Type'
-           (Root_Indent (Options.Indentation_Offset), Mode_Break, Document)];
+           (Root_Indent (Options.Indentation),
+            Mode_Break,
+            Document)];
 
       Printed_Cursor_Count : Natural := 0;
 
-      Result : Prettier_String := Empty_Prettier_String;
+      Result : Prettier_String :=
+        (VSS.Strings."&"
+           (VSS.Strings."*"
+              (VSS.Strings.Character_Count (Options.Indentation.Offset.Tabs),
+               VSS.Characters.Latin.Character_Tabulation),
+            VSS.Strings."*"
+              (VSS.Strings.Character_Count (Options.Indentation.Offset.Spaces),
+               VSS.Characters.Latin.Space)),
+         VSS.Strings.Display_Cell_Count
+           (Options.Indentation.Offset.Spaces
+            + Options.Indentation.Offset.Tabs * Options.Indentation.Width));
 
    begin
 
@@ -1043,7 +1056,10 @@ package body Prettier_Ada.Documents.Implementation is
                         else
                            Gnatfmt_Trace.Trace ("131212");
                            Append (Result, End_Of_Line);
-                           Pos := Options.Indentation_Offset;
+                           Pos :=
+                             Options.Indentation.Offset.Spaces
+                             + Options.Indentation.Offset.Tabs
+                               * Options.Indentation.Width;
                         end if;
 
                      else
@@ -1651,7 +1667,7 @@ package body Prettier_Ada.Documents.Implementation is
 
          when Dedent_To_Root =>
             if From.Root = null then
-               return Root_Indent (Options.Indentation_Offset);
+               return Root_Indent (Options.Indentation);
             end if;
 
             return From.Root.all;
@@ -1841,18 +1857,52 @@ package body Prettier_Ada.Documents.Implementation is
    -----------------
 
    function Root_Indent
-     (Indentation : Natural := 0) return Indentation_Queue_Type
-   is (if Indentation = 0
-       then Indentation_Queue_Type'
-              (Value  => Empty_Prettier_String,
-               Queue  => [],
-               Root   => null)
-       else Indentation_Queue_Type'
-              (Value  =>
-                 To_Prettier_String
-                   (Ada.Strings.Unbounded."*" (Indentation, " ")),
-               Queue  => [(Kind => Inner_Root, Margin => Indentation)],
-               Root   => null));
+     (Options : Indentation_Options_Type)
+      return Indentation_Queue_Type
+   is
+   begin
+      if Options.Offset = (Tabs => 0, Spaces => 0) then
+         return
+           Indentation_Queue_Type'
+             (Value  => Empty_Prettier_String,
+              Queue  => [],
+              Root   => null);
+
+      else
+         declare
+            Queue : Indentation_Data_Vector;
+
+         begin
+            Queue.Append
+              ((Kind => Indent),
+               Ada.Containers.Count_Type (Options.Offset.Tabs));
+            Queue.Append
+              (Indentation_Data_Type'
+                 (Kind => String_Align,
+                  Text =>
+                    (VSS.Strings."*"
+                       (VSS.Strings.Character_Count (Options.Offset.Spaces),
+                        VSS.Characters.Latin.Space),
+                     VSS.Strings.Display_Cell_Count (Options.Offset.Spaces))));
+
+            return
+              Indentation_Queue_Type'
+                (Value  =>
+                  (VSS.Strings."&"
+                     (VSS.Strings."*"
+                        (VSS.Strings.Character_Count (Options.Offset.Tabs),
+                         VSS.Characters.Latin.Character_Tabulation),
+                      VSS.Strings."*"
+                        (VSS.Strings.Character_Count (Options.Offset.Spaces),
+                         VSS.Characters.Latin.Space)),
+                   VSS.Strings.Display_Cell_Count
+                     (Options.Offset.Spaces
+                      + Options.Offset.Tabs * Options.Width)),
+                 Queue  => Queue,
+                 Root   => null);
+         end;
+      end if;
+   end Root_Indent;
 
    -----------
    -- Slice --

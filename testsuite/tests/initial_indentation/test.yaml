@@ -1,7 +1,0 @@
-title: Initial indentation different than 0
-description: Test that when the initial indentation is different than 0, all
-  the indentation added has an offset equal to the initial value.
-driver: document_formatter
-format_options:
-  - --indentation-offset=3
-  - --print-width=1

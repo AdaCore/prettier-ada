@@ -43,6 +43,10 @@ procedure Document_Formatter.Main is
          end if;
          Options.Indentation.Width :=
            Document_Formatter.Command_Line.Indent_Width.Get;
+         Options.Indentation.Offset.Spaces :=
+           Document_Formatter.Command_Line.Indentation_Offset_Spaces.Get;
+         Options.Indentation.Offset.Tabs :=
+           Document_Formatter.Command_Line.Indentation_Offset_Tabs.Get;
          Options.End_Of_Line :=
            (case Document_Formatter.Command_Line.End_Of_Line.Get is
               when Document_Formatter.Command_Line.LF   =>
@@ -53,8 +57,6 @@ procedure Document_Formatter.Main is
                 Prettier_Ada.Documents.CRLF,
               when Document_Formatter.Command_Line.AUTO =>
                 Detect_End_Of_Line);
-         Options.Indentation_Offset :=
-           Document_Formatter.Command_Line.Indentation_Offset.Get;
       end return;
    end Build_Format_Options;
 

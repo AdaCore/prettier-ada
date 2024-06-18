@@ -17,25 +17,32 @@ package Prettier_Ada.Documents is
 
    type Indentation_Kind is (Spaces, Tabs);
 
+   type Indentation_Offset_Type is record
+      Tabs   : Natural := 0;
+      Spaces : Natural := 0;
+   end record;
+   --  This offset type models smart tabs. It allows two ways of indenting:
+   --  - Tabs for indentation and spaces for alignment
+   --  - Spaces for indentation and alignment
+
    type Indentation_Options_Type is record
-      Kind  : Indentation_Kind := Spaces;
-      Width : Natural := 2;
+      Kind   : Indentation_Kind := Spaces;
+      Width  : Natural := 2;
+      Offset : Indentation_Offset_Type := (Tabs => 0, Spaces => 0);
    end record;
 
    type End_Of_Line_Kind is (LF, CR, CRLF);
 
    type Format_Options_Type is record
-      Width               : Natural;
-      Indentation         : Indentation_Options_Type;
-      End_Of_Line         : End_Of_Line_Kind;
-      Indentation_Offset  : Natural := 0;
+      Width       : Natural;
+      Indentation : Indentation_Options_Type;
+      End_Of_Line : End_Of_Line_Kind;
    end record;
 
    Default_Format_Options : constant Format_Options_Type :=
      (Width               => 80,
-      Indentation         => (Spaces, 2),
-      End_Of_Line         => LF,
-      Indentation_Offset  => 0);
+      Indentation         => (Spaces, 2, (0, 0)),
+      End_Of_Line         => LF);
 
    type Document_Type is private
      with String_Literal => To_Document_Type;

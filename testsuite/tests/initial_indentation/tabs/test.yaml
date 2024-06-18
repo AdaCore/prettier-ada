@@ -1,0 +1,7 @@
+title: Initial indentation different than 0
+description: Test the amount of tabs added as indentation offset
+driver: document_formatter
+format_options:
+  - --use-tabs
+  - --indentation-offset-tabs=3
+  - --print-width=1
