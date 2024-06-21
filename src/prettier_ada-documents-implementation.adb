@@ -2156,6 +2156,8 @@ package body Prettier_Ada.Documents.Implementation is
       Value : Prettier_String;
       Queue : Indentation_Data_Vector := From.Queue;
 
+      Flushed_Tabs : Natural := 0;
+
       Last_Tabs   : Natural := 0;
       Last_Spaces : Natural := 0;
 
@@ -2228,6 +2230,7 @@ package body Prettier_Ada.Documents.Implementation is
       is
       begin
          if Last_Tabs > 0 then
+            Flushed_Tabs := @ + Last_Tabs;
             Add_Tabs (Last_Tabs);
          end if;
          Reset_Last;
@@ -2283,12 +2286,30 @@ package body Prettier_Ada.Documents.Implementation is
                Last_Spaces := @ + Part.Width;
 
             when Inner_Root =>
-               --  Last_Tabs and Last_Spaces are not flushed only when
-               --  Part.Kind = Number_Align. By simply adjusting Last_Spaces
-               --  based on the current line length, any previously unflushed
-               --  Last_Tabs and Last_Spaces become irrelevant, and the number
-               --  of tabs added when Part.Kind = Indent is kept.
-               Last_Spaces := Part.Margin - Value.Display_Width;
+               if Part.Margin > Natural (Value.Display_Width) then
+                  --  Last_Tabs and Last_Spaces are not flushed only when
+                  --  Part.Kind = Number_Align. By simply adjusting Last_Spaces
+                  --  based on the current line length, any previously
+                  --  unflushed Last_Tabs and Last_Spaces become irrelevant,
+                  --  and the number of tabs added when Part.Kind = Indent is
+                  --  kept.
+
+                  Last_Spaces := Part.Margin - Value.Display_Width;
+
+               elsif Part.Margin < Natural (Value.Display_Width) then
+                  --  This is only possible when there are String_Align before
+                  --  Inner_Roots. Keep the flushed tabs and fill with spaces.
+                  --
+                  --  Note: If the String_Align's Texts were not whitespaces,
+                  --  then it becomes unclear what the user wanted to do.
+                  --  Inner root assumes that previous indentation was tabs
+                  --  followed by spaces only.
+
+                  Value.Text.Clear;
+                  Value.Display_Width := 0;
+                  Add_Tabs (Flushed_Tabs);
+                  Last_Spaces := Part.Margin - Value.Display_Width;
+               end if;
 
             when Dedent =>
                raise Program_Error; -- TODO: Make this a logic error
@@ -2328,6 +2349,8 @@ package body Prettier_Ada.Documents.Implementation is
       Current_Line_Length : Natural)
       return Indentation_Queue_Type
    is
+      use VSS.Strings;
+      use VSS.Characters.Latin;
 
    begin
       case Align_Data.Kind is
@@ -2348,6 +2371,17 @@ package body Prettier_Ada.Documents.Implementation is
                  Indentation_Data_Type'
                    (String_Align,
                     To_Prettier_String (Align_Data.T)),
+                 Options.Indentation);
+
+         when Continuation_Line_Indent =>
+            return
+              Generate_Indentation
+                (From,
+                 Indentation_Data_Type'
+                   (String_Align,
+                    (Character_Count (Options.Indentation.Continuation)
+                     * Space,
+                     Display_Cell_Count (Options.Indentation.Continuation))),
                  Options.Indentation);
 
          when Dedent_To_Root =>
@@ -2381,7 +2415,6 @@ package body Prettier_Ada.Documents.Implementation is
                return Result;
             end;
       end case;
-
    end Make_Align;
 
    ----------------------

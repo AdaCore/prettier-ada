@@ -32,6 +32,9 @@ procedure Builders_Tester is
    procedure Test_Break_Parent;
    --  Builds a Document_Type using the Break_Parent builder
 
+   procedure Test_Continuation_Line_Indent;
+   --  Builds a Document_Type using the Continuation_Line_Indent builder
+
    procedure Test_Cursor;
    --  Builds a Document_Type using the Cursor builder
 
@@ -134,9 +137,10 @@ procedure Builders_Tester is
            (Document_3,
             (Width       => 79,
              Indentation =>
-               (Kind => Tabs,
-                Width => 3,
-                Offset => (Spaces => 0, Tabs => 0)),
+               (Kind         => Tabs,
+                Width        => 3,
+                Continuation => 2,
+                Offset       => (Spaces => 0, Tabs => 0)),
              End_Of_Line => LF)));
       New_Line;
    end Test_Align;
@@ -236,9 +240,10 @@ procedure Builders_Tester is
             (Alignment_Table_2,
              (Width       => 1,
               Indentation =>
-                (Kind   => Spaces,
-                 Width  => 2,
-                 Offset => (Spaces => 0, Tabs => 0)),
+                (Kind         => Spaces,
+                 Width        => 2,
+                 Continuation => 2,
+                 Offset       => (Spaces => 0, Tabs => 0)),
               End_Of_Line => LF)));
       New_Line;
    end Test_Alignment_Table;
@@ -287,6 +292,40 @@ procedure Builders_Tester is
       Put_Line (Format (Document));
       New_Line;
    end Test_Break_Parent;
+
+   ------------------------------------
+   --  Test_Continuation_Line_Indent --
+   ------------------------------------
+
+   procedure Test_Continuation_Line_Indent is
+      Document : constant Document_Type :=
+        Group
+          ([Indent
+              (List
+                 (["begin",
+                   Hard_Line,
+                   Group
+                     (Continuation_Line_Indent
+                        (["Foobar", Line, "(Baz);"]))])),
+            Hard_Line,
+            "end"]);
+   begin
+      Put_Line ("=== Continuation_Line_Indent ===");
+      Put_Line ("> Continuation_Line_Indent Document JSON:");
+      Put_Line (Serialize (Document));
+      Put_Line ("> Continuation_Line_Indent Document Formatted:");
+      Put_Line
+        (Format
+           (Document,
+            (Width       => 1,
+             Indentation =>
+               (Kind         => Spaces,
+                Width        => 3,
+                Continuation => 2,
+                Offset       => (Spaces => 0, Tabs => 0)),
+             End_Of_Line => LF)));
+      New_Line;
+   end Test_Continuation_Line_Indent;
 
    ------------------
    --  Test_Cursor --
@@ -734,6 +773,7 @@ begin
    Test_Alignment_Table;
    Test_Alignment_Table_Separator;
    Test_Break_Parent;
+   Test_Continuation_Line_Indent;
    Test_Cursor;
    Test_Fill;
    Test_Group;

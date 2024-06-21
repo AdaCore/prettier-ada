@@ -80,6 +80,24 @@ package body Prettier_Ada.Documents.Builders is
       return Document_Type
    is (Align (Data, List (Contents)));
 
+   ------------------------------
+   -- Continuation_Line_Indent --
+   ------------------------------
+
+   function Continuation_Line_Indent
+     (Contents : Document_Type) return Document_Type
+   is (Align
+         (Alignment_Data_Type'(Kind => Continuation_Line_Indent), Contents));
+
+   ------------------------------
+   -- Continuation_Line_Indent --
+   ------------------------------
+
+   function Continuation_Line_Indent
+     (Contents : Document_Vector) return Document_Type
+   is (Align
+         (Alignment_Data_Type'(Kind => Continuation_Line_Indent), Contents));
+
    ------------------
    -- Break_Parent --
    ------------------

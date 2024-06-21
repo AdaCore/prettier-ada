@@ -161,6 +161,10 @@ package body Prettier_Ada.Documents.Json is
                            Ada.Strings.Unbounded.To_String
                              (Command.Align_Data.T));
 
+                     when Continuation_Line_Indent =>
+                        Data := Create_Object;
+                        Data.Set_Field ("kind", "continuationLineIndent");
+
                      when Dedent =>
                         Data := Create_Object;
                         Data.Set_Field ("kind", "dedent");
@@ -621,6 +625,8 @@ package body Prettier_Ada.Documents.Json is
                         elsif Command_Kind = "innerRoot" then Inner_Root
                         elsif Command_Kind = "text" then Text
                         elsif Command_Kind = "width" then Width
+                        elsif Command_Kind = "continuationLineIndent"
+                          then Continuation_Line_Indent
                         else raise Program_Error)));
                Align_Data : constant Alignment_Data_Type :=
                  (case Align_Data_Kind is
@@ -640,6 +646,8 @@ package body Prettier_Ada.Documents.Json is
                       Alignment_Data_Type'
                         (Kind => Width,
                          N    => Get (Json, "n")),
+                    when Continuation_Line_Indent =>
+                      Alignment_Data_Type'(Kind => Continuation_Line_Indent),
                     when None =>
                       Alignment_Data_Type'(Kind => None));
             begin

@@ -1633,6 +1633,145 @@ A : B := C;
 A
 B
 
+=== Continuation_Line_Indent ===
+> Continuation_Line_Indent Document JSON:
+{
+  "command": {
+    "break": false,
+    "command": "group",
+    "expandedStates": null,
+    "groupContents": {
+      "id": 16,
+      "kind": "list",
+      "list": [
+        {
+          "command": {
+            "command": "indent",
+            "indentContents": {
+              "id": 10,
+              "kind": "list",
+              "list": [
+                {
+                  "id": 0,
+                  "kind": "text",
+                  "text": "begin"
+                },
+                {
+                  "id": 3,
+                  "kind": "list",
+                  "list": [
+                    {
+                      "command": {
+                        "command": "line",
+                        "hard": true,
+                        "literal": false,
+                        "soft": false
+                      },
+                      "id": 1,
+                      "kind": "command"
+                    },
+                    {
+                      "command": {
+                        "command": "breakParent"
+                      },
+                      "id": 2,
+                      "kind": "command"
+                    }
+                  ]
+                },
+                {
+                  "command": {
+                    "break": false,
+                    "command": "group",
+                    "expandedStates": null,
+                    "groupContents": {
+                      "command": {
+                        "alignContents": {
+                          "id": 7,
+                          "kind": "list",
+                          "list": [
+                            {
+                              "id": 4,
+                              "kind": "text",
+                              "text": "Foobar"
+                            },
+                            {
+                              "command": {
+                                "command": "line",
+                                "hard": false,
+                                "literal": false,
+                                "soft": false
+                              },
+                              "id": 5,
+                              "kind": "command"
+                            },
+                            {
+                              "id": 6,
+                              "kind": "text",
+                              "text": "(Baz);"
+                            }
+                          ]
+                        },
+                        "alignData": {
+                          "kind": "continuationLineIndent"
+                        },
+                        "command": "align"
+                      },
+                      "id": 8,
+                      "kind": "command"
+                    },
+                    "id": 0
+                  },
+                  "id": 9,
+                  "kind": "command"
+                }
+              ]
+            }
+          },
+          "id": 11,
+          "kind": "command"
+        },
+        {
+          "id": 14,
+          "kind": "list",
+          "list": [
+            {
+              "command": {
+                "command": "line",
+                "hard": true,
+                "literal": false,
+                "soft": false
+              },
+              "id": 12,
+              "kind": "command"
+            },
+            {
+              "command": {
+                "command": "breakParent"
+              },
+              "id": 13,
+              "kind": "command"
+            }
+          ]
+        },
+        {
+          "id": 15,
+          "kind": "text",
+          "text": "end"
+        }
+      ]
+    },
+    "id": 0
+  },
+  "id": 17,
+  "kind": "command"
+}
+> Continuation_Line_Indent Document Formatted:
+begin
+   Foobar
+     (Baz);
+end
+
 === Cursor ===
 > Cursor Document JSON:
 {

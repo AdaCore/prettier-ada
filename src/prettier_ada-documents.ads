@@ -26,9 +26,10 @@ package Prettier_Ada.Documents is
    --  - Spaces for indentation and alignment
 
    type Indentation_Options_Type is record
-      Kind   : Indentation_Kind := Spaces;
-      Width  : Natural := 2;
-      Offset : Indentation_Offset_Type := (Tabs => 0, Spaces => 0);
+      Kind         : Indentation_Kind := Spaces;
+      Width        : Natural := 2;
+      Continuation : Natural := 2;
+      Offset       : Indentation_Offset_Type := (Tabs => 0, Spaces => 0);
    end record;
 
    type End_Of_Line_Kind is (LF, CR, CRLF);
@@ -40,9 +41,9 @@ package Prettier_Ada.Documents is
    end record;
 
    Default_Format_Options : constant Format_Options_Type :=
-     (Width               => 80,
-      Indentation         => (Spaces, 2, (0, 0)),
-      End_Of_Line         => LF);
+     (Width                    => 80,
+      Indentation              => (Spaces, 2, 2, (0, 0)),
+      End_Of_Line              => LF);
 
    type Document_Type is private
      with String_Literal => To_Document_Type;
@@ -83,7 +84,14 @@ package Prettier_Ada.Documents is
    --  Try to make this private.
 
    type Align_Kind_Type is
-     (Width, Text, Dedent, Dedent_To_Root, Root, Inner_Root, None);
+     (Width,
+      Text,
+      Dedent,
+      Dedent_To_Root,
+      Root,
+      Inner_Root,
+      Continuation_Line_Indent,
+      None);
    --  Width, Text, Dedent, Dedent_To_Root and Root are align kinds ported from
    --  and with the same behaviour as in Prettier.
    --
@@ -95,6 +103,8 @@ package Prettier_Ada.Documents is
    --
    --  It forces the indentation to be the line length right before formatting
    --  the Document built with the Prettier_Ada.Documents.Builder.Align.
+   --  Any previous tab indentation added by the Indent command or Align Width
+   --  kind command is kept. All others are ignored.
    --
    --  An example where this is needed is the following IfStmt where we want
    --  the DottedName suffix to be aligned based on the first name.
@@ -106,6 +116,11 @@ package Prettier_Ada.Documents is
    --               .DDDDD
    --  then
    --  ```
+   --
+   --  Continuation_Line_Indent is an extension added by this library. It's
+   --  similar to Text, where T is a string with spaces. The amount of spaces
+   --  is determined dynamically by the Format_Options_Type.Continuation_Line
+   --  that is being used to format the document.
 
    type Alignment_Data_Type (Kind : Align_Kind_Type := None) is record
       case Kind is
@@ -113,7 +128,13 @@ package Prettier_Ada.Documents is
             N : Natural; -- Number of spaces or tabs
          when Text =>
             T : Ada.Strings.Unbounded.Unbounded_String;
-         when Dedent | Dedent_To_Root | Root | Inner_Root | None =>
+         when Dedent
+            | Dedent_To_Root
+            | Root
+            | Inner_Root
+            | Continuation_Line_Indent
+            | None
+         =>
             null;
       end case;
    end record;

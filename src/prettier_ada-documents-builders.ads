@@ -56,6 +56,16 @@ package Prettier_Ada.Documents.Builders is
       return Document_Type;
    --  Creates a new Align Document Command
 
+   function Continuation_Line_Indent
+     (Contents : Document_Type) return Document_Type;
+   --  Creates a new Align Document Command with Continuation_Line_Indent as
+   --  Align_Kind_Type.
+
+   function Continuation_Line_Indent
+     (Contents : Document_Vector) return Document_Type;
+   --  Creates a new Align Document Command with Continuation_Line_Indent as
+   --  Align_Kind_Type.
+
    function Break_Parent return Document_Type;
    --  Creates a new Break_Parent Document Command
 
@@ -113,11 +123,7 @@ package Prettier_Ada.Documents.Builders is
    --  API, so an analysis to the formatting algorithm must be done.
 
    function Indent (Contents : Document_Type) return Document_Type;
-   --  Creates a new Indent Document Command.
-   --
-   --  TODO: Investigate if Contents always be a Document_Vector. This is
-   --  not possible to confirm from the Prettier API, so an analysis to the
-   --  formatting algorithm must be done.
+   --  Creates a new Indent Document Command
 
    type Indent_If_Break_Options_Type is record
       Group_Id : Symbol_Type;
