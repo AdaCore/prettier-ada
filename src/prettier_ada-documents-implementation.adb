@@ -596,7 +596,7 @@ package body Prettier_Ada.Documents.Implementation is
 
       Group_Mode_Map : Symbol_To_Mode_Map;
 
-      Pos : Natural :=
+      Current_Line_Length : Natural :=
         Options.Indentation.Offset.Spaces
         + Options.Indentation.Offset.Tabs * Options.Indentation.Width;
 
@@ -676,9 +676,9 @@ package body Prettier_Ada.Documents.Implementation is
                          .Bare_Document
                          .Command
                          .Group_Contents);
-                  Remainder : constant Integer :=
-                    Options.Width - Pos;
-                  Has_Line_Suffix : constant Boolean :=
+                  Remaining_Line_Length : constant Integer :=
+                    Options.Width - Current_Line_Length;
+                  Has_Line_Suffix       : constant Boolean :=
                     Line_Suffix.Length > 0;
 
                begin
@@ -689,7 +689,7 @@ package body Prettier_Ada.Documents.Implementation is
                        Fits
                          (Next,
                           Print_Commands,
-                          Remainder,
+                          Remaining_Line_Length,
                           Has_Line_Suffix,
                           Group_Mode_Map)
                   then
@@ -774,7 +774,7 @@ package body Prettier_Ada.Documents.Implementation is
                                        if Fits
                                             (Print_Command,
                                              Print_Commands,
-                                             Remainder,
+                                             Remaining_Line_Length,
                                              Has_Line_Suffix,
                                              Group_Mode_Map)
                                        then
@@ -868,7 +868,8 @@ package body Prettier_Ada.Documents.Implementation is
             -----------------------------------
 
             procedure Process_Document_Command_Fill is
-               Remainder : constant Integer := Options.Width - Pos;
+               Remaining_Line_Length : constant Integer :=
+                 Options.Width - Current_Line_Length;
                Parts     : constant Document_Vector :=
                  Document
                    .Bare_Document
@@ -888,7 +889,7 @@ package body Prettier_Ada.Documents.Implementation is
                        Fits
                          (Content_Flat_Command,
                           [],
-                          Remainder,
+                          Remaining_Line_Length,
                           Line_Suffix.Length > 0,
                           Group_Mode_Map,
                           True);
@@ -919,7 +920,7 @@ package body Prettier_Ada.Documents.Implementation is
                        Fits
                          (Content_Flat_Command,
                           [],
-                          Remainder,
+                          Remaining_Line_Length,
                           Line_Suffix.Length > 0,
                           Group_Mode_Map,
                           True);
@@ -958,7 +959,7 @@ package body Prettier_Ada.Documents.Implementation is
                        Fits
                          (Content_Flat_Command,
                           [],
-                          Remainder,
+                          Remaining_Line_Length,
                           Line_Suffix.Length > 0,
                           Group_Mode_Map,
                           True);
@@ -988,7 +989,7 @@ package body Prettier_Ada.Documents.Implementation is
                          Fits
                            (First_And_Second_Content_Flat_Command,
                             [],
-                            Remainder,
+                            Remaining_Line_Length,
                             Line_Suffix.Length > 0,
                             Group_Mode_Map,
                             True);
@@ -1050,13 +1051,13 @@ package body Prettier_Ada.Documents.Implementation is
                            Gnatfmt_Trace.Trace ("131211");
                            Append (Result, End_Of_Line);
                            Append (Result, Indentation.Root.Value);
-                           Pos :=
+                           Current_Line_Length :=
                              Natural (Indentation.Root.Value.Display_Width);
 
                         else
                            Gnatfmt_Trace.Trace ("131212");
                            Append (Result, End_Of_Line);
-                           Pos :=
+                           Current_Line_Length :=
                              Options.Indentation.Offset.Spaces
                              + Options.Indentation.Offset.Tabs
                                * Options.Indentation.Width;
@@ -1064,10 +1065,11 @@ package body Prettier_Ada.Documents.Implementation is
 
                      else
                         Gnatfmt_Trace.Trace ("13122");
-                        Pos := @ - Trim (Result);
+                        Current_Line_Length := @ - Trim (Result);
                         Append (Result, End_Of_Line);
                         Append (Result, Indentation.Value);
-                        Pos := Natural (Indentation.Value.Display_Width);
+                        Current_Line_Length :=
+                          Natural (Indentation.Value.Display_Width);
                      end if;
                   end if;
                end Process_Mode_Break;
@@ -1088,7 +1090,7 @@ package body Prettier_Ada.Documents.Implementation is
                      then
                         Gnatfmt_Trace.Trace ("13211");
                         Append (Result, (" ", 1));
-                        Pos := @ + Natural (1);
+                        Current_Line_Length := @ + Natural (1);
                      end if;
 
                   else
@@ -1122,7 +1124,8 @@ package body Prettier_Ada.Documents.Implementation is
                Append
                  (Result, Document.Bare_Document.Text);
                if Print_Commands.Length > 0 then
-                  Pos := @ + Document.Bare_Document.Text.Display_Width;
+                  Current_Line_Length :=
+                    @ + Document.Bare_Document.Text.Display_Width;
                end if;
             end Process_Document_Text;
 
@@ -1192,13 +1195,13 @@ package body Prettier_Ada.Documents.Implementation is
                                 (Indentation,
                                  Document.Bare_Document.Command.Align_Data,
                                  Options,
-                                 Pos),
+                                 Current_Line_Length),
                               Mode,
                               Document.Bare_Document.Command.Align_Contents));
 
                      when Command_Trim =>
                         Gnatfmt_Trace.Trace ("6");
-                        Pos := @ - Trim (Result);
+                        Current_Line_Length := @ - Trim (Result);
 
                      when Command_Group =>
                         Gnatfmt_Trace.Trace ("7");
