@@ -3,6 +3,7 @@
 --  SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 --
 
+with Ada.Assertions;
 with Ada.Containers;
 with Ada.Containers.Hashed_Maps;
 
@@ -14,9 +15,32 @@ with GNATCOLL.JSON;
 with Prettier_Ada.Documents.Implementation;
 use Prettier_Ada.Documents.Implementation;
 with Prettier_Ada.Document_Vectors;
+with Prettier_Ada.Document_Vector_Vectors;
 
 package body Prettier_Ada.Documents.Json is
    subtype Document_Vector is Prettier_Ada.Document_Vectors.Vector;
+   subtype Document_Table is Prettier_Ada.Document_Vector_Vectors.Vector;
+
+   function Assert_Equal (Actual, Expected : Command_Kind) return Boolean;
+   --  Returns True is Actual = Expected, else raises an Assertion_Error.
+
+   -------------------
+   --  Assert_Equal --
+   -------------------
+
+   function Assert_Equal (Actual, Expected : Command_Kind) return Boolean
+   is
+   begin
+      Ada.Assertions.Assert
+        (Actual = Expected,
+         "Unexpected Command_Type. Actual: """
+         & Actual'Image
+         & """. Expected: """
+         & Expected'Image
+         & """.");
+
+      return True;
+   end Assert_Equal;
 
    function Wrap_Command
      (Command : Command_Access; Id : Natural) return Document_Type
@@ -43,6 +67,9 @@ package body Prettier_Ada.Documents.Json is
 
       function From_Document_List (List : Document_Vector) return JSON_Value;
       --  Serialize a document list
+
+      function From_Document_Table (Table : Document_Table) return JSON_Value;
+      --  Serialize a document table
 
       function From_Command (Command : Command_Type) return JSON_Value;
       --  Serialize a command
@@ -91,6 +118,20 @@ package body Prettier_Ada.Documents.Json is
          end loop;
          return Create (Elements);
       end From_Document_List;
+
+      -------------------------
+      -- From_Document_Table --
+      -------------------------
+
+      function From_Document_Table (Table : Document_Table) return JSON_Value
+      is
+         Elements : JSON_Array;
+      begin
+         for Row of Table loop
+            Append (Elements, From_Document_List (Row));
+         end loop;
+         return Create (Elements);
+      end From_Document_Table;
 
       ------------------
       -- From_Command --
@@ -217,7 +258,22 @@ package body Prettier_Ada.Documents.Json is
                Result.Set_Field ("command", "trim");
 
             when Command_Alignment_Table =>
-               raise Program_Error with "TODO";
+               Result.Set_Field ("kind", "alignmentTable");
+               Result.Set_Field
+                 ("elements",
+                  From_Document_Table (Command.Alignment_Table_Elements));
+               Result.Set_Field
+                 ("separators",
+                  From_Document_Table (Command.Alignment_Table_Separators));
+               Result.Set_Field
+                 ("mustBreak", Command.Alignment_Table_Must_Break);
+
+            when Command_Alignment_Table_Separator =>
+               Result.Set_Field ("kind", "alignmentTableSeparator");
+               Result.Set_Field
+                 ("text",
+                  VSS.Strings.Conversions.To_UTF_8_String
+                    (Command.Alignment_Table_Separator_Text.Text));
          end case;
 
          return Result;
@@ -371,6 +427,22 @@ package body Prettier_Ada.Documents.Json is
          --  TODO: Add description
          --  TODO: Add Pre and Post contracts
 
+         function To_Command_Alignment_Table
+           (Json : GNATCOLL.JSON.JSON_Value)
+            return Command_Type
+         with Post => Assert_Equal
+                        (To_Command_Alignment_Table'Result.Kind,
+                         Command_Alignment_Table);
+         --  Decodes Json as a Alignment_Table command
+
+         function To_Command_Alignment_Table_Separator
+           (Json : GNATCOLL.JSON.JSON_Value)
+            return Command_Type
+         with Post => Assert_Equal
+                        (To_Command_Alignment_Table_Separator'Result.Kind,
+                         Command_Alignment_Table_Separator);
+         --  Decodes Json as a Alignment_Table_Separator command
+
          ----------------------
          -- To_Document_Text --
          ----------------------
@@ -496,6 +568,18 @@ package body Prettier_Ada.Documents.Json is
             elsif Command_Text = "trim" then
                return
                  Wrap_Command (new Command_Type'(To_Command_Trim (Json)), Id);
+
+            elsif Command_Text = "alignmentTable" then
+               return
+                 Wrap_Command
+                   (new Command_Type'(To_Command_Alignment_Table (Json)), Id);
+
+            elsif Command_Text = "alignmentTableSeparator" then
+               return
+                 Wrap_Command
+                   (new Command_Type'
+                          (To_Command_Alignment_Table_Separator (Json)),
+                    Id);
 
             else
                --  TODO: Raise a better exception
@@ -781,6 +865,87 @@ package body Prettier_Ada.Documents.Json is
          begin
             return (Kind => Command_Trim);
          end To_Command_Trim;
+
+         --------------------------------
+         -- To_Command_Alignment_Table --
+         --------------------------------
+
+         function To_Command_Alignment_Table
+           (Json : GNATCOLL.JSON.JSON_Value)
+            return Command_Type
+         is
+            function To_Document_Table
+              (Json_Table : GNATCOLL.JSON.JSON_Value)
+               return Document_Table;
+            --  TODO: Add description
+            --  TODO: Add Pre and Post contracts
+
+            -----------------------
+            -- To_Document_Table --
+            -----------------------
+
+            function To_Document_Table
+              (Json_Table : GNATCOLL.JSON.JSON_Value)
+               return Document_Table
+            is
+               Table : Document_Table;
+
+               Rows       : constant JSON_Array := Get (Json_Table);
+               Total_Rows : constant Natural    := GNATCOLL.JSON.Length (Rows);
+
+            begin
+               for Row_Index in 1 .. Total_Rows loop
+                  declare
+                     Current_Row   : constant JSON_Array :=
+                       Get (Get (Rows, Row_Index));
+                     Total_Columns : constant Natural    :=
+                       GNATCOLL.JSON.Length (Current_Row);
+
+                     Row : Document_Vector;
+
+                  begin
+                     for Column_Index in 1 .. Total_Columns loop
+                        Row.Append
+                          (To_Document_Type (Get (Current_Row, Column_Index)));
+                     end loop;
+
+                     Table.Append (Row);
+                  end;
+               end loop;
+
+               return Table;
+            end To_Document_Table;
+
+         begin
+            return
+              Command_Type'
+                (Kind                       => Command_Alignment_Table,
+                 Alignment_Table_Elements   =>
+                   To_Document_Table (Get (Json, "elements")),
+                 Alignment_Table_Separators =>
+                   To_Document_Table (Get (Json, "separators")),
+                 Alignment_Table_Must_Break => Get (Json, "mustBreak"));
+         end To_Command_Alignment_Table;
+
+         --------------------------------
+         -- To_Command_Alignment_Table --
+         --------------------------------
+
+         function To_Command_Alignment_Table_Separator
+           (Json : GNATCOLL.JSON.JSON_Value)
+            return Command_Type
+         is
+            Text          : constant VSS.Strings.Virtual_String :=
+              VSS.Strings.Conversions.To_Virtual_String
+                (UTF8_String'(Get (Json, "text")));
+            Display_Width : constant VSS.Strings.Display_Cell_Count :=
+              VSS.Strings.Utilities.Display_Width (Text);
+         begin
+            return
+              Command_Type'
+                (Kind           => Command_Alignment_Table_Separator,
+                 Alignment_Table_Separator_Text => (Text, Display_Width));
+         end To_Command_Alignment_Table_Separator;
 
       begin
          case Kind (Json) is

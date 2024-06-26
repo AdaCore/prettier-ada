@@ -1,5 +1,5 @@
 --
---  Copyright (C) 2023, AdaCore
+--  Copyright (C) 2023-2024, AdaCore
 --  SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 --
 
@@ -9,7 +9,7 @@ with GNATCOLL.Traces;
 
 package Prettier_Ada is
 
-   Gnatfmt_Trace : GNATCOLL.Traces.Trace_Handle :=
+   Prettier_Ada_Trace : GNATCOLL.Traces.Trace_Handle :=
      GNATCOLL.Traces.Create ("PRETTIER_ADA", GNATCOLL.Traces.Off);
 
    Version    : constant String := "debug";

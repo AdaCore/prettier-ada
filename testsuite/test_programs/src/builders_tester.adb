@@ -22,6 +22,13 @@ procedure Builders_Tester is
    procedure Test_Align;
    --  Builds a Document_Type using the Align builder
 
+   procedure Test_Alignment_Table;
+   --  Builds multiple Document_Type objects using the Alignment_Table builder
+
+   procedure Test_Alignment_Table_Separator;
+   --  Builds multiple Document_Type objects using the
+   --  Alignment_Table_Separator builder
+
    procedure Test_Break_Parent;
    --  Builds a Document_Type using the Break_Parent builder
 
@@ -133,6 +140,136 @@ procedure Builders_Tester is
              End_Of_Line => LF)));
       New_Line;
    end Test_Align;
+
+   --------------------------
+   -- Test_Alignment_Table --
+   --------------------------
+
+   procedure Test_Alignment_Table
+   is
+      function "+" (Source : String) return Document_Type
+      is (Alignment_Table_Separator (To_Unbounded_String (Source)));
+      --  Converts Source into a Table_Separator command
+
+      function Build_Table return Document_Type;
+      --  Creates a compex testing table
+
+      ------------------
+      --  Build_Table --
+      ------------------
+
+      function Build_Table return Document_Type
+      is
+         Group_1 : constant Symbol_Type := New_Symbol;
+         Group_2 : constant Symbol_Type := New_Symbol;
+         Group_3 : constant Symbol_Type := New_Symbol;
+         Group_4 : constant Symbol_Type := New_Symbol;
+
+         Table : constant Document_Type :=
+           Alignment_Table
+             ([[Hard_Line_Without_Break_Parent,
+                -- This line break tests that trailing spaces before a table
+                -- are removed
+                "A ",
+                +":",
+                Group (Indent (List ([Line, "B "])), Group_1),
+                +":=",
+                If_Break
+                  (Indent (Indent (Group ([Line, "C", ";"]))),
+                   Indent (Group ([Line, "C", ";"])),
+                   (Group_Id => Group_1))],
+               ["AA ",
+                +":",
+                Group (Indent (List ([Line, "BB "])), Group_2),
+                +":=",
+                If_Break
+                  (Indent (Indent (Group ([Line, "CC", ";"]))),
+                   Indent (Group ([Line, "CC", ";"])),
+                   (Group_Id => Group_2))],
+               ["AAA ",
+                +":",
+                Group (Indent (List ([Line, "BBBBBBBBB;"])), Group_3)],
+                --   BBBBBBBBB tests that it does not affect other separators
+               ["AAAA ",
+                +":",
+                Group (Indent (List ([Line, "BBBB "])), Group_4),
+                +":=",
+                If_Break
+                  (Indent (Indent (Group ([Line, "CCCC", ";"]))),
+                   Indent (Group ([Line, "CCCC", ";"])),
+                   (Group_Id => Group_4))]]);
+
+         Table_Wrapper : constant Document_Type :=
+           Group
+             (["record",
+               Indent
+                 (List
+                    ([Hard_Line_Without_Break_Parent,
+                      Table])),
+               Hard_Line_Without_Break_Parent,
+               "end record"]);
+
+      begin
+         return Table_Wrapper;
+      end Build_Table;
+
+      Alignment_Table_1 : constant Document_Type := Build_Table;
+      Alignment_Table_2 : constant Document_Type := Build_Table;
+
+   begin
+      Put_Line ("=== Alignment_Table ===");
+
+      --  Test table alignment without line breaks
+
+      Put_Line ("> Alignment_Table_1 Document JSON:");
+      Put_Line (Serialize (Alignment_Table_1));
+      Put_Line ("> Alignment_Table_1 Document Formatted:");
+      Put_Line (Format (Alignment_Table_1));
+
+      --  Test table alignment with all line breaks
+
+      Put_Line ("> Alignment_Table_2 Document JSON:");
+      Put_Line (Serialize (Alignment_Table_2));
+      Put_Line ("> Alignment_Table_2 Document Formatted:");
+      Put_Line
+         (Format
+            (Alignment_Table_2,
+             (Width       => 1,
+              Indentation =>
+                (Kind   => Spaces,
+                 Width  => 2,
+                 Offset => (Spaces => 0, Tabs => 0)),
+              End_Of_Line => LF)));
+      New_Line;
+   end Test_Alignment_Table;
+
+   ------------------------------------
+   -- Test_Alignment_Table_Separator --
+   ------------------------------------
+
+   procedure Test_Alignment_Table_Separator
+   is
+      Document : constant Document_Type :=
+        List
+          (["A",
+            " ",
+            Alignment_Table_Separator (To_Unbounded_String (":")),
+            " ",
+            "B",
+            " ",
+            Alignment_Table_Separator (To_Unbounded_String (":=")),
+            " ",
+            "C",
+            ";"]);
+
+   begin
+      Put_Line ("=== Alignment_Table_Separator ===");
+      Put_Line ("> Alignment_Table_Separator Document JSON:");
+      Put_Line (Serialize (Document));
+      Put_Line ("> Alignment_Table_Separator Document Formatted:");
+      Put_Line (Format (Document));
+      New_Line;
+   end Test_Alignment_Table_Separator;
 
    ------------------------
    --  Test_Break_Parent --
@@ -594,6 +731,8 @@ begin
 
    --  Run all the test procedures
    Test_Align;
+   Test_Alignment_Table;
+   Test_Alignment_Table_Separator;
    Test_Break_Parent;
    Test_Cursor;
    Test_Fill;

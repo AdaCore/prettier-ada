@@ -440,13 +440,153 @@ package body Prettier_Ada.Documents.Builders is
    ---------------------
 
    function Alignment_Table
-     (Rows : Prettier_Ada.Document_Vector_Vectors.Vector)
+     (Rows : Document_Table; Must_Break : Boolean := True) return Document_Type
+   is
+      Elements   : Prettier_Ada.Document_Vector_Vectors.Vector;
+      Separators : Prettier_Ada.Document_Vector_Vectors.Vector;
+
+      procedure Normalize_Table;
+      --  Splits Rows into Elements and Separators.
+      --  Separators are placed between elements so this ensures that for each
+      --  row:
+      --    Elements (row).Length = Separators (row).Length - 1
+      --
+      --  Example:
+      --
+      --  Rows: [[E11, S11, E12, S12, E13], [E21, S21, E22, S22, E23]]
+      --
+      --  Results in:
+      --
+      --  Elements: [[E11, E12, E13], [E21, E22, E23]]
+      --  Separators: [[S11, S12], [S21, S22]]
+
+      ---------------------
+      -- Normalize_Table --
+      ---------------------
+
+      procedure Normalize_Table is
+      begin
+         --  Iterate through all rows
+
+         for Row_Index in Rows.First_Index .. Rows.Last_Index loop
+            declare
+               use Prettier_Ada.Document_Vector_Vectors;
+
+               use type Ada.Containers.Count_Type;
+
+               Row : constant Constant_Reference_Type :=
+                 Rows.Constant_Reference (Row_Index);
+               --  This is the current row
+
+               --  For each row, we will have a list of elements and a list
+               --  of separators.
+
+               Row_Elements   : Prettier_Ada.Document_Vectors.Vector;
+               Row_Separators : Prettier_Ada.Document_Vectors.Vector;
+
+               Elements_Aggregate : Prettier_Ada.Document_Vectors.Vector;
+               --  Elements that follow another element are aggregated
+               --  together.
+
+            begin
+               --  Iterate through all columns
+
+               for Column_Index in Row.First_Index .. Row.Last_Index loop
+                  declare
+                     use Prettier_Ada.Document_Vectors;
+
+                     Table_Element :
+                       constant Prettier_Ada
+                                  .Document_Vectors
+                                  .Constant_Reference_Type :=
+                         Row.Constant_Reference (Column_Index);
+
+                     Is_Separator : constant Boolean :=
+                       Table_Element.Bare_Document.Kind in Document_Command
+                       and then Table_Element.Bare_Document.Command.Kind
+                                in Command_Alignment_Table_Separator;
+                     --  A table element can either be an element or a
+                     --  separator.
+                  begin
+                     if Is_Separator then
+                        --  Start by adding Elements_Aggregate to Row_Elements
+
+                        if Elements_Aggregate.Is_Empty then
+                           --  No elements before the separator. Simply add an
+                           --  empty string.
+
+                           Row_Elements.Append
+                             (Text
+                                (Ada.Strings.Unbounded.Null_Unbounded_String));
+
+                        elsif Elements_Aggregate.Length = 1 then
+                           Row_Elements.Append
+                             (Elements_Aggregate.First_Element);
+
+                        else
+                           Row_Elements.Append (Group (Elements_Aggregate));
+                        end if;
+
+                        Elements_Aggregate.Clear;
+
+                        --  Then add the separator to Row_Separators
+
+                        Row_Separators.Append (Table_Element);
+
+                     else
+                        Elements_Aggregate.Append (Table_Element);
+                     end if;
+                  end;
+               end loop;
+
+               --  If the last element of this row is not a separator, then
+               --  Elements_Aggregate won't be empty. If so, add it to
+               --  Row_Elements.
+
+                  if not Elements_Aggregate.Is_Empty then
+                     if Elements_Aggregate.Length = 1 then
+                        Row_Elements.Append (Elements_Aggregate.First_Element);
+
+                     else
+                        Row_Elements.Append (Group (Elements_Aggregate));
+                     end if;
+                  end if;
+
+               --  Flush this row's elements and separators
+               Elements.Append (Row_Elements);
+               Separators.Append (Row_Separators);
+            end;
+         end loop;
+      end Normalize_Table;
+
+   begin
+      Normalize_Table;
+
+      return
+        Wrap_Command
+          (new Command_Type'
+                 (Kind       => Command_Alignment_Table,
+                  Alignment_Table_Elements   => Elements,
+                  Alignment_Table_Separators => Separators,
+                  Alignment_Table_Must_Break => Must_Break));
+   end Alignment_Table;
+
+   -------------------------------
+   -- Alignment_Table_Separator --
+   -------------------------------
+
+   function Alignment_Table_Separator
+     (Aligner_Text : Ada.Strings.Unbounded.Unbounded_String)
       return Document_Type
    is
    begin
       return
         Wrap_Command
-          (new Command_Type'(Kind => Command_Alignment_Table, Rows => Rows));
-   end Alignment_Table;
+          (new Command_Type'
+                 (Kind                           =>
+                    Command_Alignment_Table_Separator,
+                  Alignment_Table_Separator_Text =>
+                    To_Prettier_String (Aligner_Text)));
+   end Alignment_Table_Separator;
 
 end Prettier_Ada.Documents.Builders;

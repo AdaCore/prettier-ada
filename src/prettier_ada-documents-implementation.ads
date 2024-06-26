@@ -33,19 +33,6 @@ private package Prettier_Ada.Documents.Implementation is
       return Ada.Strings.Unbounded.Unbounded_String;
    --  Formats Document with the given Options
 
-   type Format_Result_Type is
-     record
-       Formatted_Document : VSS.Strings.Virtual_String;
-       Last_Line_Length   : Natural;
-     end record;
-
-   function Format
-     (Document             : Document_Type;
-      Options              : Format_Options_Type := Default_Format_Options;
-      Initial_Line_Length  : Natural := 0)
-      return Format_Result_Type;
-   --  Formats Document with the given Options
-
    function New_Symbol return Symbol_Type;
    --  Returns a new Symbol_Type, used to uniquely identify parent
    --  Command_Group documents.
@@ -83,6 +70,10 @@ private package Prettier_Ada.Documents.Implementation is
      (Text : Ada.Strings.Unbounded.Unbounded_String) return Prettier_String;
    --  Converts an Unbounded_String into a Prettier_String
 
+   subtype Document_Vector is Prettier_Ada.Document_Vectors.Vector;
+
+   subtype Document_Table is Prettier_Ada.Document_Vector_Vectors.Vector;
+
    type Command_Kind is
      (Command_Align,
       Command_Break_Parent,
@@ -97,7 +88,8 @@ private package Prettier_Ada.Documents.Implementation is
       Command_Line_Suffix,
       Command_Line_Suffix_Boundary,
       Command_Trim,
-      Command_Alignment_Table);
+      Command_Alignment_Table,
+      Command_Alignment_Table_Separator);
 
    type Command_Type (Kind : Command_Kind) is record
       case Kind is
@@ -152,7 +144,12 @@ private package Prettier_Ada.Documents.Implementation is
             null;
 
          when Command_Alignment_Table =>
-            Rows : Prettier_Ada.Document_Vector_Vectors.Vector;
+            Alignment_Table_Elements   : Document_Table;
+            Alignment_Table_Separators : Document_Table;
+            Alignment_Table_Must_Break : Boolean;
+
+         when Command_Alignment_Table_Separator =>
+            Alignment_Table_Separator_Text : Prettier_String;
       end case;
    end record;
 
