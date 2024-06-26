@@ -7,6 +7,7 @@ with Ada.Containers;
 with Ada.Strings.Unbounded;
 
 with Prettier_Ada.Document_Vectors;
+with Prettier_Ada.Document_Vector_Vectors;
 
 with VSS.Strings;
 
@@ -95,7 +96,8 @@ private package Prettier_Ada.Documents.Implementation is
       Command_Line,
       Command_Line_Suffix,
       Command_Line_Suffix_Boundary,
-      Command_Trim);
+      Command_Trim,
+      Command_Alignment_Table);
 
    type Command_Type (Kind : Command_Kind) is record
       case Kind is
@@ -148,6 +150,9 @@ private package Prettier_Ada.Documents.Implementation is
 
          when Command_Trim =>
             null;
+
+         when Command_Alignment_Table =>
+            Rows : Prettier_Ada.Document_Vector_Vectors.Vector;
       end case;
    end record;
 

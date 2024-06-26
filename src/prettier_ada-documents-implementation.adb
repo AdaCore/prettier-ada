@@ -557,6 +557,9 @@ package body Prettier_Ada.Documents.Implementation is
                              | Command_Cursor =>
                            null;
 
+                        when Command_Alignment_Table =>
+                           raise Program_Error with "TODO";
+
                      end case;
                end case;
             end;
@@ -1437,6 +1440,9 @@ package body Prettier_Ada.Documents.Implementation is
                      when Command_Break_Parent =>
                         Gnatfmt_Trace.Trace ("15");
                         null;
+
+                     when Command_Alignment_Table =>
+                        raise Program_Error with "TODO";
                   end case;
             end case;
 
@@ -2195,6 +2201,8 @@ package body Prettier_Ada.Documents.Implementation is
                         Gnatfmt_Trace.Trace ("T10");
                         null;
 
+                     when Command_Alignment_Table =>
+                        raise Program_Error with "TODO";
                   end case;
 
             end case;

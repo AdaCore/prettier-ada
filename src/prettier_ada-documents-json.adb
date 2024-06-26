@@ -215,6 +215,9 @@ package body Prettier_Ada.Documents.Json is
 
             when Command_Trim =>
                Result.Set_Field ("command", "trim");
+
+            when Command_Alignment_Table =>
+               raise Program_Error with "TODO";
          end case;
 
          return Result;
