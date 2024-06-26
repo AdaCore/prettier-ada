@@ -32,6 +32,19 @@ private package Prettier_Ada.Documents.Implementation is
       return Ada.Strings.Unbounded.Unbounded_String;
    --  Formats Document with the given Options
 
+   type Format_Result_Type is
+     record
+       Formatted_Document : VSS.Strings.Virtual_String;
+       Last_Line_Length   : Natural;
+     end record;
+
+   function Format
+     (Document             : Document_Type;
+      Options              : Format_Options_Type := Default_Format_Options;
+      Initial_Line_Length  : Natural := 0)
+      return Format_Result_Type;
+   --  Formats Document with the given Options
+
    function New_Symbol return Symbol_Type;
    --  Returns a new Symbol_Type, used to uniquely identify parent
    --  Command_Group documents.

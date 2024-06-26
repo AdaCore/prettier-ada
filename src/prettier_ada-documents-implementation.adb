@@ -574,6 +574,20 @@ package body Prettier_Ada.Documents.Implementation is
      (Document : Document_Type;
       Options  : Format_Options_Type := Default_Format_Options)
       return Ada.Strings.Unbounded.Unbounded_String
+   is (VSS.Strings.Conversions.To_Unbounded_UTF_8_String
+         (Format (Document, Options).Formatted_Document));
+
+   ------------
+   -- Format --
+   ------------
+
+   function Format
+     (Document            : Document_Type;
+      Options             : Format_Options_Type := Default_Format_Options;
+      Initial_Line_Length : Natural :=
+        Options.Indentation.Offset.Spaces
+        + Options.Indentation.Offset.Tabs * Options.Indentation.Width)
+      return Format_Result_Type
    is
       use type Ada.Containers.Count_Type;
       use type VSS.Strings.Virtual_String;
@@ -596,9 +610,7 @@ package body Prettier_Ada.Documents.Implementation is
 
       Group_Mode_Map : Symbol_To_Mode_Map;
 
-      Current_Line_Length : Natural :=
-        Options.Indentation.Offset.Spaces
-        + Options.Indentation.Offset.Tabs * Options.Indentation.Width;
+      Current_Line_Length : Natural := Initial_Line_Length;
 
       Should_Remeasure : Boolean := False;
 
@@ -1439,12 +1451,14 @@ package body Prettier_Ada.Documents.Implementation is
 
       Prettier_Ada.Documents.Builders.Reset_Document_Id;
 
-      return VSS.Strings.Conversions.To_Unbounded_UTF_8_String (Result.Text);
+      return
+        (Result.Text,
+         Current_Line_Length);
 
    exception
       when others =>
          Prettier_Ada.Documents.Builders.Reset_Document_Id;
-         return Ada.Strings.Unbounded.Null_Unbounded_String;
+         return (VSS.Strings.Empty_Virtual_String, 0);
    end Format;
 
    ----------
