@@ -435,4 +435,18 @@ package body Prettier_Ada.Documents.Builders is
    procedure Reset_Document_Id
      renames Prettier_Ada.Documents.Implementation.Reset_Document_Id;
 
+   ---------------------
+   -- Alignment_Table --
+   ---------------------
+
+   function Alignment_Table
+     (Rows : Prettier_Ada.Document_Vector_Vectors.Vector)
+      return Document_Type
+   is
+   begin
+      return
+        Wrap_Command
+          (new Command_Type'(Kind => Command_Alignment_Table, Rows => Rows));
+   end Alignment_Table;
+
 end Prettier_Ada.Documents.Builders;
