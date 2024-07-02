@@ -136,8 +136,9 @@ package body Prettier_Ada.Documents.Builders is
    -----------
 
    function Group
-     (Documents : Document_Type;
-      Options   : Group_Options_Type := No_Group_Options)
+     (Documents    : Document_Type;
+      Id           : Symbol_Type := No_Symbol;
+      Should_Break : Boolean     := False)
       return Document_Type
    is
    begin
@@ -145,10 +146,10 @@ package body Prettier_Ada.Documents.Builders is
         Wrap_Command
           (new Command_Type'
              (Kind            => Command_Group,
-              Id              => Options.Id,
+              Id              => Id,
               Group_Contents  => Documents,
-              Break           => Options.Should_Break,
-              Expanded_States => Options.Expanded_States));
+              Break           => Should_Break,
+              Expanded_States => No_Document));
    end Group;
 
    -----------
@@ -156,10 +157,36 @@ package body Prettier_Ada.Documents.Builders is
    -----------
 
    function Group
-     (Documents : Document_Vector;
-      Options   : Group_Options_Type := No_Group_Options)
+     (Documents    : Document_Vector;
+      Id           : Symbol_Type := No_Symbol;
+      Should_Break : Boolean     := False)
       return Document_Type
-   is (Group (List (Documents), Options));
+   is (Group (List (Documents), Id, Should_Break));
+
+   -----------------------
+   -- Conditional_Group --
+   -----------------------
+
+   function Conditional_Group
+     (Alternatives : Document_Vector;
+      Id           : Symbol_Type := No_Symbol;
+      Should_Break : Boolean     := False)
+      return Document_Type
+   is
+   begin
+      return
+        Wrap_Command
+          (new Command_Type'
+             (Kind            => Command_Group,
+              Id              => Id,
+              Group_Contents  =>
+                (if Alternatives.Is_Empty
+                 then No_Document
+                 else Alternatives.First_Element),
+              Break           => Should_Break,
+              Expanded_States => List (Alternatives)));
+   end Conditional_Group;
+   --  Creates a new Conditional_Group Document Command
 
    --------------
    -- If_Break --

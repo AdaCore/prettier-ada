@@ -468,7 +468,7 @@ C
 > Group Document 2 JSON:
 {
   "command": {
-    "break": false,
+    "break": true,
     "command": "group",
     "expandedStates": null,
     "groupContents": {
@@ -512,7 +512,7 @@ C
         }
       ]
     },
-    "id": 0
+    "id": 2
   },
   "id": 13,
   "kind": "command"
@@ -521,6 +521,208 @@ C
 AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB
 C
+> Group Document 3 JSON:
+{
+  "command": {
+    "break": false,
+    "command": "group",
+    "expandedStates": null,
+    "groupContents": {
+      "id": 19,
+      "kind": "list",
+      "list": [
+        {
+          "id": 14,
+          "kind": "text",
+          "text": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+        },
+        {
+          "command": {
+            "command": "line",
+            "hard": false,
+            "literal": false,
+            "soft": false
+          },
+          "id": 15,
+          "kind": "command"
+        },
+        {
+          "id": 16,
+          "kind": "text",
+          "text": "BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB"
+        },
+        {
+          "command": {
+            "command": "line",
+            "hard": false,
+            "literal": false,
+            "soft": false
+          },
+          "id": 17,
+          "kind": "command"
+        },
+        {
+          "id": 18,
+          "kind": "text",
+          "text": "C"
+        }
+      ]
+    },
+    "id": 0
+  },
+  "id": 20,
+  "kind": "command"
+}
+> Group Document 3 Formatted:
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB
+C
+> Group Document 4 JSON:
+{
+  "command": {
+    "break": true,
+    "command": "group",
+    "expandedStates": null,
+    "groupContents": {
+      "id": 26,
+      "kind": "list",
+      "list": [
+        {
+          "id": 21,
+          "kind": "text",
+          "text": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+        },
+        {
+          "command": {
+            "command": "line",
+            "hard": false,
+            "literal": false,
+            "soft": false
+          },
+          "id": 22,
+          "kind": "command"
+        },
+        {
+          "id": 23,
+          "kind": "text",
+          "text": "BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB"
+        },
+        {
+          "command": {
+            "command": "line",
+            "hard": false,
+            "literal": false,
+            "soft": false
+          },
+          "id": 24,
+          "kind": "command"
+        },
+        {
+          "id": 25,
+          "kind": "text",
+          "text": "C"
+        }
+      ]
+    },
+    "id": 3
+  },
+  "id": 27,
+  "kind": "command"
+}
+> Group Document 4 Formatted:
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB
+C
+
+=== Conditional_Group ===
+> Conditional_Group Document 1 JSON:
+{
+  "command": {
+    "break": false,
+    "command": "group",
+    "expandedStates": {
+      "id": 2,
+      "kind": "list",
+      "list": [
+        {
+          "id": 0,
+          "kind": "text",
+          "text": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+        },
+        {
+          "id": 1,
+          "kind": "text",
+          "text": "BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB"
+        }
+      ]
+    },
+    "groupContents": {
+      "id": 0,
+      "kind": "text",
+      "text": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+    },
+    "id": 0
+  },
+  "id": 3,
+  "kind": "command"
+}
+> Conditional_Group Document 1 Formatted:
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+> Conditional_Group Document 2 JSON:
+{
+  "command": {
+    "break": true,
+    "command": "group",
+    "expandedStates": {
+      "id": 9,
+      "kind": "list",
+      "list": [
+        {
+          "id": 4,
+          "kind": "text",
+          "text": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+        },
+        {
+          "id": 8,
+          "kind": "list",
+          "list": [
+            {
+              "id": 5,
+              "kind": "text",
+              "text": "BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB"
+            },
+            {
+              "command": {
+                "command": "line",
+                "hard": false,
+                "literal": false,
+                "soft": false
+              },
+              "id": 6,
+              "kind": "command"
+            },
+            {
+              "id": 7,
+              "kind": "text",
+              "text": "CCCCC"
+            }
+          ]
+        }
+      ]
+    },
+    "groupContents": {
+      "id": 4,
+      "kind": "text",
+      "text": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+    },
+    "id": 4
+  },
+  "id": 10,
+  "kind": "command"
+}
+> Conditional_Group Document 2 Formatted:
+BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB
+CCCCC
 
 === Hard_Line ===
 > Hard_Line Document JSON:
