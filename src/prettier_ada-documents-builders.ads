@@ -72,23 +72,24 @@ package Prettier_Ada.Documents.Builders is
       return Document_Type;
    --  Creates a new Fill Document Command
 
-   type Group_Options_Type is record
-      Should_Break    : Boolean;
-      Id              : Symbol_Type;
-      Expanded_States : Document_Type;
-   end record;
-
-   No_Group_Options : constant Group_Options_Type;
-
    function Group
-     (Documents : Document_Type;
-      Options   : Group_Options_Type := No_Group_Options)
+     (Documents    : Document_Type;
+      Id           : Symbol_Type := No_Symbol;
+      Should_Break : Boolean     := False)
       return Document_Type;
    --  Creates a new Group Document Command
 
    function Group
-     (Documents : Document_Vector;
-      Options   : Group_Options_Type := No_Group_Options)
+     (Documents    : Document_Vector;
+      Id           : Symbol_Type := No_Symbol;
+      Should_Break : Boolean     := False)
+      return Document_Type;
+   --  Creates a new Group Document Command
+
+   function Conditional_Group
+     (Alternatives : Document_Vector;
+      Id           : Symbol_Type := No_Symbol;
+      Should_Break : Boolean     := False)
       return Document_Type;
    --  Creates a new Group Document Command
 
@@ -175,11 +176,6 @@ private
    No_Document : constant Document_Type := Prettier_Ada.Documents.No_Document;
 
    No_Symbol : constant Symbol_Type := Prettier_Ada.Documents.No_Symbol;
-
-   No_Group_Options : constant Group_Options_Type :=
-     (Should_Break    => False,
-      Id              => No_Symbol,
-      Expanded_States => No_Document);
 
    No_Indent_If_Break_Options : constant Indent_If_Break_Options_Type :=
      (Group_Id => No_Symbol, Negate => False);

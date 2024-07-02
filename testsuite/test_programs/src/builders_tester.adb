@@ -34,6 +34,9 @@ procedure Builders_Tester is
    procedure Test_Group;
    --  Builds a Document_Type using the Group builder
 
+   procedure Test_Conditional_Group;
+   --  Builds a Document_Type using the Conditional_Group builder
+
    procedure Test_Hard_Line;
    --  Builds a Document_Type using the Hard_Line builder
 
@@ -225,11 +228,30 @@ procedure Builders_Tester is
                "C"]));
       Document_2 : constant Document_Type :=
         Group
+          (List
+             (["AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+               Line,
+               "BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB",
+               Line,
+               "C"]),
+           New_Symbol,
+           True);
+      Document_3 : constant Document_Type :=
+        Group
           (["AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
             Line,
             "BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB",
             Line,
             "C"]);
+      Document_4 : constant Document_Type :=
+        Group
+          (["AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+            Line,
+            "BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB",
+            Line,
+            "C"],
+           New_Symbol,
+           True);
 
    begin
       Put_Line ("=== Group ===");
@@ -241,8 +263,52 @@ procedure Builders_Tester is
       Put_Line (Serialize (Document_2));
       Put_Line ("> Group Document 2 Formatted:");
       Put_Line (Format (Document_2));
+      Put_Line ("> Group Document 3 JSON:");
+      Put_Line (Serialize (Document_3));
+      Put_Line ("> Group Document 3 Formatted:");
+      Put_Line (Format (Document_3));
+      Put_Line ("> Group Document 4 JSON:");
+      Put_Line (Serialize (Document_4));
+      Put_Line ("> Group Document 4 Formatted:");
+      Put_Line (Format (Document_4));
       New_Line;
    end Test_Group;
+
+   -----------------------------
+   --  Test_Conditional_Group --
+   -----------------------------
+
+   procedure Test_Conditional_Group is
+      Document_1 : constant Document_Type :=
+        Conditional_Group
+          (["AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+            "BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB"]);
+      Document_2 : constant Document_Type :=
+        Conditional_Group
+          ([Text
+              (To_Unbounded_String ("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA")
+               & "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+               & "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+               & "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+               & "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"),
+            List (["BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB", Line, "CCCCC"])],
+            New_Symbol,
+            True);
+      --  We expect the second alternative to be printed since the first one
+      --  does not fit.
+
+   begin
+      Put_Line ("=== Conditional_Group ===");
+      Put_Line ("> Conditional_Group Document 1 JSON:");
+      Put_Line (Serialize (Document_1));
+      Put_Line ("> Conditional_Group Document 1 Formatted:");
+      Put_Line (Format (Document_1));
+      Put_Line ("> Conditional_Group Document 2 JSON:");
+      Put_Line (Serialize (Document_2));
+      Put_Line ("> Conditional_Group Document 2 Formatted:");
+      Put_Line (Format (Document_2));
+      New_Line;
+   end Test_Conditional_Group;
 
    ---------------------
    --  Test_Hard_Line --
@@ -532,6 +598,7 @@ begin
    Test_Cursor;
    Test_Fill;
    Test_Group;
+   Test_Conditional_Group;
    Test_Hard_Line;
    Test_Hard_Line_Without_Break_Parent;
    Test_If_Break;
