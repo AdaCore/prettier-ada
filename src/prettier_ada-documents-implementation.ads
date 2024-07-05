@@ -7,6 +7,7 @@ with Ada.Containers;
 with Ada.Strings.Unbounded;
 
 with Prettier_Ada.Document_Vectors;
+with Prettier_Ada.Document_Vector_Vectors;
 
 with VSS.Strings;
 
@@ -69,6 +70,10 @@ private package Prettier_Ada.Documents.Implementation is
      (Text : Ada.Strings.Unbounded.Unbounded_String) return Prettier_String;
    --  Converts an Unbounded_String into a Prettier_String
 
+   subtype Document_Vector is Prettier_Ada.Document_Vectors.Vector;
+
+   subtype Document_Table is Prettier_Ada.Document_Vector_Vectors.Vector;
+
    type Command_Kind is
      (Command_Align,
       Command_Break_Parent,
@@ -82,7 +87,9 @@ private package Prettier_Ada.Documents.Implementation is
       Command_Line,
       Command_Line_Suffix,
       Command_Line_Suffix_Boundary,
-      Command_Trim);
+      Command_Trim,
+      Command_Alignment_Table,
+      Command_Alignment_Table_Separator);
 
    type Command_Type (Kind : Command_Kind) is record
       case Kind is
@@ -135,6 +142,14 @@ private package Prettier_Ada.Documents.Implementation is
 
          when Command_Trim =>
             null;
+
+         when Command_Alignment_Table =>
+            Alignment_Table_Elements   : Document_Table;
+            Alignment_Table_Separators : Document_Table;
+            Alignment_Table_Must_Break : Boolean;
+
+         when Command_Alignment_Table_Separator =>
+            Alignment_Table_Separator_Text : Prettier_String;
       end case;
    end record;
 

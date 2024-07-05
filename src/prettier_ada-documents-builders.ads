@@ -4,6 +4,7 @@
 --
 
 with Prettier_Ada.Document_Vectors;
+with Prettier_Ada.Document_Vector_Vectors;
 
 --  This package provides functions to build a Document_Type.
 --  The API mimics the original Prettier builders API with the following
@@ -17,6 +18,7 @@ with Prettier_Ada.Document_Vectors;
 package Prettier_Ada.Documents.Builders is
 
    subtype Document_Vector is Prettier_Ada.Document_Vectors.Vector;
+   subtype Document_Table is Prettier_Ada.Document_Vector_Vectors.Vector;
 
    No_Document : constant Document_Type;
 
@@ -170,6 +172,16 @@ package Prettier_Ada.Documents.Builders is
       Documents : Document_Vector)
       return Document_Type;
    --  Join an array of Documents with a Separator
+
+   function Alignment_Table
+     (Rows : Document_Table; Must_Break : Boolean := True)
+      return Document_Type;
+   --  Create a new Aligment_Table Document Command
+
+   function Alignment_Table_Separator
+     (Aligner_Text : Ada.Strings.Unbounded.Unbounded_String)
+      return Document_Type;
+   --  Create a new Aligment_Table_Separator Document Command
 
 private
 
