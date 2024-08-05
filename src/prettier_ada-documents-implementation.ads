@@ -89,7 +89,8 @@ private package Prettier_Ada.Documents.Implementation is
       Command_Line_Suffix_Boundary,
       Command_Trim,
       Command_Alignment_Table,
-      Command_Alignment_Table_Separator);
+      Command_Alignment_Table_Separator,
+      Command_Alignment_Table_End);
 
    type Command_Type (Kind : Command_Kind) is record
       case Kind is
@@ -150,6 +151,9 @@ private package Prettier_Ada.Documents.Implementation is
 
          when Command_Alignment_Table_Separator =>
             Alignment_Table_Separator_Text : Prettier_String;
+
+         when Command_Alignment_Table_End =>
+            null;
       end case;
    end record;
 
@@ -173,5 +177,12 @@ private package Prettier_Ada.Documents.Implementation is
             Command : Command_Access;
       end case;
    end record;
+
+   function Wrap_Command
+     (Command : Command_Access) return Document_Type
+   is (Ada.Finalization.Controlled with
+       Bare_Document => new Bare_Document_Record'
+                              (Document_Command, 1, New_Document_Id, Command));
+   --  Allocate a new document to wrap the given command
 
 end Prettier_Ada.Documents.Implementation;

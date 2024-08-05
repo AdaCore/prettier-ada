@@ -1,0 +1,7 @@
+title: Table_Alignment considers width of remaining documents
+driver: document_formatter
+format_options: ["--print-width", "14"]
+description: |
+  This test confirms that Table_Alignment considers the width of
+  the remaining documents when checking if the last element should break of
+  not.
