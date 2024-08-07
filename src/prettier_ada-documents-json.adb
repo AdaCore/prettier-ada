@@ -262,7 +262,7 @@ package body Prettier_Ada.Documents.Json is
                Result.Set_Field ("command", "trim");
 
             when Command_Alignment_Table =>
-               Result.Set_Field ("kind", "alignmentTable");
+               Result.Set_Field ("command", "alignmentTable");
                Result.Set_Field
                  ("elements",
                   From_Document_Table (Command.Alignment_Table_Elements));
@@ -273,11 +273,14 @@ package body Prettier_Ada.Documents.Json is
                  ("mustBreak", Command.Alignment_Table_Must_Break);
 
             when Command_Alignment_Table_Separator =>
-               Result.Set_Field ("kind", "alignmentTableSeparator");
+               Result.Set_Field ("command", "alignmentTableSeparator");
                Result.Set_Field
                  ("text",
                   VSS.Strings.Conversions.To_UTF_8_String
                     (Command.Alignment_Table_Separator_Text.Text));
+
+            when Command_Alignment_Table_End =>
+               null; -- inner command that should not be serialized
          end case;
 
          return Result;

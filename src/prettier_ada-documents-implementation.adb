@@ -551,7 +551,9 @@ package body Prettier_Ada.Documents.Implementation is
                            end if;
 
                         when Command_Break_Parent
-                             | Command_Cursor =>
+                             | Command_Cursor
+                             | Command_Alignment_Table_End
+                        =>
                            null;
 
                         when Command_Alignment_Table =>
@@ -1435,13 +1437,45 @@ package body Prettier_Ada.Documents.Implementation is
 
                      begin
                         States (Row_Index).Should_Remeasure := False;
-                        States (Row_Index).Print_Commands :=
-                          [Print_Command_Type'
-                             (Indentation,
-                              Mode_Break,
-                              Alignment_Table_Elements
-                                .Reference (Row_Index)
-                                .Reference (First_Column_Index))];
+
+                        --  Check if this is the last table element. If so,
+                        --  include the remaining print documents preceded
+                        --  by a Command_Alignment_Table_End. The Fits
+                        --  function ignores this command, but the
+                        --  Format function does not. This ensures that the
+                        --  remaining Print_Documents are taken into account
+                        --  when checking if the table element should break
+                        --  or not.
+
+                        if Row_Index = Last_Row_Index
+                          and then First_Column_Index = Last_Column_Index
+                        then
+                           States (Row_Index).Print_Commands :=
+                             Format_State.Print_Commands;
+                           States (Row_Index).Print_Commands.Append
+                             (Print_Command_Type'
+                                (Indentation,
+                                 Mode_Break,
+                                 Wrap_Command
+                                   (new Command_Type'
+                                      (Kind =>
+                                         Command_Alignment_Table_End))));
+                           States (Row_Index).Print_Commands.Append
+                             (Print_Command_Type'
+                                (Indentation,
+                                 Mode_Break,
+                                 Alignment_Table_Elements
+                                   .Reference (Row_Index)
+                                   .Reference (First_Column_Index)));
+                        else
+                           States (Row_Index).Print_Commands :=
+                             [Print_Command_Type'
+                                (Indentation,
+                                 Mode_Break,
+                                 Alignment_Table_Elements
+                                   .Reference (Row_Index)
+                                   .Reference (First_Column_Index))];
+                        end if;
 
                         Format (States (Row_Index), Next_Options);
 
@@ -1613,13 +1647,48 @@ package body Prettier_Ada.Documents.Implementation is
 
                            begin
                               States (Row_Index).Should_Remeasure := False;
-                              States (Row_Index).Print_Commands :=
-                                [Print_Command_Type'
-                                   (Indentation,
-                                    Mode_Break,
-                                    Alignment_Table_Elements
-                                      .Reference (Row_Index)
-                                      .Reference (Column_Index))];
+
+                              --  Check if this is the last table element. If
+                              --  so, include the remaining print documents
+                              --  preceded by a Command_Alignment_Table_End.
+                              --  The Fits function ignores this command, but
+                              --  the Format function does not. This ensures
+                              --  that the remaining Print_Documents are taken
+                              --  into account when checking if the table
+                              --  element should break or not.
+
+                              if Row_Index = Last_Row_Index
+                                and then Column_Index
+                                         = Alignment_Table_Elements
+                                             .Constant_Reference (Row_Index)
+                                             .Last_Index
+                              then
+                                 States (Row_Index).Print_Commands :=
+                                   Format_State.Print_Commands;
+                                 States (Row_Index).Print_Commands.Append
+                                   (Print_Command_Type'
+                                      (Indentation,
+                                       Mode_Break,
+                                       Wrap_Command
+                                         (new Command_Type'
+                                            (Kind =>
+                                               Command_Alignment_Table_End))));
+                                 States (Row_Index).Print_Commands.Append
+                                   (Print_Command_Type'
+                                      (Indentation,
+                                       Mode_Break,
+                                       Alignment_Table_Elements
+                                         .Reference (Row_Index)
+                                         .Reference (Column_Index)));
+                              else
+                                 States (Row_Index).Print_Commands :=
+                                   [Print_Command_Type'
+                                      (Indentation,
+                                       Mode_Break,
+                                       Alignment_Table_Elements
+                                         .Reference (Row_Index)
+                                         .Reference (Column_Index))];
+                              end if;
 
                               Format (States (Row_Index), Next_Options);
 
@@ -2107,6 +2176,9 @@ package body Prettier_Ada.Documents.Implementation is
 
                      when Command_Alignment_Table_Separator =>
                         Process_Document_Command_Alignment_Table_Separator;
+
+                     when Command_Alignment_Table_End =>
+                        exit;
                   end case;
             end case;
 
@@ -2866,7 +2938,9 @@ package body Prettier_Ada.Documents.Implementation is
                           | Command_Cursor
                           | Command_Line
                           | Command_Line_Suffix_Boundary
-                          | Command_Trim =>
+                          | Command_Trim
+                          | Command_Alignment_Table_End
+                     =>
                         null;
 
                      when Command_Alignment_Table =>

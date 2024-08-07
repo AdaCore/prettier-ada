@@ -8,13 +8,6 @@ use Prettier_Ada.Documents.Implementation;
 
 package body Prettier_Ada.Documents.Builders is
 
-   function Wrap_Command
-     (Command : Command_Access) return Document_Type
-   is (Ada.Finalization.Controlled with
-       Bare_Document => new Bare_Document_Record'
-                              (Document_Command, 1, New_Document_Id, Command));
-   --  Allocate a new document to wrap the given command
-
    ----------
    -- Text --
    ----------

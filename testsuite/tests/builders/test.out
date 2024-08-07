@@ -237,6 +237,7 @@ begin
                 },
                 {
                   "command": {
+                    "command": "alignmentTable",
                     "elements": [
                       [
                         {
@@ -748,13 +749,12 @@ begin
                         }
                       ]
                     ],
-                    "kind": "alignmentTable",
                     "mustBreak": true,
                     "separators": [
                       [
                         {
                           "command": {
-                            "kind": "alignmentTableSeparator",
+                            "command": "alignmentTableSeparator",
                             "text": ":"
                           },
                           "id": 2,
@@ -762,7 +762,7 @@ begin
                         },
                         {
                           "command": {
-                            "kind": "alignmentTableSeparator",
+                            "command": "alignmentTableSeparator",
                             "text": ":="
                           },
                           "id": 8,
@@ -772,7 +772,7 @@ begin
                       [
                         {
                           "command": {
-                            "kind": "alignmentTableSeparator",
+                            "command": "alignmentTableSeparator",
                             "text": ":"
                           },
                           "id": 24,
@@ -780,7 +780,7 @@ begin
                         },
                         {
                           "command": {
-                            "kind": "alignmentTableSeparator",
+                            "command": "alignmentTableSeparator",
                             "text": ":="
                           },
                           "id": 30,
@@ -790,7 +790,7 @@ begin
                       [
                         {
                           "command": {
-                            "kind": "alignmentTableSeparator",
+                            "command": "alignmentTableSeparator",
                             "text": ":"
                           },
                           "id": 46,
@@ -800,7 +800,7 @@ begin
                       [
                         {
                           "command": {
-                            "kind": "alignmentTableSeparator",
+                            "command": "alignmentTableSeparator",
                             "text": ":"
                           },
                           "id": 53,
@@ -808,7 +808,7 @@ begin
                         },
                         {
                           "command": {
-                            "kind": "alignmentTableSeparator",
+                            "command": "alignmentTableSeparator",
                             "text": ":="
                           },
                           "id": 59,
@@ -890,6 +890,7 @@ end record
                 },
                 {
                   "command": {
+                    "command": "alignmentTable",
                     "elements": [
                       [
                         {
@@ -1401,13 +1402,12 @@ end record
                         }
                       ]
                     ],
-                    "kind": "alignmentTable",
                     "mustBreak": true,
                     "separators": [
                       [
                         {
                           "command": {
-                            "kind": "alignmentTableSeparator",
+                            "command": "alignmentTableSeparator",
                             "text": ":"
                           },
                           "id": 87,
@@ -1415,7 +1415,7 @@ end record
                         },
                         {
                           "command": {
-                            "kind": "alignmentTableSeparator",
+                            "command": "alignmentTableSeparator",
                             "text": ":="
                           },
                           "id": 93,
@@ -1425,7 +1425,7 @@ end record
                       [
                         {
                           "command": {
-                            "kind": "alignmentTableSeparator",
+                            "command": "alignmentTableSeparator",
                             "text": ":"
                           },
                           "id": 109,
@@ -1433,7 +1433,7 @@ end record
                         },
                         {
                           "command": {
-                            "kind": "alignmentTableSeparator",
+                            "command": "alignmentTableSeparator",
                             "text": ":="
                           },
                           "id": 115,
@@ -1443,7 +1443,7 @@ end record
                       [
                         {
                           "command": {
-                            "kind": "alignmentTableSeparator",
+                            "command": "alignmentTableSeparator",
                             "text": ":"
                           },
                           "id": 131,
@@ -1453,7 +1453,7 @@ end record
                       [
                         {
                           "command": {
-                            "kind": "alignmentTableSeparator",
+                            "command": "alignmentTableSeparator",
                             "text": ":"
                           },
                           "id": 138,
@@ -1461,7 +1461,7 @@ end record
                         },
                         {
                           "command": {
-                            "kind": "alignmentTableSeparator",
+                            "command": "alignmentTableSeparator",
                             "text": ":="
                           },
                           "id": 144,
@@ -1535,7 +1535,7 @@ end record
     },
     {
       "command": {
-        "kind": "alignmentTableSeparator",
+        "command": "alignmentTableSeparator",
         "text": ":"
       },
       "id": 2,
@@ -1558,7 +1558,7 @@ end record
     },
     {
       "command": {
-        "kind": "alignmentTableSeparator",
+        "command": "alignmentTableSeparator",
         "text": ":="
       },
       "id": 6,
