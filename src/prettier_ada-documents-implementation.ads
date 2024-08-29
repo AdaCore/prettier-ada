@@ -148,6 +148,16 @@ private package Prettier_Ada.Documents.Implementation is
             Alignment_Table_Elements   : Document_Table;
             Alignment_Table_Separators : Document_Table;
             Alignment_Table_Must_Break : Boolean;
+            --  If True, adds a Hardline between table rows. If the table has
+            --  more than one row, also breaks parents (and implies that
+            --  Break_Parents = True).
+
+            Break_Parents              : Boolean;
+            --  Flag used by the Propagate_Breaks procedure. If True, breaks
+            --  parent documents. This is initially set by the
+            --  Alignment_Table builder based on the Must_Break value and rows
+            --  count. The Propagate_Breaks procedure can change this value to
+            --  True if it detects Break_Parent commands inside the table rows.
 
          when Command_Alignment_Table_Separator =>
             Alignment_Table_Separator_Text : Prettier_String;

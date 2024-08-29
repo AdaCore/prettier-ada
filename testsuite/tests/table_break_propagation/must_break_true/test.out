@@ -1,0 +1,4 @@
+with GNATCOLL.Traces;
+use GNATCOLL.Traces;
+with Prettier_Ada.Documents;          use Prettier_Ada.Documents;
+with Prettier_Ada.Documents.Builders; use Prettier_Ada.Documents.Builders;

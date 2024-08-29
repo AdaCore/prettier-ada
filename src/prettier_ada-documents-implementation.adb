@@ -117,6 +117,11 @@ package body Prettier_Ada.Documents.Implementation is
      (Group_Stack : in out Document_Vector);
    --  TODO: Description
 
+   procedure Break_Parent_Table
+     (Table_Stack : in out Document_Vector);
+   --  Sets Alignment_Table_Must_Break and Break_Parents to True for the last
+   --  element of Table_Stack.
+
    function Fits
      (Next            : Print_Command_Type;
       Rest_Commands   : Print_Command_Type_Vector;
@@ -268,6 +273,27 @@ package body Prettier_Ada.Documents.Implementation is
          end;
       end if;
    end Break_Parent_Group;
+
+   ------------------------
+   -- Break_Parent_Table --
+   ------------------------
+
+   procedure Break_Parent_Table
+     (Table_Stack : in out Document_Vector) is
+   begin
+      if not Table_Stack.Is_Empty then
+         Table_Stack
+           .Last_Element
+           .Bare_Document
+           .Command
+           .Alignment_Table_Must_Break := True;
+         Table_Stack
+           .Last_Element
+           .Bare_Document
+           .Command
+           .Break_Parents := True;
+      end if;
+   end Break_Parent_Table;
 
    ----------
    -- Fits --
@@ -2529,6 +2555,7 @@ package body Prettier_Ada.Documents.Implementation is
    procedure Propagate_Breaks (Document : Document_Type) is
       Already_Visited : Document_Hashed_Set;
       Group_Stack     : Document_Vector;
+      Table_Stack     : Document_Vector;
 
       function Propagate_Breaks_On_Enter
         (Document : Document_Type)
@@ -2559,9 +2586,19 @@ package body Prettier_Ada.Documents.Implementation is
                case Document.Bare_Document.Command.Kind is
                   when Command_Break_Parent =>
                      Break_Parent_Group (Group_Stack);
+                     Break_Parent_Table (Table_Stack);
 
                   when Command_Group =>
                      Group_Stack.Append (Document);
+                     if Already_Visited.Contains (Document) then
+                        return
+                          Optional_Boolean'
+                            (Is_Set => True, Value => False);
+                     end if;
+                     Already_Visited.Insert (Document);
+
+                  when Command_Alignment_Table =>
+                     Table_Stack.Append (Document);
                      if Already_Visited.Contains (Document) then
                         return
                           Optional_Boolean'
@@ -2604,8 +2641,25 @@ package body Prettier_Ada.Documents.Implementation is
                      Group_Stack.Delete_Last;
                      if Group.Bare_Document.Command.Break then
                         Break_Parent_Group (Group_Stack);
+                        Break_Parent_Table (Table_Stack);
                      end if;
                   end;
+
+               elsif Document.Bare_Document.Command.Kind
+                 in Command_Alignment_Table
+               then
+                  declare
+                     Table : constant Document_Type :=
+                       Table_Stack.Last_Element;
+
+                  begin
+                     Table_Stack.Delete_Last;
+                     if Table.Bare_Document.Command.Break_Parents then
+                        Break_Parent_Group (Group_Stack);
+                        Break_Parent_Table (Table_Stack);
+                     end if;
+                  end;
+
                end if;
 
             when others =>
@@ -2963,7 +3017,7 @@ package body Prettier_Ada.Documents.Implementation is
                                   .Command
                                   .Alignment_Table_Elements
                                   .Constant_Reference (Row_Index)
-                                  .Last_Index;
+                                  .First_Index;
                               Last_Column_Index : constant Positive :=
                                 Doc
                                   .Bare_Document
@@ -3095,7 +3149,10 @@ package body Prettier_Ada.Documents.Implementation is
       end if;
 
       Item.Text := Item.Text.Slice (MF, ML);
-      Item.Display_Width := @ - Trim_Count;
+      Item.Display_Width :=
+        (if Trim_Count > Item.Display_Width
+         then 0
+         else Item.Display_Width - Trim_Count);
    end Trim;
 
    ----------

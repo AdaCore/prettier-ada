@@ -271,6 +271,8 @@ package body Prettier_Ada.Documents.Json is
                   From_Document_Table (Command.Alignment_Table_Separators));
                Result.Set_Field
                  ("mustBreak", Command.Alignment_Table_Must_Break);
+               Result.Set_Field
+                 ("breakParents", Command.Break_Parents);
 
             when Command_Alignment_Table_Separator =>
                Result.Set_Field ("command", "alignmentTableSeparator");
@@ -935,7 +937,8 @@ package body Prettier_Ada.Documents.Json is
                    To_Document_Table (Get (Json, "elements")),
                  Alignment_Table_Separators =>
                    To_Document_Table (Get (Json, "separators")),
-                 Alignment_Table_Must_Break => Get (Json, "mustBreak"));
+                 Alignment_Table_Must_Break => Get (Json, "mustBreak"),
+                 Break_Parents              => Get (Json, "breakParents"));
          end To_Command_Alignment_Table;
 
          --------------------------------

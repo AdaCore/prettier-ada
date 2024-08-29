@@ -558,7 +558,7 @@ package body Prettier_Ada.Documents.Builders is
                              (Elements_Aggregate.First_Element);
 
                         else
-                           Row_Elements.Append (Group (Elements_Aggregate));
+                           Row_Elements.Append (List (Elements_Aggregate));
                         end if;
 
                         Elements_Aggregate.Clear;
@@ -577,14 +577,14 @@ package body Prettier_Ada.Documents.Builders is
                --  Elements_Aggregate won't be empty. If so, add it to
                --  Row_Elements.
 
-                  if not Elements_Aggregate.Is_Empty then
-                     if Elements_Aggregate.Length = 1 then
-                        Row_Elements.Append (Elements_Aggregate.First_Element);
+               if not Elements_Aggregate.Is_Empty then
+                  if Elements_Aggregate.Length = 1 then
+                     Row_Elements.Append (Elements_Aggregate.First_Element);
 
-                     else
-                        Row_Elements.Append (Group (Elements_Aggregate));
-                     end if;
+                  else
+                     Row_Elements.Append (List (Elements_Aggregate));
                   end if;
+               end if;
 
                --  Flush this row's elements and separators
                Elements.Append (Row_Elements);
@@ -593,16 +593,20 @@ package body Prettier_Ada.Documents.Builders is
          end loop;
       end Normalize_Table;
 
+      use type Ada.Containers.Count_Type;
+
    begin
       Normalize_Table;
 
       return
         Wrap_Command
           (new Command_Type'
-                 (Kind       => Command_Alignment_Table,
+                 (Kind                       => Command_Alignment_Table,
                   Alignment_Table_Elements   => Elements,
                   Alignment_Table_Separators => Separators,
-                  Alignment_Table_Must_Break => Must_Break));
+                  Alignment_Table_Must_Break => Must_Break,
+                  Break_Parents              =>
+                    Must_Break and Elements.Length > 1));
    end Alignment_Table;
 
    -------------------------------
