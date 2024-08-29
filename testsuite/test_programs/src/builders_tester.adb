@@ -219,6 +219,17 @@ procedure Builders_Tester is
 
       Alignment_Table_1 : constant Document_Type := Build_Table;
       Alignment_Table_2 : constant Document_Type := Build_Table;
+      Alignment_Table_3 : constant Document_Type :=
+        Group
+          (Alignment_Table
+             (Rows =>
+                [["with Prettier_Ada.Documents;",
+                  List ([List ([+""])]),
+                  Group ([Line, "use Prettier_Ada.Documents;"])],
+                 ["with Prettier_Ada.Documents.Builders;",
+                  List ([+""]),
+                  Group ([Line, "use Prettier_Ada.Documents;"])]],
+              Must_Break => True));
 
    begin
       Put_Line ("=== Alignment_Table ===");
@@ -245,6 +256,13 @@ procedure Builders_Tester is
                  Continuation => 2,
                  Offset       => (Spaces => 0, Tabs => 0)),
               End_Of_Line => LF)));
+
+      --  Test that lists are flattened inside table rows
+
+      Put_Line ("> Alignment_Table_3 Document JSON:");
+      Put_Line (Serialize (Alignment_Table_3));
+      Put_Line ("> Alignment_Table_3 Document Formatted:");
+      Put_Line (Format (Alignment_Table_3));
       New_Line;
    end Test_Alignment_Table;
 
