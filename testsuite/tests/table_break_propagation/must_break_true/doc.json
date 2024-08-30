@@ -1,0 +1,157 @@
+{
+  "command": {
+    "break": false,
+    "command": "group",
+    "expandedStates": null,
+    "groupContents": {
+      "command": {
+        "breakParents": true,
+        "command": "alignmentTable",
+        "elements": [
+          [
+            {
+              "id": 19,
+              "kind": "text",
+              "text": "with GNATCOLL.Traces;"
+            },
+            {
+              "id": 35,
+              "kind": "list",
+              "list": [
+                {
+                  "command": {
+                    "command": "line",
+                    "hard": false,
+                    "literal": false,
+                    "soft": false
+                  },
+                  "id": 21,
+                  "kind": "command"
+                },
+                {
+                  "id": 22,
+                  "kind": "text",
+                  "text": "use GNATCOLL.Traces;"
+                }
+              ]
+            }
+          ],
+          [
+            {
+              "id": 23,
+              "kind": "text",
+              "text": "with Prettier_Ada.Documents;"
+            },
+            {
+              "command": {
+                "break": false,
+                "command": "group",
+                "expandedStates": null,
+                "groupContents": {
+                  "id": 27,
+                  "kind": "list",
+                  "list": [
+                    {
+                      "command": {
+                        "command": "line",
+                        "hard": false,
+                        "literal": false,
+                        "soft": false
+                      },
+                      "id": 25,
+                      "kind": "command"
+                    },
+                    {
+                      "id": 26,
+                      "kind": "text",
+                      "text": "use Prettier_Ada.Documents;"
+                    }
+                  ]
+                },
+                "id": 0
+              },
+              "id": 28,
+              "kind": "command"
+            }
+          ],
+          [
+            {
+              "id": 29,
+              "kind": "text",
+              "text": "with Prettier_Ada.Documents.Builders;"
+            },
+            {
+              "command": {
+                "break": false,
+                "command": "group",
+                "expandedStates": null,
+                "groupContents": {
+                  "id": 33,
+                  "kind": "list",
+                  "list": [
+                    {
+                      "command": {
+                        "command": "line",
+                        "hard": false,
+                        "literal": false,
+                        "soft": false
+                      },
+                      "id": 31,
+                      "kind": "command"
+                    },
+                    {
+                      "id": 32,
+                      "kind": "text",
+                      "text": "use Prettier_Ada.Documents.Builders;"
+                    }
+                  ]
+                },
+                "id": 0
+              },
+              "id": 34,
+              "kind": "command"
+            }
+          ]
+        ],
+        "mustBreak": true,
+        "separators": [
+          [
+            {
+              "command": {
+                "command": "alignmentTableSeparator",
+                "text": ""
+              },
+              "id": 20,
+              "kind": "command"
+            }
+          ],
+          [
+            {
+              "command": {
+                "command": "alignmentTableSeparator",
+                "text": ""
+              },
+              "id": 24,
+              "kind": "command"
+            }
+          ],
+          [
+            {
+              "command": {
+                "command": "alignmentTableSeparator",
+                "text": ""
+              },
+              "id": 30,
+              "kind": "command"
+            }
+          ]
+        ]
+      },
+      "id": 36,
+      "kind": "command"
+    },
+    "id": 0
+  },
+  "id": 37,
+  "kind": "command"
+}

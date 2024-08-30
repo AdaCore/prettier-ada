@@ -210,11 +210,11 @@ begin
     "command": "group",
     "expandedStates": null,
     "groupContents": {
-      "id": 83,
+      "id": 82,
       "kind": "list",
       "list": [
         {
-          "id": 77,
+          "id": 76,
           "kind": "text",
           "text": "record"
         },
@@ -222,7 +222,7 @@ begin
           "command": {
             "command": "indent",
             "indentContents": {
-              "id": 79,
+              "id": 78,
               "kind": "list",
               "list": [
                 {
@@ -232,44 +232,35 @@ begin
                     "literal": false,
                     "soft": false
                   },
-                  "id": 78,
+                  "id": 77,
                   "kind": "command"
                 },
                 {
                   "command": {
+                    "breakParents": true,
                     "command": "alignmentTable",
                     "elements": [
                       [
                         {
-                          "command": {
-                            "break": false,
-                            "command": "group",
-                            "expandedStates": null,
-                            "groupContents": {
-                              "id": 74,
-                              "kind": "list",
-                              "list": [
-                                {
-                                  "command": {
-                                    "command": "line",
-                                    "hard": true,
-                                    "literal": false,
-                                    "soft": false
-                                  },
-                                  "id": 0,
-                                  "kind": "command"
-                                },
-                                {
-                                  "id": 1,
-                                  "kind": "text",
-                                  "text": "A "
-                                }
-                              ]
+                          "id": 74,
+                          "kind": "list",
+                          "list": [
+                            {
+                              "command": {
+                                "command": "line",
+                                "hard": true,
+                                "literal": false,
+                                "soft": false
+                              },
+                              "id": 0,
+                              "kind": "command"
                             },
-                            "id": 0
-                          },
-                          "id": 75,
-                          "kind": "command"
+                            {
+                              "id": 1,
+                              "kind": "text",
+                              "text": "A "
+                            }
+                          ]
                         },
                         {
                           "command": {
@@ -817,13 +808,13 @@ begin
                       ]
                     ]
                   },
-                  "id": 76,
+                  "id": 75,
                   "kind": "command"
                 }
               ]
             }
           },
-          "id": 80,
+          "id": 79,
           "kind": "command"
         },
         {
@@ -833,11 +824,11 @@ begin
             "literal": false,
             "soft": false
           },
-          "id": 81,
+          "id": 80,
           "kind": "command"
         },
         {
-          "id": 82,
+          "id": 81,
           "kind": "text",
           "text": "end record"
         }
@@ -845,7 +836,7 @@ begin
     },
     "id": 0
   },
-  "id": 84,
+  "id": 83,
   "kind": "command"
 }
 > Alignment_Table_1 Document Formatted:
@@ -863,11 +854,11 @@ end record
     "command": "group",
     "expandedStates": null,
     "groupContents": {
-      "id": 168,
+      "id": 166,
       "kind": "list",
       "list": [
         {
-          "id": 162,
+          "id": 160,
           "kind": "text",
           "text": "record"
         },
@@ -875,7 +866,7 @@ end record
           "command": {
             "command": "indent",
             "indentContents": {
-              "id": 164,
+              "id": 162,
               "kind": "list",
               "list": [
                 {
@@ -885,44 +876,35 @@ end record
                     "literal": false,
                     "soft": false
                   },
-                  "id": 163,
+                  "id": 161,
                   "kind": "command"
                 },
                 {
                   "command": {
+                    "breakParents": true,
                     "command": "alignmentTable",
                     "elements": [
                       [
                         {
-                          "command": {
-                            "break": false,
-                            "command": "group",
-                            "expandedStates": null,
-                            "groupContents": {
-                              "id": 159,
-                              "kind": "list",
-                              "list": [
-                                {
-                                  "command": {
-                                    "command": "line",
-                                    "hard": true,
-                                    "literal": false,
-                                    "soft": false
-                                  },
-                                  "id": 85,
-                                  "kind": "command"
-                                },
-                                {
-                                  "id": 86,
-                                  "kind": "text",
-                                  "text": "A "
-                                }
-                              ]
+                          "id": 158,
+                          "kind": "list",
+                          "list": [
+                            {
+                              "command": {
+                                "command": "line",
+                                "hard": true,
+                                "literal": false,
+                                "soft": false
+                              },
+                              "id": 84,
+                              "kind": "command"
                             },
-                            "id": 0
-                          },
-                          "id": 160,
-                          "kind": "command"
+                            {
+                              "id": 85,
+                              "kind": "text",
+                              "text": "A "
+                            }
+                          ]
                         },
                         {
                           "command": {
@@ -933,7 +915,7 @@ end record
                               "command": {
                                 "command": "indent",
                                 "indentContents": {
-                                  "id": 90,
+                                  "id": 89,
                                   "kind": "list",
                                   "list": [
                                     {
@@ -943,23 +925,23 @@ end record
                                         "literal": false,
                                         "soft": false
                                       },
-                                      "id": 88,
+                                      "id": 87,
                                       "kind": "command"
                                     },
                                     {
-                                      "id": 89,
+                                      "id": 88,
                                       "kind": "text",
                                       "text": "B "
                                     }
                                   ]
                                 }
                               },
-                              "id": 91,
+                              "id": 90,
                               "kind": "command"
                             },
                             "id": 5
                           },
-                          "id": 92,
+                          "id": 91,
                           "kind": "command"
                         },
                         {
@@ -976,7 +958,7 @@ end record
                                         "command": "group",
                                         "expandedStates": null,
                                         "groupContents": {
-                                          "id": 97,
+                                          "id": 96,
                                           "kind": "list",
                                           "list": [
                                             {
@@ -986,16 +968,16 @@ end record
                                                 "literal": false,
                                                 "soft": false
                                               },
-                                              "id": 94,
+                                              "id": 93,
                                               "kind": "command"
                                             },
                                             {
-                                              "id": 95,
+                                              "id": 94,
                                               "kind": "text",
                                               "text": "C"
                                             },
                                             {
-                                              "id": 96,
+                                              "id": 95,
                                               "kind": "text",
                                               "text": ";"
                                             }
@@ -1003,15 +985,15 @@ end record
                                         },
                                         "id": 0
                                       },
-                                      "id": 98,
+                                      "id": 97,
                                       "kind": "command"
                                     }
                                   },
-                                  "id": 99,
+                                  "id": 98,
                                   "kind": "command"
                                 }
                               },
-                              "id": 100,
+                              "id": 99,
                               "kind": "command"
                             },
                             "command": "ifBreak",
@@ -1024,7 +1006,7 @@ end record
                                     "command": "group",
                                     "expandedStates": null,
                                     "groupContents": {
-                                      "id": 104,
+                                      "id": 103,
                                       "kind": "list",
                                       "list": [
                                         {
@@ -1034,16 +1016,16 @@ end record
                                             "literal": false,
                                             "soft": false
                                           },
-                                          "id": 101,
+                                          "id": 100,
                                           "kind": "command"
                                         },
                                         {
-                                          "id": 102,
+                                          "id": 101,
                                           "kind": "text",
                                           "text": "C"
                                         },
                                         {
-                                          "id": 103,
+                                          "id": 102,
                                           "kind": "text",
                                           "text": ";"
                                         }
@@ -1051,22 +1033,22 @@ end record
                                     },
                                     "id": 0
                                   },
-                                  "id": 105,
+                                  "id": 104,
                                   "kind": "command"
                                 }
                               },
-                              "id": 106,
+                              "id": 105,
                               "kind": "command"
                             },
                             "ifBreakGroupId": 5
                           },
-                          "id": 107,
+                          "id": 106,
                           "kind": "command"
                         }
                       ],
                       [
                         {
-                          "id": 108,
+                          "id": 107,
                           "kind": "text",
                           "text": "AA "
                         },
@@ -1079,7 +1061,7 @@ end record
                               "command": {
                                 "command": "indent",
                                 "indentContents": {
-                                  "id": 112,
+                                  "id": 111,
                                   "kind": "list",
                                   "list": [
                                     {
@@ -1089,23 +1071,23 @@ end record
                                         "literal": false,
                                         "soft": false
                                       },
-                                      "id": 110,
+                                      "id": 109,
                                       "kind": "command"
                                     },
                                     {
-                                      "id": 111,
+                                      "id": 110,
                                       "kind": "text",
                                       "text": "BB "
                                     }
                                   ]
                                 }
                               },
-                              "id": 113,
+                              "id": 112,
                               "kind": "command"
                             },
                             "id": 6
                           },
-                          "id": 114,
+                          "id": 113,
                           "kind": "command"
                         },
                         {
@@ -1122,7 +1104,7 @@ end record
                                         "command": "group",
                                         "expandedStates": null,
                                         "groupContents": {
-                                          "id": 119,
+                                          "id": 118,
                                           "kind": "list",
                                           "list": [
                                             {
@@ -1132,16 +1114,16 @@ end record
                                                 "literal": false,
                                                 "soft": false
                                               },
-                                              "id": 116,
+                                              "id": 115,
                                               "kind": "command"
                                             },
                                             {
-                                              "id": 117,
+                                              "id": 116,
                                               "kind": "text",
                                               "text": "CC"
                                             },
                                             {
-                                              "id": 118,
+                                              "id": 117,
                                               "kind": "text",
                                               "text": ";"
                                             }
@@ -1149,15 +1131,15 @@ end record
                                         },
                                         "id": 0
                                       },
-                                      "id": 120,
+                                      "id": 119,
                                       "kind": "command"
                                     }
                                   },
-                                  "id": 121,
+                                  "id": 120,
                                   "kind": "command"
                                 }
                               },
-                              "id": 122,
+                              "id": 121,
                               "kind": "command"
                             },
                             "command": "ifBreak",
@@ -1170,7 +1152,7 @@ end record
                                     "command": "group",
                                     "expandedStates": null,
                                     "groupContents": {
-                                      "id": 126,
+                                      "id": 125,
                                       "kind": "list",
                                       "list": [
                                         {
@@ -1180,16 +1162,16 @@ end record
                                             "literal": false,
                                             "soft": false
                                           },
-                                          "id": 123,
+                                          "id": 122,
                                           "kind": "command"
                                         },
                                         {
-                                          "id": 124,
+                                          "id": 123,
                                           "kind": "text",
                                           "text": "CC"
                                         },
                                         {
-                                          "id": 125,
+                                          "id": 124,
                                           "kind": "text",
                                           "text": ";"
                                         }
@@ -1197,22 +1179,22 @@ end record
                                     },
                                     "id": 0
                                   },
-                                  "id": 127,
+                                  "id": 126,
                                   "kind": "command"
                                 }
                               },
-                              "id": 128,
+                              "id": 127,
                               "kind": "command"
                             },
                             "ifBreakGroupId": 6
                           },
-                          "id": 129,
+                          "id": 128,
                           "kind": "command"
                         }
                       ],
                       [
                         {
-                          "id": 130,
+                          "id": 129,
                           "kind": "text",
                           "text": "AAA "
                         },
@@ -1225,7 +1207,7 @@ end record
                               "command": {
                                 "command": "indent",
                                 "indentContents": {
-                                  "id": 134,
+                                  "id": 133,
                                   "kind": "list",
                                   "list": [
                                     {
@@ -1235,29 +1217,29 @@ end record
                                         "literal": false,
                                         "soft": false
                                       },
-                                      "id": 132,
+                                      "id": 131,
                                       "kind": "command"
                                     },
                                     {
-                                      "id": 133,
+                                      "id": 132,
                                       "kind": "text",
                                       "text": "BBBBBBBBB;"
                                     }
                                   ]
                                 }
                               },
-                              "id": 135,
+                              "id": 134,
                               "kind": "command"
                             },
                             "id": 7
                           },
-                          "id": 136,
+                          "id": 135,
                           "kind": "command"
                         }
                       ],
                       [
                         {
-                          "id": 137,
+                          "id": 136,
                           "kind": "text",
                           "text": "AAAA "
                         },
@@ -1270,7 +1252,7 @@ end record
                               "command": {
                                 "command": "indent",
                                 "indentContents": {
-                                  "id": 141,
+                                  "id": 140,
                                   "kind": "list",
                                   "list": [
                                     {
@@ -1280,23 +1262,23 @@ end record
                                         "literal": false,
                                         "soft": false
                                       },
-                                      "id": 139,
+                                      "id": 138,
                                       "kind": "command"
                                     },
                                     {
-                                      "id": 140,
+                                      "id": 139,
                                       "kind": "text",
                                       "text": "BBBB "
                                     }
                                   ]
                                 }
                               },
-                              "id": 142,
+                              "id": 141,
                               "kind": "command"
                             },
                             "id": 8
                           },
-                          "id": 143,
+                          "id": 142,
                           "kind": "command"
                         },
                         {
@@ -1313,7 +1295,7 @@ end record
                                         "command": "group",
                                         "expandedStates": null,
                                         "groupContents": {
-                                          "id": 148,
+                                          "id": 147,
                                           "kind": "list",
                                           "list": [
                                             {
@@ -1323,16 +1305,16 @@ end record
                                                 "literal": false,
                                                 "soft": false
                                               },
-                                              "id": 145,
+                                              "id": 144,
                                               "kind": "command"
                                             },
                                             {
-                                              "id": 146,
+                                              "id": 145,
                                               "kind": "text",
                                               "text": "CCCC"
                                             },
                                             {
-                                              "id": 147,
+                                              "id": 146,
                                               "kind": "text",
                                               "text": ";"
                                             }
@@ -1340,15 +1322,15 @@ end record
                                         },
                                         "id": 0
                                       },
-                                      "id": 149,
+                                      "id": 148,
                                       "kind": "command"
                                     }
                                   },
-                                  "id": 150,
+                                  "id": 149,
                                   "kind": "command"
                                 }
                               },
-                              "id": 151,
+                              "id": 150,
                               "kind": "command"
                             },
                             "command": "ifBreak",
@@ -1361,7 +1343,7 @@ end record
                                     "command": "group",
                                     "expandedStates": null,
                                     "groupContents": {
-                                      "id": 155,
+                                      "id": 154,
                                       "kind": "list",
                                       "list": [
                                         {
@@ -1371,16 +1353,16 @@ end record
                                             "literal": false,
                                             "soft": false
                                           },
-                                          "id": 152,
+                                          "id": 151,
                                           "kind": "command"
                                         },
                                         {
-                                          "id": 153,
+                                          "id": 152,
                                           "kind": "text",
                                           "text": "CCCC"
                                         },
                                         {
-                                          "id": 154,
+                                          "id": 153,
                                           "kind": "text",
                                           "text": ";"
                                         }
@@ -1388,16 +1370,16 @@ end record
                                     },
                                     "id": 0
                                   },
-                                  "id": 156,
+                                  "id": 155,
                                   "kind": "command"
                                 }
                               },
-                              "id": 157,
+                              "id": 156,
                               "kind": "command"
                             },
                             "ifBreakGroupId": 8
                           },
-                          "id": 158,
+                          "id": 157,
                           "kind": "command"
                         }
                       ]
@@ -1410,7 +1392,7 @@ end record
                             "command": "alignmentTableSeparator",
                             "text": ":"
                           },
-                          "id": 87,
+                          "id": 86,
                           "kind": "command"
                         },
                         {
@@ -1418,7 +1400,7 @@ end record
                             "command": "alignmentTableSeparator",
                             "text": ":="
                           },
-                          "id": 93,
+                          "id": 92,
                           "kind": "command"
                         }
                       ],
@@ -1428,7 +1410,7 @@ end record
                             "command": "alignmentTableSeparator",
                             "text": ":"
                           },
-                          "id": 109,
+                          "id": 108,
                           "kind": "command"
                         },
                         {
@@ -1436,7 +1418,7 @@ end record
                             "command": "alignmentTableSeparator",
                             "text": ":="
                           },
-                          "id": 115,
+                          "id": 114,
                           "kind": "command"
                         }
                       ],
@@ -1446,7 +1428,7 @@ end record
                             "command": "alignmentTableSeparator",
                             "text": ":"
                           },
-                          "id": 131,
+                          "id": 130,
                           "kind": "command"
                         }
                       ],
@@ -1456,7 +1438,7 @@ end record
                             "command": "alignmentTableSeparator",
                             "text": ":"
                           },
-                          "id": 138,
+                          "id": 137,
                           "kind": "command"
                         },
                         {
@@ -1464,19 +1446,19 @@ end record
                             "command": "alignmentTableSeparator",
                             "text": ":="
                           },
-                          "id": 144,
+                          "id": 143,
                           "kind": "command"
                         }
                       ]
                     ]
                   },
-                  "id": 161,
+                  "id": 159,
                   "kind": "command"
                 }
               ]
             }
           },
-          "id": 165,
+          "id": 163,
           "kind": "command"
         },
         {
@@ -1486,11 +1468,11 @@ end record
             "literal": false,
             "soft": false
           },
-          "id": 166,
+          "id": 164,
           "kind": "command"
         },
         {
-          "id": 167,
+          "id": 165,
           "kind": "text",
           "text": "end record"
         }
@@ -1498,7 +1480,7 @@ end record
     },
     "id": 0
   },
-  "id": 169,
+  "id": 167,
   "kind": "command"
 }
 > Alignment_Table_2 Document Formatted:
@@ -1524,11 +1506,12 @@ end record
     "expandedStates": null,
     "groupContents": {
       "command": {
+        "breakParents": true,
         "command": "alignmentTable",
         "elements": [
           [
             {
-              "id": 170,
+              "id": 168,
               "kind": "text",
               "text": "with Prettier_Ada.Documents;"
             },
@@ -1538,7 +1521,7 @@ end record
                 "command": "group",
                 "expandedStates": null,
                 "groupContents": {
-                  "id": 176,
+                  "id": 174,
                   "kind": "list",
                   "list": [
                     {
@@ -1548,11 +1531,11 @@ end record
                         "literal": false,
                         "soft": false
                       },
-                      "id": 174,
+                      "id": 172,
                       "kind": "command"
                     },
                     {
-                      "id": 175,
+                      "id": 173,
                       "kind": "text",
                       "text": "use Prettier_Ada.Documents;"
                     }
@@ -1560,13 +1543,13 @@ end record
                 },
                 "id": 0
               },
-              "id": 177,
+              "id": 175,
               "kind": "command"
             }
           ],
           [
             {
-              "id": 178,
+              "id": 176,
               "kind": "text",
               "text": "with Prettier_Ada.Documents.Builders;"
             },
@@ -1576,7 +1559,7 @@ end record
                 "command": "group",
                 "expandedStates": null,
                 "groupContents": {
-                  "id": 183,
+                  "id": 181,
                   "kind": "list",
                   "list": [
                     {
@@ -1586,11 +1569,11 @@ end record
                         "literal": false,
                         "soft": false
                       },
-                      "id": 181,
+                      "id": 179,
                       "kind": "command"
                     },
                     {
-                      "id": 182,
+                      "id": 180,
                       "kind": "text",
                       "text": "use Prettier_Ada.Documents;"
                     }
@@ -1598,7 +1581,7 @@ end record
                 },
                 "id": 0
               },
-              "id": 184,
+              "id": 182,
               "kind": "command"
             }
           ]
@@ -1611,7 +1594,7 @@ end record
                 "command": "alignmentTableSeparator",
                 "text": ""
               },
-              "id": 171,
+              "id": 169,
               "kind": "command"
             }
           ],
@@ -1621,18 +1604,18 @@ end record
                 "command": "alignmentTableSeparator",
                 "text": ""
               },
-              "id": 179,
+              "id": 177,
               "kind": "command"
             }
           ]
         ]
       },
-      "id": 185,
+      "id": 183,
       "kind": "command"
     },
     "id": 0
   },
-  "id": 186,
+  "id": 184,
   "kind": "command"
 }
 > Alignment_Table_3 Document Formatted:

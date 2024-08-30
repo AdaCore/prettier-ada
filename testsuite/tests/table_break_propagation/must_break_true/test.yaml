@@ -1,0 +1,4 @@
+title: Table_Alignment Must_Break propagation
+driver: document_formatter
+description: |
+  Test that Aligment_Table Must_Break propagates to rows.

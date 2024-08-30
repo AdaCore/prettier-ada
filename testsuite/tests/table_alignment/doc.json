@@ -16,6 +16,7 @@
           "command": {
             "alignContents": {
               "command": {
+                "breakParents": false,
                 "command": "alignmentTable",
                 "elements": [
                   [

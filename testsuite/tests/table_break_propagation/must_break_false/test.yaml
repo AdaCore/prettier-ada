@@ -1,0 +1,4 @@
+title: Table_Alignment Must_Break propagation
+driver: document_formatter
+description: |
+  Test that Hardlines inside Aligment_Tables propagate to the whole table.
