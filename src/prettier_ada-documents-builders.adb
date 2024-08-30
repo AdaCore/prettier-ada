@@ -476,6 +476,29 @@ package body Prettier_Ada.Documents.Builders is
       ---------------------
 
       procedure Normalize_Table is
+         function Flatten (Row : Document_Vector) return Document_Vector;
+         --  Recursively flattens nested elements that are of Document_List
+         --  kind.
+
+         -------------
+         -- Flatten --
+         -------------
+
+         function Flatten (Row : Document_Vector) return Document_Vector is
+         begin
+            return Flattened_Row : Document_Vector do
+               for Document of Row loop
+                  if Document.Bare_Document.Kind = Document_List then
+                     Flattened_Row.Append
+                       (Flatten (Document.Bare_Document.List));
+
+                  else
+                     Flattened_Row.Append (Document);
+                  end if;
+               end loop;
+            end return;
+         end Flatten;
+
       begin
          --  Iterate through all rows
 
@@ -485,8 +508,8 @@ package body Prettier_Ada.Documents.Builders is
 
                use type Ada.Containers.Count_Type;
 
-               Row : constant Constant_Reference_Type :=
-                 Rows.Constant_Reference (Row_Index);
+               Row : constant Document_Vector :=
+                 Flatten (Rows.Constant_Reference (Row_Index));
                --  This is the current row
 
                --  For each row, we will have a list of elements and a list

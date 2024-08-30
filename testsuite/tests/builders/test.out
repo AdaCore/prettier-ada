@@ -1516,6 +1516,128 @@ record
     BBBB :=
       CCCC;
 end record
+> Alignment_Table_3 Document JSON:
+{
+  "command": {
+    "break": false,
+    "command": "group",
+    "expandedStates": null,
+    "groupContents": {
+      "command": {
+        "command": "alignmentTable",
+        "elements": [
+          [
+            {
+              "id": 170,
+              "kind": "text",
+              "text": "with Prettier_Ada.Documents;"
+            },
+            {
+              "command": {
+                "break": false,
+                "command": "group",
+                "expandedStates": null,
+                "groupContents": {
+                  "id": 176,
+                  "kind": "list",
+                  "list": [
+                    {
+                      "command": {
+                        "command": "line",
+                        "hard": false,
+                        "literal": false,
+                        "soft": false
+                      },
+                      "id": 174,
+                      "kind": "command"
+                    },
+                    {
+                      "id": 175,
+                      "kind": "text",
+                      "text": "use Prettier_Ada.Documents;"
+                    }
+                  ]
+                },
+                "id": 0
+              },
+              "id": 177,
+              "kind": "command"
+            }
+          ],
+          [
+            {
+              "id": 178,
+              "kind": "text",
+              "text": "with Prettier_Ada.Documents.Builders;"
+            },
+            {
+              "command": {
+                "break": false,
+                "command": "group",
+                "expandedStates": null,
+                "groupContents": {
+                  "id": 183,
+                  "kind": "list",
+                  "list": [
+                    {
+                      "command": {
+                        "command": "line",
+                        "hard": false,
+                        "literal": false,
+                        "soft": false
+                      },
+                      "id": 181,
+                      "kind": "command"
+                    },
+                    {
+                      "id": 182,
+                      "kind": "text",
+                      "text": "use Prettier_Ada.Documents;"
+                    }
+                  ]
+                },
+                "id": 0
+              },
+              "id": 184,
+              "kind": "command"
+            }
+          ]
+        ],
+        "mustBreak": true,
+        "separators": [
+          [
+            {
+              "command": {
+                "command": "alignmentTableSeparator",
+                "text": ""
+              },
+              "id": 171,
+              "kind": "command"
+            }
+          ],
+          [
+            {
+              "command": {
+                "command": "alignmentTableSeparator",
+                "text": ""
+              },
+              "id": 179,
+              "kind": "command"
+            }
+          ]
+        ]
+      },
+      "id": 185,
+      "kind": "command"
+    },
+    "id": 0
+  },
+  "id": 186,
+  "kind": "command"
+}
+> Alignment_Table_3 Document Formatted:
+with Prettier_Ada.Documents;          use Prettier_Ada.Documents;
+with Prettier_Ada.Documents.Builders; use Prettier_Ada.Documents;
 
 === Alignment_Table_Separator ===
 > Alignment_Table_Separator Document JSON:
