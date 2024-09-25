@@ -1,0 +1,183 @@
+{
+  "command": {
+    "break": false,
+    "command": "group",
+    "expandedStates": null,
+    "groupContents": {
+      "command": {
+        "command": "indent",
+        "indentContents": {
+          "id": 94,
+          "kind": "list",
+          "list": [
+            {
+              "id": 70,
+              "kind": "text",
+              "text": "Foooooooooooooo"
+            },
+            {
+              "id": 73,
+              "kind": "list",
+              "list": [
+                {
+                  "command": {
+                    "command": "line",
+                    "hard": true,
+                    "literal": false,
+                    "soft": false
+                  },
+                  "id": 71,
+                  "kind": "command"
+                },
+                {
+                  "command": {
+                    "command": "breakParent"
+                  },
+                  "id": 72,
+                  "kind": "command"
+                }
+              ]
+            },
+            {
+              "command": {
+                "breakParents": true,
+                "command": "alignmentTable",
+                "elements": [
+                  [
+                    {
+                      "id": 74,
+                      "kind": "text",
+                      "text": "AAAAA"
+                    },
+                    {
+                      "command": {
+                        "break": false,
+                        "command": "group",
+                        "expandedStates": null,
+                        "groupContents": {
+                          "id": 80,
+                          "kind": "list",
+                          "list": [
+                            {
+                              "command": {
+                                "command": "line",
+                                "hard": false,
+                                "literal": false,
+                                "soft": false
+                              },
+                              "id": 78,
+                              "kind": "command"
+                            },
+                            {
+                              "id": 79,
+                              "kind": "text",
+                              "text": "BBBBB"
+                            }
+                          ]
+                        },
+                        "id": 0
+                      },
+                      "id": 81,
+                      "kind": "command"
+                    }
+                  ],
+                  [
+                    {
+                      "id": 92,
+                      "kind": "list",
+                      "list": [
+                        {
+                          "command": {
+                            "command": "line",
+                            "hard": true,
+                            "literal": false,
+                            "soft": false
+                          },
+                          "id": 82,
+                          "kind": "command"
+                        },
+                        {
+                          "command": {
+                            "command": "breakParent"
+                          },
+                          "id": 83,
+                          "kind": "command"
+                        },
+                        {
+                          "id": 85,
+                          "kind": "text",
+                          "text": "CCC"
+                        }
+                      ]
+                    },
+                    {
+                      "command": {
+                        "break": false,
+                        "command": "group",
+                        "expandedStates": null,
+                        "groupContents": {
+                          "id": 90,
+                          "kind": "list",
+                          "list": [
+                            {
+                              "command": {
+                                "command": "line",
+                                "hard": false,
+                                "literal": false,
+                                "soft": false
+                              },
+                              "id": 88,
+                              "kind": "command"
+                            },
+                            {
+                              "id": 89,
+                              "kind": "text",
+                              "text": "DDDD"
+                            }
+                          ]
+                        },
+                        "id": 0
+                      },
+                      "id": 91,
+                      "kind": "command"
+                    }
+                  ]
+                ],
+                "mustBreak": true,
+                "separators": [
+                  [
+                    {
+                      "command": {
+                        "command": "alignmentTableSeparator",
+                        "text": ""
+                      },
+                      "id": 75,
+                      "kind": "command"
+                    }
+                  ],
+                  [
+                    {
+                      "command": {
+                        "command": "alignmentTableSeparator",
+                        "text": ""
+                      },
+                      "id": 86,
+                      "kind": "command"
+                    }
+                  ]
+                ]
+              },
+              "id": 93,
+              "kind": "command"
+            }
+          ]
+        }
+      },
+      "id": 95,
+      "kind": "command"
+    },
+    "id": 0
+  },
+  "id": 96,
+  "kind": "command"
+}
