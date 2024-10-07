@@ -1746,7 +1746,12 @@ package body Prettier_Ada.Documents.Implementation is
                      in Standard."+" (First_Row_Index, 1) .. Last_Row_Index
                   loop
                      Format_State.Result.Text.Append (End_Of_Line.Text);
-                     Format_State.Result.Text.Append (Indentation.Value.Text);
+                     if not States (Row_Index).Result.Text.Starts_With
+                              (End_Of_Line.Text)
+                     then
+                        Format_State.Result.Text.Append
+                          (Indentation.Value.Text);
+                     end if;
                      Format_State.Result.Text.Append
                        (States (Row_Index).Result.Text);
                   end loop;
