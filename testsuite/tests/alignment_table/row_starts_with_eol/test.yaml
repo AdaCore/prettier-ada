@@ -1,0 +1,4 @@
+title: Table_Alignment row starts with EOL
+driver: document_formatter
+description: |
+  This test confirms that Table_Alignment does not add indentation to a row if it starts with EOL.
