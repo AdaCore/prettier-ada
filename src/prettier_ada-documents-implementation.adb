@@ -372,6 +372,12 @@ package body Prettier_Ada.Documents.Implementation is
             begin
                Fit_Commands.Delete_Last;
 
+               --  If No_Document, skip it
+
+               if Document = No_Document then
+                  goto Continue;
+               end if;
+
                case Document.Bare_Document.Kind is
                   when Document_Text =>
                      Append
@@ -398,12 +404,6 @@ package body Prettier_Ada.Documents.Implementation is
                            end loop;
 
                         when Command_Indent =>
-                           Ada.Assertions.Assert
-                             (Document
-                                .Bare_Document
-                                .Command
-                                .Indent_Contents
-                              /= No_Document);
                            Fit_Commands.Append
                              (Fit_Command_Type'
                                 (Mode,
@@ -413,12 +413,6 @@ package body Prettier_Ada.Documents.Implementation is
                                    .Indent_Contents));
 
                         when Command_Align =>
-                           Ada.Assertions.Assert
-                             (Document
-                                .Bare_Document
-                                .Command
-                                .Align_Contents
-                              /= No_Document);
                            Fit_Commands.Append
                              (Fit_Command_Type'
                                 (Mode,
@@ -428,12 +422,6 @@ package body Prettier_Ada.Documents.Implementation is
                                    .Align_Contents));
 
                         when Command_Indent_If_Break =>
-                           Ada.Assertions.Assert
-                             (Document
-                                .Bare_Document
-                                .Command
-                                .Indent_If_Break_Contents
-                              /= No_Document);
                            Fit_Commands.Append
                              (Fit_Command_Type'
                                 (Mode,
@@ -443,12 +431,6 @@ package body Prettier_Ada.Documents.Implementation is
                                    .Indent_If_Break_Contents));
 
                         when Command_Label =>
-                           Ada.Assertions.Assert
-                             (Document
-                                .Bare_Document
-                                .Command
-                                .Label_Contents
-                              /= No_Document);
                            Fit_Commands.Append
                              (Fit_Command_Type'
                                 (Mode,
@@ -737,6 +719,8 @@ package body Prettier_Ada.Documents.Implementation is
 
                      end case;
                end case;
+
+               <<Continue>>
             end;
          end if;
       end loop;
@@ -1341,7 +1325,6 @@ package body Prettier_Ada.Documents.Implementation is
 
             begin
                for Child_Document of reverse Documents loop
-                  Ada.Assertions.Assert (Child_Document /= No_Document);
                   Format_State.Print_Commands.Append
                     (Print_Command_Type'(Indentation, Mode, Child_Document));
                end loop;
@@ -1945,6 +1928,12 @@ package body Prettier_Ada.Documents.Implementation is
          begin
             Format_State.Print_Commands.Delete_Last;
 
+            --  If No_Document, skip it
+
+            if Document = No_Document then
+               goto Continue;
+            end if;
+
             case Document.Bare_Document.Kind is
                when Document_Text =>
                   Process_Document_Text;
@@ -1967,9 +1956,6 @@ package body Prettier_Ada.Documents.Implementation is
                         Format_State.Printed_Cursor_Count := @ + Natural (1);
 
                      when Command_Indent =>
-                        Ada.Assertions.Assert
-                          (Document.Bare_Document.Command.Indent_Contents
-                           /= No_Document);
                         Format_State.Print_Commands.Append
                           (Print_Command_Type'
                              (Make_Indentation
@@ -1978,9 +1964,6 @@ package body Prettier_Ada.Documents.Implementation is
                               Document.Bare_Document.Command.Indent_Contents));
 
                      when Command_Align =>
-                        Ada.Assertions.Assert
-                          (Document.Bare_Document.Command.Align_Contents
-                           /= No_Document);
                         Format_State.Print_Commands.Append
                           (Print_Command_Type'
                              (Make_Align
@@ -2212,6 +2195,8 @@ package body Prettier_Ada.Documents.Implementation is
                         exit;
                   end case;
             end case;
+
+            <<Continue>>
 
             if Format_State.Print_Commands.Length = 0
                and Format_State.Line_Suffix.Length > 0
@@ -2830,6 +2815,12 @@ package body Prettier_Ada.Documents.Implementation is
          begin
             Doc_Stack.Delete_Last;
 
+            --  If No_Document, skip it
+
+            if Doc = No_Document then
+               goto Continue;
+            end if;
+
             if Doc = Traverse_Doc_On_Exit_Stack_Marker then
                declare
                   Doc : constant Document_Type := Doc_Stack.Last_Element;
@@ -2872,7 +2863,6 @@ package body Prettier_Ada.Documents.Implementation is
 
                   begin
                      for Child_Doc of reverse Documents loop
-                        Ada.Assertions.Assert (Child_Doc /= No_Document);
                         Doc_Stack.Append (Child_Doc);
                      end loop;
                   end;
@@ -2880,23 +2870,14 @@ package body Prettier_Ada.Documents.Implementation is
                when Document_Command =>
                   case Doc.Bare_Document.Command.Kind is
                      when Command_Align =>
-                        Ada.Assertions.Assert
-                          (Doc.Bare_Document.Command.Align_Contents
-                           /= No_Document);
                         Doc_Stack.Append
                           (Doc.Bare_Document.Command.Align_Contents);
 
                      when Command_Indent =>
-                        Ada.Assertions.Assert
-                          (Doc.Bare_Document.Command.Indent_Contents
-                           /= No_Document);
                         Doc_Stack.Append
                           (Doc.Bare_Document.Command.Indent_Contents);
 
                      when Command_Indent_If_Break =>
-                        Ada.Assertions.Assert
-                          (Doc.Bare_Document.Command.Indent_If_Break_Contents
-                           /= No_Document);
                         Doc_Stack.Append
                           (Doc
                              .Bare_Document
@@ -2904,16 +2885,10 @@ package body Prettier_Ada.Documents.Implementation is
                              .Indent_If_Break_Contents);
 
                      when Command_Label =>
-                        Ada.Assertions.Assert
-                          (Doc.Bare_Document.Command.Label_Contents
-                           /= No_Document);
                         Doc_Stack.Append
                           (Doc.Bare_Document.Command.Label_Contents);
 
                      when Command_Line_Suffix =>
-                        Ada.Assertions.Assert
-                          (Doc.Bare_Document.Command.Line_Suffix_Contents
-                           /= No_Document);
                         Doc_Stack.Append
                           (Doc.Bare_Document.Command.Line_Suffix_Contents);
 
@@ -2936,7 +2911,6 @@ package body Prettier_Ada.Documents.Implementation is
                                .List;
                         begin
                            for Part of reverse Parts loop
-                              Ada.Assertions.Assert (Part /= No_Document);
                               Doc_Stack.Append (Part);
                            end loop;
                         end;
@@ -2968,26 +2942,16 @@ package body Prettier_Ada.Documents.Implementation is
 
                            begin
                               for State of reverse Expanded_States loop
-                                 Ada.Assertions.Assert (State /= No_Document);
                                  Doc_Stack.Append (State);
                               end loop;
                            end;
 
                         else
-                           Ada.Assertions.Assert
-                             (Doc.Bare_Document.Command.Group_Contents
-                              /= No_Document);
                            Doc_Stack.Append
                              (Doc.Bare_Document.Command.Group_Contents);
                         end if;
 
                      when Command_If_Break =>
-                        Ada.Assertions.Assert
-                          (Doc.Bare_Document.Command.Flat_Contents
-                           /= No_Document);
-                        Ada.Assertions.Assert
-                          (Doc.Bare_Document.Command.Break_Contents
-                           /= No_Document);
                         Doc_Stack.Append
                           (Doc.Bare_Document.Command.Flat_Contents);
                         Doc_Stack.Append
@@ -3072,10 +3036,10 @@ package body Prettier_Ada.Documents.Implementation is
                      when Command_Alignment_Table_Separator =>
                         null;
                   end case;
-
             end case;
+
+            <<Continue>>
          end;
-         <<Continue>>
       end loop;
    end Traverse_Document;
 
