@@ -83,6 +83,9 @@ package body Prettier_Ada.Documents.Implementation is
 
    subtype Print_Command_Type_Vector is Print_Command_Type_Vectors.Vector;
 
+   type Print_Command_Type_Vector_Access is
+     access all Print_Command_Type_Vector;
+
    package Symbol_To_Mode_Maps is new
      Ada.Containers.Hashed_Maps (Symbol_Type, Mode_Kind, Hash, "=");
 
@@ -91,8 +94,8 @@ package body Prettier_Ada.Documents.Implementation is
    type Format_State_Record is record
       Current_Line_Length  : Natural;
       Group_Mode_Map       : Symbol_To_Mode_Map;
-      Line_Suffix          : Print_Command_Type_Vector;
-      Print_Commands       : Print_Command_Type_Vector;
+      Line_Suffix          : Print_Command_Type_Vector_Access;
+      Print_Commands       : Print_Command_Type_Vector_Access;
       Printed_Cursor_Count : Natural;
       Result               : Prettier_String;
       Should_Remeasure     : Boolean;
@@ -103,8 +106,8 @@ package body Prettier_Ada.Documents.Implementation is
    Default_Format_State : constant Format_State_Record :=
      (Current_Line_Length  => 0,
       Group_Mode_Map       => Symbol_To_Mode_Maps.Empty_Map,
-      Line_Suffix          => [],
-      Print_Commands       => [],
+      Line_Suffix          => null,
+      Print_Commands       => null,
       Printed_Cursor_Count => 0,
       Result               => Empty_Prettier_String,
       Should_Remeasure     => False,
@@ -759,11 +762,16 @@ package body Prettier_Ada.Documents.Implementation is
            (Options.Indentation.Offset.Spaces
             + Options.Indentation.Offset.Tabs * Options.Indentation.Width));
 
+      State.Line_Suffix :=
+        new Print_Command_Type_Vector;
+      State.Line_Suffix.all := [];
       State.Print_Commands :=
-        [Print_Command_Type'
-           (Root_Indent (Options.Indentation),
-            Mode_Break,
-            Document)];
+        new Print_Command_Type_Vector;
+      State.Print_Commands.all :=
+          [Print_Command_Type'
+              (Root_Indent (Options.Indentation),
+               Mode_Break,
+               Document)];
 
       Propagate_Breaks (Document);
 
@@ -883,7 +891,7 @@ package body Prettier_Ada.Documents.Implementation is
                      and then
                        Fits
                          (Next,
-                          Format_State.Print_Commands,
+                          Format_State.Print_Commands.all,
                           Remaining_Line_Length,
                           Has_Line_Suffix,
                           Format_State.Group_Mode_Map)
@@ -955,7 +963,7 @@ package body Prettier_Ada.Documents.Implementation is
                                     begin
                                        if Fits
                                             (Print_Command,
-                                             Format_State.Print_Commands,
+                                             Format_State.Print_Commands.all,
                                              Remaining_Line_Length,
                                              Has_Line_Suffix,
                                              Format_State.Group_Mode_Map)
@@ -1232,7 +1240,7 @@ package body Prettier_Ada.Documents.Implementation is
                   if not Format_State.Line_Suffix.Is_Empty then
                      Format_State.Print_Commands.Append
                        (Print_Command_Type'(Indentation, Mode, Document));
-                     for Suffix of reverse Format_State.Line_Suffix loop
+                     for Suffix of reverse Format_State.Line_Suffix.all loop
                         Format_State.Print_Commands.Append (Suffix);
                      end loop;
                      Format_State.Line_Suffix.Clear;
@@ -1478,6 +1486,8 @@ package body Prettier_Ada.Documents.Implementation is
                                    .Reference (First_Column_Index)));
                         else
                            States (Row_Index).Print_Commands :=
+                             new Print_Command_Type_Vector;
+                           States (Row_Index).Print_Commands.all :=
                              [Print_Command_Type'
                                 (Indentation,
                                  Mode_Break,
@@ -1691,6 +1701,8 @@ package body Prettier_Ada.Documents.Implementation is
                                          .Reference (Column_Index)));
                               else
                                  States (Row_Index).Print_Commands :=
+                                   new Print_Command_Type_Vector;
+                                 States (Row_Index).Print_Commands.all :=
                                    [Print_Command_Type'
                                       (Indentation,
                                        Mode_Break,
@@ -2201,7 +2213,7 @@ package body Prettier_Ada.Documents.Implementation is
             if Format_State.Print_Commands.Length = 0
                and Format_State.Line_Suffix.Length > 0
             then
-               for Suffix of reverse Format_State.Line_Suffix loop
+               for Suffix of reverse Format_State.Line_Suffix.all loop
                   Format_State.Print_Commands.Append (Suffix);
                end loop;
                Format_State.Line_Suffix.Clear;
