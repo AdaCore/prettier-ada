@@ -64,16 +64,16 @@ package body Prettier_Ada.Documents.Implementation is
 
    type Indentation_Queue_Type;
 
-   type Indentation_Head_Type_Access is access Indentation_Queue_Type;
+   type Indentation_Queue_Access is access Indentation_Queue_Type;
 
    type Indentation_Queue_Type is record
       Value : Prettier_String;
       Queue : Indentation_Data_Vector;
-      Root  : Indentation_Head_Type_Access;
+      Root  : Indentation_Queue_Access;
    end record;
 
    type Print_Command_Type is record
-      Indentation : Indentation_Queue_Type;
+      Indentation : Indentation_Queue_Access;
       Mode        : Mode_Kind;
       Document    : Document_Type;
    end record;
@@ -142,10 +142,10 @@ package body Prettier_Ada.Documents.Implementation is
    --  Formats according to Format_Options.
 
    function Generate_Indentation
-     (From    : Indentation_Queue_Type;
+     (From    : Indentation_Queue_Access;
       Data    : Indentation_Data_Type;
       Options : Indentation_Options_Type)
-      return Indentation_Queue_Type;
+      return Indentation_Queue_Access;
    --  TODO: Description
 
    function Get_Document_Parts
@@ -159,17 +159,17 @@ package body Prettier_Ada.Documents.Implementation is
    --  TODO: Description
 
    function Make_Align
-     (From                : Indentation_Queue_Type;
+     (From                : Indentation_Queue_Access;
       Align_Data          : Alignment_Data_Type;
       Options             : Format_Options_Type;
       Current_Line_Length : Natural)
-      return Indentation_Queue_Type;
+      return Indentation_Queue_Access;
    --  TODO: Description
 
    function Make_Indentation
-     (From    : Indentation_Queue_Type;
+     (From    : Indentation_Queue_Access;
       Options : Indentation_Options_Type)
-      return Indentation_Queue_Type;
+      return Indentation_Queue_Access;
    --  TODO: Description
 
    procedure Propagate_Breaks (Document : Document_Type);
@@ -769,7 +769,7 @@ package body Prettier_Ada.Documents.Implementation is
         new Print_Command_Type_Vector;
       State.Print_Commands.all :=
           [Print_Command_Type'
-              (Root_Indent (Options.Indentation),
+              (new Indentation_Queue_Type'(Root_Indent (Options.Indentation)),
                Mode_Break,
                Document)];
 
@@ -813,8 +813,8 @@ package body Prettier_Ada.Documents.Implementation is
          declare
             Print_Command : constant Print_Command_Type :=
               Format_State.Print_Commands.Last_Element;
-            Indentation   : Indentation_Queue_Type
-              renames Print_Command.Indentation;
+            Indentation   : constant Indentation_Queue_Access :=
+              Print_Command.Indentation;
             Mode          : Mode_Kind renames Print_Command.Mode;
             Document      : Document_Type renames Print_Command.Document;
 
@@ -2260,13 +2260,16 @@ package body Prettier_Ada.Documents.Implementation is
    --------------------------
 
    function Generate_Indentation
-     (From    : Indentation_Queue_Type;
+     (From    : Indentation_Queue_Access;
       Data    : Indentation_Data_Type;
       Options : Indentation_Options_Type)
-      return Indentation_Queue_Type
+      return Indentation_Queue_Access
    is
-      Value : Prettier_String;
-      Queue : Indentation_Data_Vector := From.Queue;
+      Result : constant Indentation_Queue_Access :=
+        new Indentation_Queue_Type'
+          (Value => Empty_Prettier_String,
+           Queue => From.Queue,
+           Root  => From.Root);
 
       Flushed_Tabs : Natural := 0;
 
@@ -2298,11 +2301,11 @@ package body Prettier_Ada.Documents.Implementation is
       procedure Add_Tabs (Count : Natural) is
       begin
          VSS.Strings.Append
-           (Value.Text,
+           (Result.Value.Text,
             VSS.Strings."*"
               (VSS.Strings.Character_Count (Count),
                VSS.Characters.Latin.Character_Tabulation));
-         Value.Display_Width :=
+         Result.Value.Display_Width :=
            @ + VSS.Strings.Display_Cell_Count (Options.Width * Count);
       end Add_Tabs;
 
@@ -2314,11 +2317,12 @@ package body Prettier_Ada.Documents.Implementation is
       is
       begin
          VSS.Strings.Append
-           (Value.Text,
+           (Result.Value.Text,
             VSS.Strings."*"
               (VSS.Strings.Character_Count (Count),
                VSS.Characters.Latin.Space));
-         Value.Display_Width := @ + VSS.Strings.Display_Cell_Count (Count);
+         Result.Value.Display_Width :=
+           @ + VSS.Strings.Display_Cell_Count (Count);
       end Add_Spaces;
 
       -----------
@@ -2374,13 +2378,13 @@ package body Prettier_Ada.Documents.Implementation is
 
    begin
       if Data.Kind = Dedent then
-         Queue.Delete_Last;
+         Result.Queue.Delete_Last;
 
       else
-         Queue.Append (Data);
+         Result.Queue.Append (Data);
       end if;
 
-      for Part of Queue loop
+      for Part of Result.Queue loop
          case Part.Kind is
             when Indent =>
                Flush;
@@ -2391,14 +2395,14 @@ package body Prettier_Ada.Documents.Implementation is
 
             when String_Align =>
                Flush;
-               Append (Value, Part.Text);
+               Append (Result.Value, Part.Text);
 
             when Number_Align =>
                Last_Tabs := @ + Natural (1);
                Last_Spaces := @ + Part.Width;
 
             when Inner_Root =>
-               if Part.Margin > Natural (Value.Display_Width) then
+               if Part.Margin > Natural (Result.Value.Display_Width) then
                   --  Last_Tabs and Last_Spaces are not flushed only when
                   --  Part.Kind = Number_Align. By simply adjusting Last_Spaces
                   --  based on the current line length, any previously
@@ -2406,9 +2410,9 @@ package body Prettier_Ada.Documents.Implementation is
                   --  and the number of tabs added when Part.Kind = Indent is
                   --  kept.
 
-                  Last_Spaces := Part.Margin - Value.Display_Width;
+                  Last_Spaces := Part.Margin - Result.Value.Display_Width;
 
-               elsif Part.Margin < Natural (Value.Display_Width) then
+               elsif Part.Margin < Natural (Result.Value.Display_Width) then
                   --  This is only possible when there are String_Align before
                   --  Inner_Roots. Keep the flushed tabs and fill with spaces.
                   --
@@ -2417,10 +2421,10 @@ package body Prettier_Ada.Documents.Implementation is
                   --  Inner root assumes that previous indentation was tabs
                   --  followed by spaces only.
 
-                  Value.Text.Clear;
-                  Value.Display_Width := 0;
+                  Result.Value.Text.Clear;
+                  Result.Value.Display_Width := 0;
                   Add_Tabs (Flushed_Tabs);
-                  Last_Spaces := Part.Margin - Value.Display_Width;
+                  Last_Spaces := Part.Margin - Result.Value.Display_Width;
                end if;
 
             when Dedent =>
@@ -2430,7 +2434,7 @@ package body Prettier_Ada.Documents.Implementation is
 
       Flush_Spaces;
 
-      return Indentation_Queue_Type'(Value, Queue, From.Root);
+      return Result;
    end Generate_Indentation;
 
    ------------------------
@@ -2455,11 +2459,11 @@ package body Prettier_Ada.Documents.Implementation is
    ----------------
 
    function Make_Align
-     (From                : Indentation_Queue_Type;
+     (From                : Indentation_Queue_Access;
       Align_Data          : Alignment_Data_Type;
       Options             : Format_Options_Type;
       Current_Line_Length : Natural)
-      return Indentation_Queue_Type
+      return Indentation_Queue_Access
    is
       use VSS.Strings;
       use VSS.Characters.Latin;
@@ -2498,10 +2502,12 @@ package body Prettier_Ada.Documents.Implementation is
 
          when Dedent_To_Root =>
             if From.Root = null then
-               return Root_Indent (Options.Indentation);
+               return
+                 new Indentation_Queue_Type'
+                   (Root_Indent (Options.Indentation));
             end if;
 
-            return From.Root.all;
+            return From.Root;
 
          when Dedent =>
             return
@@ -2519,13 +2525,12 @@ package body Prettier_Ada.Documents.Implementation is
                  Options.Indentation);
 
          when Root =>
-            declare
-               Result : Indentation_Queue_Type := From;
-
-            begin
-               Result.Root := new Indentation_Queue_Type'(From);
-               return Result;
-            end;
+            return
+              Result : constant Indentation_Queue_Access :=
+                new Indentation_Queue_Type'(From.all)
+            do
+               Result.Root := Result;
+            end return;
       end case;
    end Make_Align;
 
@@ -2534,9 +2539,9 @@ package body Prettier_Ada.Documents.Implementation is
    ----------------------
 
    function Make_Indentation
-     (From    : Indentation_Queue_Type;
+     (From    : Indentation_Queue_Access;
       Options : Indentation_Options_Type)
-      return Indentation_Queue_Type
+      return Indentation_Queue_Access
    is (Generate_Indentation
          (From, Indentation_Data_Type'(Kind => Indent), Options));
 
