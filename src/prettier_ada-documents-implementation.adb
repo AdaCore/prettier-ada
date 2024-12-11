@@ -1375,7 +1375,19 @@ package body Prettier_Ada.Documents.Implementation is
                     Format_State_Array
                       (Alignment_Table_Elements.First_Index
                        .. Alignment_Table_Elements.Last_Index) :=
-                      [others => Format_State];
+                      [others =>
+                         Format_State_Record'
+                           (Current_Line_Length =>
+                              Format_State.Current_Line_Length,
+                            Group_Mode_Map => Format_State.Group_Mode_Map,
+                            Line_Suffix => Format_State.Line_Suffix,
+                            Print_Commands => null,
+                            Printed_Cursor_Count =>
+                              Format_State.Printed_Cursor_Count,
+                            Result => Empty_Prettier_String,
+                            Should_Remeasure => Format_State.Should_Remeasure,
+                            Last_Was_Hardline =>
+                              Format_State.Last_Was_Hardline)];
                   --  The state for each row
 
                   First_Row_Index    : constant Positive :=
