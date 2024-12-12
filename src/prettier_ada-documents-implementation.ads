@@ -11,6 +11,10 @@ with Prettier_Ada.Document_Vector_Vectors;
 
 with VSS.Strings;
 
+private with Ada.Containers.Hashed_Maps;
+private with Ada.Containers.Vectors;
+private with Ada.Unchecked_Deallocation;
+
 --  This package provides the Document_Type definition (equivalent to
 --  Prettier's Doc type) and format function.
 --
@@ -194,5 +198,151 @@ private package Prettier_Ada.Documents.Implementation is
        Bare_Document => new Bare_Document_Record'
                               (Document_Command, 1, New_Document_Id, Command));
    --  Allocate a new document to wrap the given command
+
+private
+
+   ------------------
+   --  Indentation --
+   ------------------
+
+   type Indentation_Data_Kind is
+     (Indent, String_Align, Number_Align, Dedent, Inner_Root);
+
+   type Indentation_Data_Record (Kind : Indentation_Data_Kind := Indent) is
+   record
+      case Kind is
+         when Indent | Dedent =>
+            null;
+
+         when Inner_Root =>
+            Margin : Natural;
+
+         when String_Align =>
+            Text : Prettier_String;
+
+         when Number_Align =>
+            Width : Natural;
+      end case;
+   end record;
+
+   package Indentation_Data_Vectors is new
+     Ada.Containers.Vectors (Natural, Indentation_Data_Record);
+
+   subtype Indentation_Data_Vector is Indentation_Data_Vectors.Vector;
+
+   type Indentation_Queue_Record;
+
+   type Indentation_Queue_Access is access Indentation_Queue_Record;
+
+   type Indentation_Queue_Record is record
+      Value : Prettier_String;
+      Queue : Indentation_Data_Vector;
+      Root  : Indentation_Queue_Access;
+   end record;
+
+   procedure Free is new
+     Ada.Unchecked_Deallocation
+       (Indentation_Queue_Record,
+        Indentation_Queue_Access);
+
+   package Indentation_Queue_Vectors is new
+     Ada.Containers.Vectors (Positive, Indentation_Queue_Access);
+
+   type Indentation_Queue_Pool_Record is tagged record
+      Pool : Indentation_Queue_Vectors.Vector;
+   end record;
+
+   procedure Free_Pool (Self : in out Indentation_Queue_Pool_Record);
+   --  Free all allocated Indentation_Queue_Record objects
+
+   function Root_Indent
+     (Self    : in out Indentation_Queue_Pool_Record;
+      Options : Indentation_Options_Type) return Indentation_Queue_Access;
+   --  Creates an initial Indentation_Queue_Record with Options.Offset as
+   --  indentation offset.
+
+   function Make_Indentation
+     (Self    : in out Indentation_Queue_Pool_Record;
+      From    : Indentation_Queue_Access;
+      Options : Indentation_Options_Type) return Indentation_Queue_Access;
+   --  Copies From and adds a new indentation of kind Indent based on Options.
+
+   function Make_Align
+     (Self                : in out Indentation_Queue_Pool_Record;
+      From                : Indentation_Queue_Access;
+      Align_Data          : Alignment_Data_Type;
+      Options             : Format_Options_Type;
+      Current_Line_Length : Natural) return Indentation_Queue_Access;
+   --  Copies From and adds a new alignment of kind based on Align_Data and
+   --  Options.
+
+   function Generate_Indentation
+     (Self    : in out Indentation_Queue_Pool_Record;
+      From    : Indentation_Queue_Access;
+      Data    : Indentation_Data_Record;
+      Options : Indentation_Options_Type) return Indentation_Queue_Access;
+   --  Copies From and adds a new alignment of kind based on Data and Options
+
+   type Indentation_Queue_Pool_Access is access Indentation_Queue_Pool_Record;
+
+   procedure Free is new
+     Ada.Unchecked_Deallocation
+       (Indentation_Queue_Pool_Record,
+        Indentation_Queue_Pool_Access);
+
+   -------------------
+   -- Print Command --
+   -------------------
+
+   type Mode_Kind is (Mode_Break, Mode_Flat, None);
+
+   type Print_Command_Record is record
+      Indentation : Indentation_Queue_Access;
+      Mode        : Mode_Kind;
+      Document    : Document_Type;
+   end record;
+
+   package Print_Command_Vectors is new
+     Ada.Containers.Vectors (Positive, Print_Command_Record);
+
+   subtype Print_Command_Vector is Print_Command_Vectors.Vector;
+
+   type Print_Command_Vector_Access is
+     access all Print_Command_Vector;
+
+   procedure Free is new
+     Ada.Unchecked_Deallocation
+       (Print_Command_Vector, Print_Command_Vector_Access);
+
+   -------------------
+   --  Format State --
+   -------------------
+
+   package Symbol_To_Mode_Maps is new
+     Ada.Containers.Hashed_Maps (Symbol_Type, Mode_Kind, Hash, "=");
+
+   subtype Symbol_To_Mode_Map is Symbol_To_Mode_Maps.Map;
+
+   type Format_State_Record is tagged record
+      Result                 : Prettier_String;
+      Current_Line_Length    : Natural;
+      Indentation_Queue_Pool : Indentation_Queue_Pool_Access;
+      Print_Commands         : Print_Command_Vector_Access;
+      Line_Suffix            : Print_Command_Vector_Access;
+      Group_Mode_Map         : Symbol_To_Mode_Map;
+      Printed_Cursor_Count   : Natural;
+      Should_Remeasure       : Boolean;
+      Last_Was_Hardline      : Boolean;
+      --  Flag indicating if the last text added to Result was a hardline
+   end record;
+
+   procedure Format
+     (Format_State     : in out Format_State_Record;
+      Format_Options   : Format_Options_Type);
+   --  Resume the formatting operations on Format_State.
+   --  Formats according to Format_Options.
+
+   procedure Clear (Self : in out Format_State_Record);
+   --  Free all allocated resources
 
 end Prettier_Ada.Documents.Implementation;
