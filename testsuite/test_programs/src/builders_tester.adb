@@ -84,6 +84,9 @@ procedure Builders_Tester is
    --  Builds a Document_Type using the
    --  Literal_Line_Without_Break_Parent builder.
 
+   procedure Test_No_Document;
+   --  Creates documents that contain No_Document and formats them
+
    procedure Test_String_Literal;
    --  Builds a Document_Type using the String_Literal aspect
 
@@ -734,6 +737,23 @@ procedure Builders_Tester is
       New_Line;
    end Test_Literal_Line_Without_Break_Parent;
 
+   ----------------------
+   -- Test_No_Document --
+   ----------------------
+
+   procedure Test_No_Document is
+      Document_1 : Document_Type;
+      Document_2 : constant Document_Type :=
+        Group ([Document_1, No_Document]);
+   begin
+      Put_Line ("=== No_Document ===");
+      Put_Line ("> No_Document Document JSON:");
+      Put_Line (Serialize (Document_2));
+      Put_Line ("> No_Document Document Formatted:");
+      Put_Line (Format (Document_2));
+      New_Line;
+   end Test_No_Document;
+
    -------------------------
    -- Test_String_Literal --
    -------------------------
@@ -808,6 +828,7 @@ begin
    Test_List;
    Test_Literal_Line;
    Test_Literal_Line_Without_Break_Parent;
+   Test_No_Document;
    Test_String_Literal;
    Test_Text;
    Test_Trim;
