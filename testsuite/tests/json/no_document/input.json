@@ -1,0 +1,23 @@
+{
+    "kind": "list",
+    "id": 1,
+    "list": [
+        {
+            "kind": "command",
+            "id": 2,
+            "command": {
+                "command": "group",
+                "id": 1,
+                "groupContents": {
+                    "kind": "list",
+                    "id": 3,
+                    "list": [
+                        null
+                    ]
+                },
+                "break": false,
+                "expandedStates": null
+            }
+        }
+    ]
+}

@@ -3089,6 +3089,29 @@ B
 > Literal_Line_Without_Break_Parent Document Formatted:
 A    B C
 
+=== No_Document ===
+> No_Document Document JSON:
+{
+  "command": {
+    "break": false,
+    "command": "group",
+    "expandedStates": null,
+    "groupContents": {
+      "id": 0,
+      "kind": "list",
+      "list": [
+        null,
+        null
+      ]
+    },
+    "id": 0
+  },
+  "id": 1,
+  "kind": "command"
+}
+> No_Document Document Formatted:
+
+
 === String_Literal ===
 > String_Literal Document JSON:
 {
