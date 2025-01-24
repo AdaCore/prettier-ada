@@ -4,9 +4,7 @@
 --
 
 with Ada.Assertions;
-with Ada.Containers.Hashed_Maps;
 with Ada.Containers.Hashed_Sets;
-with Ada.Containers.Vectors;
 
 with Prettier_Ada.Documents.Builders;
 with Prettier_Ada.Optionals;
@@ -38,78 +36,6 @@ package body Prettier_Ada.Documents.Implementation is
 
    subtype Document_Hashed_Set is Document_Hashed_Sets.Set;
 
-   type Mode_Kind is (Mode_Break, Mode_Flat, None);
-
-   type Indentation_Data_Kind is
-     (Indent, String_Align, Number_Align, Dedent, Inner_Root);
-
-   type Indentation_Data_Type (Kind : Indentation_Data_Kind := Indent) is
-      record
-         case Kind is
-            when Indent | Dedent =>
-               null;
-            when Inner_Root =>
-               Margin : Natural;
-            when String_Align =>
-               Text   : Prettier_String;
-            when Number_Align =>
-               Width  : Natural;
-         end case;
-      end record;
-
-   package Indentation_Data_Vectors is new
-     Ada.Containers.Vectors (Natural, Indentation_Data_Type);
-
-   subtype Indentation_Data_Vector is Indentation_Data_Vectors.Vector;
-
-   type Indentation_Queue_Type;
-
-   type Indentation_Head_Type_Access is access Indentation_Queue_Type;
-
-   type Indentation_Queue_Type is record
-      Value : Prettier_String;
-      Queue : Indentation_Data_Vector;
-      Root  : Indentation_Head_Type_Access;
-   end record;
-
-   type Print_Command_Type is record
-      Indentation : Indentation_Queue_Type;
-      Mode        : Mode_Kind;
-      Document    : Document_Type;
-   end record;
-
-   package Print_Command_Type_Vectors is new
-     Ada.Containers.Vectors (Positive, Print_Command_Type);
-
-   subtype Print_Command_Type_Vector is Print_Command_Type_Vectors.Vector;
-
-   package Symbol_To_Mode_Maps is new
-     Ada.Containers.Hashed_Maps (Symbol_Type, Mode_Kind, Hash, "=");
-
-   subtype Symbol_To_Mode_Map is Symbol_To_Mode_Maps.Map;
-
-   type Format_State_Record is record
-      Current_Line_Length  : Natural;
-      Group_Mode_Map       : Symbol_To_Mode_Map;
-      Line_Suffix          : Print_Command_Type_Vector;
-      Print_Commands       : Print_Command_Type_Vector;
-      Printed_Cursor_Count : Natural;
-      Result               : Prettier_String;
-      Should_Remeasure     : Boolean;
-      Last_Was_Hardline    : Boolean;
-      --  Flag indicating if the last text added to Result was a hardline
-   end record;
-
-   Default_Format_State : constant Format_State_Record :=
-     (Current_Line_Length  => 0,
-      Group_Mode_Map       => Symbol_To_Mode_Maps.Empty_Map,
-      Line_Suffix          => [],
-      Print_Commands       => [],
-      Printed_Cursor_Count => 0,
-      Result               => Empty_Prettier_String,
-      Should_Remeasure     => False,
-      Last_Was_Hardline    => False);
-
    procedure Append (To : in out Prettier_String; Source : Prettier_String);
    --  Append Source to the end of To
 
@@ -123,26 +49,13 @@ package body Prettier_Ada.Documents.Implementation is
    --  element of Table_Stack.
 
    function Fits
-     (Next            : Print_Command_Type;
-      Rest_Commands   : Print_Command_Type_Vector;
+     (Next            : Print_Command_Record;
+      Rest_Commands   : Print_Command_Vector;
       Width           : Integer;
       Has_Line_Suffix : Boolean;
       Group_Mode_Map  : Symbol_To_Mode_Map;
       Must_Be_Flat    : Boolean := False)
       return Boolean;
-   --  TODO: Description
-
-   procedure Format
-     (Format_State   : in out Format_State_Record;
-      Format_Options : Format_Options_Type);
-   --  Resume the formatting operations on Format_State.
-   --  Formats according to Format_Options.
-
-   function Generate_Indentation
-     (From    : Indentation_Queue_Type;
-      Data    : Indentation_Data_Type;
-      Options : Indentation_Options_Type)
-      return Indentation_Queue_Type;
    --  TODO: Description
 
    function Get_Document_Parts
@@ -155,28 +68,8 @@ package body Prettier_Ada.Documents.Implementation is
    --                                = Command_Fill);
    --  TODO: Description
 
-   function Make_Align
-     (From                : Indentation_Queue_Type;
-      Align_Data          : Alignment_Data_Type;
-      Options             : Format_Options_Type;
-      Current_Line_Length : Natural)
-      return Indentation_Queue_Type;
-   --  TODO: Description
-
-   function Make_Indentation
-     (From    : Indentation_Queue_Type;
-      Options : Indentation_Options_Type)
-      return Indentation_Queue_Type;
-   --  TODO: Description
-
    procedure Propagate_Breaks (Document : Document_Type);
    --  TODO: Description
-
-   function Root_Indent
-     (Options : Indentation_Options_Type)
-      return Indentation_Queue_Type;
-   --  Creates an initial indentation queue with Options.Offset as indentation
-   --  offset.
 
    function Slice
      (Documents : Document_Vector;
@@ -300,27 +193,27 @@ package body Prettier_Ada.Documents.Implementation is
    ----------
 
    function Fits
-     (Next            : Print_Command_Type;
-      Rest_Commands   : Print_Command_Type_Vector;
+     (Next            : Print_Command_Record;
+      Rest_Commands   : Print_Command_Vector;
       Width           : Integer;
       Has_Line_Suffix : Boolean;
       Group_Mode_Map  : Symbol_To_Mode_Map;
       Must_Be_Flat    : Boolean := False)
       return Boolean
    is
-      type Fit_Command_Type is record
+      type Fit_Command_Record is record
          Mode     : Mode_Kind;
          Document : Document_Type;
       end record;
 
       package Fit_Command_Type_Vectors is new
-        Ada.Containers.Vectors (Positive, Fit_Command_Type);
+        Ada.Containers.Vectors (Positive, Fit_Command_Record);
 
       subtype Fit_Command_Type_Vector is Fit_Command_Type_Vectors.Vector;
 
       function To_Fit_Command_Type
-        (Print_Command : Print_Command_Type)
-         return Fit_Command_Type;
+        (Print_Command : Print_Command_Record)
+         return Fit_Command_Record;
       --  TODO: Description
 
       -------------------------
@@ -328,15 +221,16 @@ package body Prettier_Ada.Documents.Implementation is
       -------------------------
 
       function To_Fit_Command_Type
-        (Print_Command : Print_Command_Type)
-         return Fit_Command_Type
-      is (Fit_Command_Type'(Print_Command.Mode, Print_Command.Document));
+        (Print_Command : Print_Command_Record)
+         return Fit_Command_Record
+      is (Fit_Command_Record'(Print_Command.Mode, Print_Command.Document));
 
-      function "+" (Print_Comment : Print_Command_Type) return Fit_Command_Type
+      function "+"
+        (Print_Comment : Print_Command_Record) return Fit_Command_Record
         renames To_Fit_Command_Type;
 
       Remaining_Width : Integer := Width;
-      Rest_Idx        : Print_Command_Type_Vectors.Extended_Index :=
+      Rest_Idx        : Print_Command_Vectors.Extended_Index :=
         Rest_Commands.Last_Index;
       Fit_Commands    : Fit_Command_Type_Vector := [+Next];
 
@@ -360,7 +254,7 @@ package body Prettier_Ada.Documents.Implementation is
 
          else
             declare
-               Current_Fit_Command : constant Fit_Command_Type :=
+               Current_Fit_Command : constant Fit_Command_Record :=
                   Fit_Commands.Last_Element;
                Mode                : Mode_Kind
                  renames Current_Fit_Command.Mode;
@@ -390,7 +284,7 @@ package body Prettier_Ada.Documents.Implementation is
                         reverse Get_Document_Parts (Document)
                      loop
                         Fit_Commands.Append
-                          (Fit_Command_Type'(Mode, Child_Document));
+                          (Fit_Command_Record'(Mode, Child_Document));
                      end loop;
 
                   when Document_Command =>
@@ -400,12 +294,12 @@ package body Prettier_Ada.Documents.Implementation is
                               reverse Get_Document_Parts (Document)
                            loop
                               Fit_Commands.Append
-                                (Fit_Command_Type'(Mode, Child_Document));
+                                (Fit_Command_Record'(Mode, Child_Document));
                            end loop;
 
                         when Command_Indent =>
                            Fit_Commands.Append
-                             (Fit_Command_Type'
+                             (Fit_Command_Record'
                                 (Mode,
                                  Document
                                    .Bare_Document
@@ -414,7 +308,7 @@ package body Prettier_Ada.Documents.Implementation is
 
                         when Command_Align =>
                            Fit_Commands.Append
-                             (Fit_Command_Type'
+                             (Fit_Command_Record'
                                 (Mode,
                                  Document
                                    .Bare_Document
@@ -423,7 +317,7 @@ package body Prettier_Ada.Documents.Implementation is
 
                         when Command_Indent_If_Break =>
                            Fit_Commands.Append
-                             (Fit_Command_Type'
+                             (Fit_Command_Record'
                                 (Mode,
                                  Document
                                    .Bare_Document
@@ -432,7 +326,7 @@ package body Prettier_Ada.Documents.Implementation is
 
                         when Command_Label =>
                            Fit_Commands.Append
-                             (Fit_Command_Type'
+                             (Fit_Command_Record'
                                 (Mode,
                                  Document
                                    .Bare_Document
@@ -483,7 +377,7 @@ package body Prettier_Ada.Documents.Implementation is
 
                            begin
                               Fit_Commands.Append
-                                (Fit_Command_Type'(Group_Mode, Contents));
+                                (Fit_Command_Record'(Group_Mode, Contents));
                            end;
 
                         when Command_If_Break =>
@@ -534,7 +428,7 @@ package body Prettier_Ada.Documents.Implementation is
                                                   .Is_Empty)
                               then
                                  Fit_Commands.Append
-                                   (Fit_Command_Type'(Mode, Contents));
+                                   (Fit_Command_Record'(Mode, Contents));
                               end if;
                            end;
 
@@ -629,7 +523,7 @@ package body Prettier_Ada.Documents.Implementation is
                                     >= Column_Index
                                  then
                                     Fit_Commands.Append
-                                      (Fit_Command_Type'
+                                      (Fit_Command_Record'
                                          (Mode_Flat,
                                           Alignment_Table_Separators
                                             .Constant_Reference
@@ -644,7 +538,7 @@ package body Prettier_Ada.Documents.Implementation is
                                     >= Column_Index
                                  then
                                     Fit_Commands.Append
-                                      (Fit_Command_Type'
+                                      (Fit_Command_Record'
                                          (Mode_Flat,
                                           Alignment_Table_Elements
                                             .Constant_Reference
@@ -661,7 +555,7 @@ package body Prettier_Ada.Documents.Implementation is
                                  --   At a Line between rows
 
                                  Fit_Commands.Append
-                                   (Fit_Command_Type'
+                                   (Fit_Command_Record'
                                       (Mode_Flat,
                                        Prettier_Ada.Documents.Builders.Line));
 
@@ -675,7 +569,7 @@ package body Prettier_Ada.Documents.Implementation is
                                        >= Column_Index
                                     then
                                        Fit_Commands.Append
-                                         (Fit_Command_Type'
+                                         (Fit_Command_Record'
                                             (Mode_Flat,
                                              Alignment_Table_Separators
                                                .Constant_Reference
@@ -690,7 +584,7 @@ package body Prettier_Ada.Documents.Implementation is
                                        >= Column_Index
                                     then
                                        Fit_Commands.Append
-                                         (Fit_Command_Type'
+                                         (Fit_Command_Record'
                                             (Mode_Flat,
                                              Alignment_Table_Elements
                                                .Constant_Reference
@@ -737,37 +631,46 @@ package body Prettier_Ada.Documents.Implementation is
       Options  : Format_Options_Type := Default_Format_Options)
       return Ada.Strings.Unbounded.Unbounded_String
    is
-      State : Format_State_Record := Default_Format_State;
+      Indentation_Queue_Pool : constant Indentation_Queue_Pool_Access :=
+        new Indentation_Queue_Pool_Record'((Pool => []));
+
+      State : Format_State_Record :=
+        (Result                 =>
+           (VSS.Strings."&"
+              (VSS.Strings."*"
+                 (VSS.Strings.Character_Count
+                    (Options.Indentation.Offset.Tabs),
+                  VSS.Characters.Latin.Character_Tabulation),
+               VSS.Strings."*"
+                 (VSS.Strings.Character_Count
+                    (Options.Indentation.Offset.Spaces),
+                  VSS.Characters.Latin.Space)),
+              VSS.Strings.Display_Cell_Count
+                (Options.Indentation.Offset.Spaces
+                 + Options.Indentation.Offset.Tabs
+                   * Options.Indentation.Width)),
+         Current_Line_Length    =>
+           Options.Indentation.Offset.Spaces
+           + Options.Indentation.Offset.Tabs * Options.Indentation.Width,
+         Indentation_Queue_Pool => Indentation_Queue_Pool,
+         Print_Commands         =>
+           new Print_Command_Vector'
+             ([Print_Command_Record'
+                 (Indentation_Queue_Pool.Root_Indent
+                    (Options.Indentation),
+                  Mode_Break,
+                  Document)]),
+         Line_Suffix            => new Print_Command_Vector'([]),
+         Group_Mode_Map         => Symbol_To_Mode_Maps.Empty_Map,
+         Printed_Cursor_Count   => 0,
+         Should_Remeasure       => False,
+         Last_Was_Hardline      => False);
 
    begin
-      --  Adapt State, which at this point is a Default_Format_state, based
-      --  on Document (to be formatted) and Options.
-
-      State.Current_Line_Length :=
-        Options.Indentation.Offset.Spaces
-        + Options.Indentation.Offset.Tabs * Options.Indentation.Width;
-
-      State.Result :=
-        (VSS.Strings."&"
-           (VSS.Strings."*"
-              (VSS.Strings.Character_Count (Options.Indentation.Offset.Tabs),
-               VSS.Characters.Latin.Character_Tabulation),
-            VSS.Strings."*"
-              (VSS.Strings.Character_Count (Options.Indentation.Offset.Spaces),
-               VSS.Characters.Latin.Space)),
-         VSS.Strings.Display_Cell_Count
-           (Options.Indentation.Offset.Spaces
-            + Options.Indentation.Offset.Tabs * Options.Indentation.Width));
-
-      State.Print_Commands :=
-        [Print_Command_Type'
-           (Root_Indent (Options.Indentation),
-            Mode_Break,
-            Document)];
-
       Propagate_Breaks (Document);
 
-      Format (State, Options);
+      State.Format (Options);
+      State.Clear;
 
       return
         VSS.Strings.Conversions.To_Unbounded_UTF_8_String (State.Result.Text);
@@ -803,10 +706,10 @@ package body Prettier_Ada.Documents.Implementation is
    begin
       while Format_State.Print_Commands.Length > 0 loop
          declare
-            Print_Command : constant Print_Command_Type :=
+            Print_Command : constant Print_Command_Record :=
               Format_State.Print_Commands.Last_Element;
-            Indentation   : Indentation_Queue_Type
-              renames Print_Command.Indentation;
+            Indentation   : constant Indentation_Queue_Access :=
+              Print_Command.Indentation;
             Mode          : Mode_Kind renames Print_Command.Mode;
             Document      : Document_Type renames Print_Command.Document;
 
@@ -864,7 +767,7 @@ package body Prettier_Ada.Documents.Implementation is
                ------------------------
 
                procedure Process_Mode_Break is
-                  Next : constant Print_Command_Type :=
+                  Next : constant Print_Command_Record :=
                     (Indentation => Indentation,
                      Mode        => Mode_Flat,
                      Document    =>
@@ -883,7 +786,7 @@ package body Prettier_Ada.Documents.Implementation is
                      and then
                        Fits
                          (Next,
-                          Format_State.Print_Commands,
+                          Format_State.Print_Commands.all,
                           Remaining_Line_Length,
                           Has_Line_Suffix,
                           Format_State.Group_Mode_Map)
@@ -923,7 +826,7 @@ package body Prettier_Ada.Documents.Implementation is
                                 .Break
                            then
                               Format_State.Print_Commands.Append
-                                (Print_Command_Type'
+                                (Print_Command_Record'
                                    (Indentation,
                                     Mode_Break,
                                     Most_Expanded));
@@ -937,7 +840,7 @@ package body Prettier_Ada.Documents.Implementation is
                                     >= Expanded_States.Last_Index + Natural (1)
                                  then
                                     Format_State.Print_Commands.Append
-                                      (Print_Command_Type'
+                                      (Print_Command_Record'
                                          (Indentation,
                                           Mode_Break,
                                           Most_Expanded));
@@ -948,14 +851,14 @@ package body Prettier_Ada.Documents.Implementation is
                                            Expanded_States (J);
                                        Print_Command :
                                          constant
-                                           Print_Command_Type :=
+                                           Print_Command_Record :=
                                              (Indentation,
                                               Mode_Flat,
                                               State);
                                     begin
                                        if Fits
                                             (Print_Command,
-                                             Format_State.Print_Commands,
+                                             Format_State.Print_Commands.all,
                                              Remaining_Line_Length,
                                              Has_Line_Suffix,
                                              Format_State.Group_Mode_Map)
@@ -972,7 +875,7 @@ package body Prettier_Ada.Documents.Implementation is
 
                      else
                         Format_State.Print_Commands.Append
-                          (Print_Command_Type'
+                          (Print_Command_Record'
                              (Indentation,
                               Mode_Break,
                               Document
@@ -988,8 +891,8 @@ package body Prettier_Ada.Documents.Implementation is
                -----------------------
 
                procedure Process_Mode_Flat is
-                  Print_Command : constant Print_Command_Type :=
-                    Print_Command_Type'
+                  Print_Command : constant Print_Command_Record :=
+                    Print_Command_Record'
                       (Indentation,
                        (if Document
                              .Bare_Document
@@ -1048,9 +951,9 @@ package body Prettier_Ada.Documents.Implementation is
             begin
                if Parts.Length = 1 then
                   declare
-                     Content_Flat_Command  : constant Print_Command_Type :=
+                     Content_Flat_Command  : constant Print_Command_Record :=
                          (Indentation, Mode_Flat, Parts.First_Element);
-                     Content_Break_Command : constant Print_Command_Type :=
+                     Content_Break_Command : constant Print_Command_Record :=
                          (Indentation, Mode_Break, Parts.First_Element);
                      Content_Fits          : constant Boolean :=
                        Fits
@@ -1076,15 +979,15 @@ package body Prettier_Ada.Documents.Implementation is
 
                elsif Parts.Length = 2 then
                   declare
-                     Content_Flat_Command  : constant Print_Command_Type :=
+                     Content_Flat_Command  : constant Print_Command_Record :=
                         (Indentation, Mode_Flat, Parts.First_Element);
-                     Content_Break_Command : constant Print_Command_Type :=
+                     Content_Break_Command : constant Print_Command_Record :=
                         (Indentation, Mode_Break, Parts.First_Element);
-                     White_Flat_Command    : constant Print_Command_Type :=
+                     White_Flat_Command    : constant Print_Command_Record :=
                         (Indentation,
                          Mode_Flat,
                          Parts.Element (Parts.First_Index + Natural (1)));
-                     White_Break_Command   : constant Print_Command_Type :=
+                     White_Break_Command   : constant Print_Command_Record :=
                         (Indentation,
                          Mode_Break,
                          Parts (Parts.First_Index + Natural (1)));
@@ -1119,18 +1022,18 @@ package body Prettier_Ada.Documents.Implementation is
                elsif Parts.Length /= 0 then
                   declare
                      Content_Flat_Command  :
-                       constant Print_Command_Type :=
+                       constant Print_Command_Record :=
                          (Indentation, Mode_Flat, Parts.First_Element);
                      Content_Break_Command :
-                       constant Print_Command_Type :=
+                       constant Print_Command_Record :=
                          (Indentation, Mode_Break, Parts.First_Element);
                      White_Flat_Command    :
-                       constant Print_Command_Type :=
+                       constant Print_Command_Record :=
                          (Indentation,
                           Mode_Flat,
                           Parts.Element (Parts.First_Index + Natural (1)));
                      White_Break_Command   :
-                       constant Print_Command_Type :=
+                       constant Print_Command_Record :=
                          (Indentation,
                           Mode_Break,
                           Parts.Element (Parts.First_Index + Natural (1)));
@@ -1149,14 +1052,14 @@ package body Prettier_Ada.Documents.Implementation is
                          (Parts,
                           Positive (Parts.First_Index + Natural (2)),
                           Positive (Parts.Last_Index));
-                     Remaining_Print_Command : constant Print_Command_Type :=
+                     Remaining_Print_Command : constant Print_Command_Record :=
                        (Indentation,
                         Mode,
                         Prettier_Ada.Documents.Builders.Fill
                           (Remaining_Parts));
 
                      First_And_Second_Content_Flat_Command :
-                       constant Print_Command_Type :=
+                       constant Print_Command_Record :=
                          (Indentation,
                           Mode_Flat,
                           Prettier_Ada.Documents.Builders.List
@@ -1231,8 +1134,8 @@ package body Prettier_Ada.Documents.Implementation is
                begin
                   if not Format_State.Line_Suffix.Is_Empty then
                      Format_State.Print_Commands.Append
-                       (Print_Command_Type'(Indentation, Mode, Document));
-                     for Suffix of reverse Format_State.Line_Suffix loop
+                       (Print_Command_Record'(Indentation, Mode, Document));
+                     for Suffix of reverse Format_State.Line_Suffix.all loop
                         Format_State.Print_Commands.Append (Suffix);
                      end loop;
                      Format_State.Line_Suffix.Clear;
@@ -1326,7 +1229,7 @@ package body Prettier_Ada.Documents.Implementation is
             begin
                for Child_Document of reverse Documents loop
                   Format_State.Print_Commands.Append
-                    (Print_Command_Type'(Indentation, Mode, Child_Document));
+                    (Print_Command_Record'(Indentation, Mode, Child_Document));
                end loop;
             end Process_Document_List;
 
@@ -1367,7 +1270,12 @@ package body Prettier_Ada.Documents.Implementation is
                     Format_State_Array
                       (Alignment_Table_Elements.First_Index
                        .. Alignment_Table_Elements.Last_Index) :=
-                      [others => Format_State];
+                      [others =>
+                         Format_State_Record'
+                           (Format_State
+                            with delta
+                              Print_Commands => null,
+                              Result         => Empty_Prettier_String)];
                   --  The state for each row
 
                   First_Row_Index    : constant Positive :=
@@ -1431,15 +1339,14 @@ package body Prettier_Ada.Documents.Implementation is
                         Next_Options            :
                           constant Format_Options_Type :=
                             Format_Options_Type'
-                               (Width       =>
+                               (Format_Options
+                                with delta Width =>
                                   (if Natural (Separator_Display_Width)
                                       > Format_Options.Width
                                    then 0
                                    else
                                      Format_Options.Width
-                                     - Natural (Separator_Display_Width)),
-                                Indentation => Format_Options.Indentation,
-                                End_Of_Line => Format_Options.End_Of_Line);
+                                     - Natural (Separator_Display_Width)));
                         --  The formatting options for each element need
                         --  to have an offset on the maximum width to account
                         --  the separator's width.
@@ -1462,7 +1369,7 @@ package body Prettier_Ada.Documents.Implementation is
                            States (Row_Index).Print_Commands :=
                              Format_State.Print_Commands;
                            States (Row_Index).Print_Commands.Append
-                             (Print_Command_Type'
+                             (Print_Command_Record'
                                 (Indentation,
                                  Mode_Break,
                                  Wrap_Command
@@ -1470,23 +1377,30 @@ package body Prettier_Ada.Documents.Implementation is
                                       (Kind =>
                                          Command_Alignment_Table_End))));
                            States (Row_Index).Print_Commands.Append
-                             (Print_Command_Type'
+                             (Print_Command_Record'
                                 (Indentation,
                                  Mode_Break,
                                  Alignment_Table_Elements
                                    .Reference (Row_Index)
                                    .Reference (First_Column_Index)));
+                           Format
+                             (States (Row_Index),
+                              Next_Options);
                         else
                            States (Row_Index).Print_Commands :=
-                             [Print_Command_Type'
+                             new Print_Command_Vector;
+                           States (Row_Index).Print_Commands.all :=
+                             [Print_Command_Record'
                                 (Indentation,
                                  Mode_Break,
                                  Alignment_Table_Elements
                                    .Reference (Row_Index)
                                    .Reference (First_Column_Index))];
+                           Format
+                             (States (Row_Index),
+                              Next_Options);
+                           Free (States (Row_Index).Print_Commands);
                         end if;
-
-                        Format (States (Row_Index), Next_Options);
 
                         Prettier_Ada_Trace.Trace
                           ("States.State.Current_Line_Length"
@@ -1640,19 +1554,18 @@ package body Prettier_Ada.Documents.Implementation is
                               Next_Options :
                                 constant Format_Options_Type :=
                                    Format_Options_Type'
-                                      (Width       =>
-                                         (if Natural (Separator_Display_Width)
-                                             > Format_Options.Width
-                                          then
-                                            0
-                                          else
-                                            Format_Options.Width
-                                            - Natural
-                                                (Separator_Display_Width)),
-                                       Indentation =>
-                                         Format_Options.Indentation,
-                                       End_Of_Line =>
-                                         Format_Options.End_Of_Line);
+                                      (Format_Options
+                                       with delta
+                                         Width =>
+                                           (if Natural
+                                                 (Separator_Display_Width)
+                                               > Format_Options.Width
+                                            then
+                                              0
+                                            else
+                                              Format_Options.Width
+                                              - Natural
+                                                  (Separator_Display_Width)));
 
                            begin
                               States (Row_Index).Should_Remeasure := False;
@@ -1675,7 +1588,7 @@ package body Prettier_Ada.Documents.Implementation is
                                  States (Row_Index).Print_Commands :=
                                    Format_State.Print_Commands;
                                  States (Row_Index).Print_Commands.Append
-                                   (Print_Command_Type'
+                                   (Print_Command_Record'
                                       (Indentation,
                                        Mode_Break,
                                        Wrap_Command
@@ -1683,23 +1596,30 @@ package body Prettier_Ada.Documents.Implementation is
                                             (Kind =>
                                                Command_Alignment_Table_End))));
                                  States (Row_Index).Print_Commands.Append
-                                   (Print_Command_Type'
+                                   (Print_Command_Record'
                                       (Indentation,
                                        Mode_Break,
                                        Alignment_Table_Elements
                                          .Reference (Row_Index)
                                          .Reference (Column_Index)));
+                                 Format
+                                   (States (Row_Index),
+                                    Next_Options);
                               else
                                  States (Row_Index).Print_Commands :=
-                                   [Print_Command_Type'
+                                   new Print_Command_Vector;
+                                 States (Row_Index).Print_Commands.all :=
+                                   [Print_Command_Record'
                                       (Indentation,
                                        Mode_Break,
                                        Alignment_Table_Elements
                                          .Reference (Row_Index)
                                          .Reference (Column_Index))];
+                                 Format
+                                   (States (Row_Index),
+                                    Next_Options);
+                                 Free (States (Row_Index).Print_Commands);
                               end if;
-
-                              Format (States (Row_Index), Next_Options);
 
                               Prettier_Ada_Trace.Trace
                                 ("States.State.Current_Line_Length"
@@ -1814,7 +1734,7 @@ package body Prettier_Ada.Documents.Implementation is
                            >= Column_Index
                         then
                            Format_State.Print_Commands.Append
-                             (Print_Command_Type'
+                             (Print_Command_Record'
                                 (Indentation,
                                  Mode_Flat,
                                  Alignment_Table_Separators
@@ -1828,7 +1748,7 @@ package body Prettier_Ada.Documents.Implementation is
                            >= Column_Index
                         then
                            Format_State.Print_Commands.Append
-                             (Print_Command_Type'
+                             (Print_Command_Record'
                                 (Indentation,
                                  Mode_Flat,
                                  Alignment_Table_Elements
@@ -1845,7 +1765,7 @@ package body Prettier_Ada.Documents.Implementation is
                                   .. Standard."-" (Last_Row_Index, 1)
                      loop
                         Format_State.Print_Commands.Append
-                          (Print_Command_Type'
+                          (Print_Command_Record'
                              (Indentation,
                               Mode_Flat,
                                 Prettier_Ada
@@ -1862,7 +1782,7 @@ package body Prettier_Ada.Documents.Implementation is
                               >= Column_Index
                            then
                               Format_State.Print_Commands.Append
-                                (Print_Command_Type'
+                                (Print_Command_Record'
                                    (Indentation,
                                     Mode_Flat,
                                     Alignment_Table_Separators
@@ -1876,7 +1796,7 @@ package body Prettier_Ada.Documents.Implementation is
                               >= Column_Index
                            then
                               Format_State.Print_Commands.Append
-                                (Print_Command_Type'
+                                (Print_Command_Record'
                                    (Indentation,
                                     Mode_Flat,
                                     Alignment_Table_Elements
@@ -1957,16 +1877,18 @@ package body Prettier_Ada.Documents.Implementation is
 
                      when Command_Indent =>
                         Format_State.Print_Commands.Append
-                          (Print_Command_Type'
-                             (Make_Indentation
-                                (Indentation, Format_Options.Indentation),
+                          (Print_Command_Record'
+                             (Format_State
+                                .Indentation_Queue_Pool
+                                .Make_Indentation
+                                   (Indentation, Format_Options.Indentation),
                               Mode,
                               Document.Bare_Document.Command.Indent_Contents));
 
                      when Command_Align =>
                         Format_State.Print_Commands.Append
-                          (Print_Command_Type'
-                             (Make_Align
+                          (Print_Command_Record'
+                             (Format_State.Indentation_Queue_Pool.Make_Align
                                 (Indentation,
                                  Document.Bare_Document.Command.Align_Data,
                                  Format_Options,
@@ -2032,7 +1954,7 @@ package body Prettier_Ada.Documents.Implementation is
                                                         .Is_Empty)
                                     then
                                        Format_State.Print_Commands.Append
-                                         (Print_Command_Type'
+                                         (Print_Command_Record'
                                             (Indentation,
                                              Mode,
                                              Break_Contents));
@@ -2060,7 +1982,7 @@ package body Prettier_Ada.Documents.Implementation is
 
                                     then
                                        Format_State.Print_Commands.Append
-                                         (Print_Command_Type'
+                                         (Print_Command_Record'
                                             (Indentation,
                                              Mode,
                                              Flat_Contents));
@@ -2116,7 +2038,7 @@ package body Prettier_Ada.Documents.Implementation is
 
                                  begin
                                     Format_State.Print_Commands.Append
-                                      (Print_Command_Type'
+                                      (Print_Command_Record'
                                          (Indentation,
                                           Mode,
                                           Break_Contents));
@@ -2139,7 +2061,7 @@ package body Prettier_Ada.Documents.Implementation is
 
                                  begin
                                     Format_State.Print_Commands.Append
-                                      (Print_Command_Type'
+                                      (Print_Command_Record'
                                          (Indentation,
                                           Mode,
                                           Flat_Contents));
@@ -2152,7 +2074,7 @@ package body Prettier_Ada.Documents.Implementation is
 
                      when Command_Line_Suffix =>
                         Format_State.Line_Suffix.Append
-                          (Print_Command_Type'
+                          (Print_Command_Record'
                              (Indentation,
                               Mode,
                               Document
@@ -2163,7 +2085,7 @@ package body Prettier_Ada.Documents.Implementation is
                      when Command_Line_Suffix_Boundary =>
                         if not Format_State.Line_Suffix.Is_Empty then
                            Format_State.Print_Commands.Append
-                             (Print_Command_Type'
+                             (Print_Command_Record'
                                 (Indentation,
                                  Mode,
                                  Prettier_Ada
@@ -2177,7 +2099,7 @@ package body Prettier_Ada.Documents.Implementation is
 
                      when Command_Label =>
                         Format_State.Print_Commands.Append
-                          (Print_Command_Type'
+                          (Print_Command_Record'
                              (Indentation,
                               Mode,
                               Document.Bare_Document.Command.Label_Contents));
@@ -2201,7 +2123,7 @@ package body Prettier_Ada.Documents.Implementation is
             if Format_State.Print_Commands.Length = 0
                and Format_State.Line_Suffix.Length > 0
             then
-               for Suffix of reverse Format_State.Line_Suffix loop
+               for Suffix of reverse Format_State.Line_Suffix.all loop
                   Format_State.Print_Commands.Append (Suffix);
                end loop;
                Format_State.Line_Suffix.Clear;
@@ -2216,6 +2138,30 @@ package body Prettier_Ada.Documents.Implementation is
          Prettier_Ada.Documents.Builders.Reset_Document_Id;
          raise;
    end Format;
+
+   ----------
+   -- Clear --
+   ----------
+
+   procedure Clear (Self : in out Format_State_Record) is
+   begin
+      Free (Self.Line_Suffix);
+      Free (Self.Print_Commands);
+      Self.Indentation_Queue_Pool.Free_Pool;
+      Free (Self.Indentation_Queue_Pool);
+   end Clear;
+
+   ---------------
+   -- Free_Pool --
+   ---------------
+
+   procedure Free_Pool (Self : in out Indentation_Queue_Pool_Record) is
+   begin
+      for Indentation_Queue of Self.Pool loop
+         Free (Indentation_Queue);
+      end loop;
+      Self.Pool.Clear;
+   end Free_Pool;
 
    ----------
    -- Hash --
@@ -2236,13 +2182,17 @@ package body Prettier_Ada.Documents.Implementation is
    --------------------------
 
    function Generate_Indentation
-     (From    : Indentation_Queue_Type;
-      Data    : Indentation_Data_Type;
+     (Self    : in out Indentation_Queue_Pool_Record;
+      From    : Indentation_Queue_Access;
+      Data    : Indentation_Data_Record;
       Options : Indentation_Options_Type)
-      return Indentation_Queue_Type
+      return Indentation_Queue_Access
    is
-      Value : Prettier_String;
-      Queue : Indentation_Data_Vector := From.Queue;
+      Result : constant Indentation_Queue_Access :=
+        new Indentation_Queue_Record'
+          (Value => Empty_Prettier_String,
+           Queue => From.Queue,
+           Root  => From.Root);
 
       Flushed_Tabs : Natural := 0;
 
@@ -2274,11 +2224,11 @@ package body Prettier_Ada.Documents.Implementation is
       procedure Add_Tabs (Count : Natural) is
       begin
          VSS.Strings.Append
-           (Value.Text,
+           (Result.Value.Text,
             VSS.Strings."*"
               (VSS.Strings.Character_Count (Count),
                VSS.Characters.Latin.Character_Tabulation));
-         Value.Display_Width :=
+         Result.Value.Display_Width :=
            @ + VSS.Strings.Display_Cell_Count (Options.Width * Count);
       end Add_Tabs;
 
@@ -2290,11 +2240,12 @@ package body Prettier_Ada.Documents.Implementation is
       is
       begin
          VSS.Strings.Append
-           (Value.Text,
+           (Result.Value.Text,
             VSS.Strings."*"
               (VSS.Strings.Character_Count (Count),
                VSS.Characters.Latin.Space));
-         Value.Display_Width := @ + VSS.Strings.Display_Cell_Count (Count);
+         Result.Value.Display_Width :=
+           @ + VSS.Strings.Display_Cell_Count (Count);
       end Add_Spaces;
 
       -----------
@@ -2350,13 +2301,13 @@ package body Prettier_Ada.Documents.Implementation is
 
    begin
       if Data.Kind = Dedent then
-         Queue.Delete_Last;
+         Result.Queue.Delete_Last;
 
       else
-         Queue.Append (Data);
+         Result.Queue.Append (Data);
       end if;
 
-      for Part of Queue loop
+      for Part of Result.Queue loop
          case Part.Kind is
             when Indent =>
                Flush;
@@ -2367,14 +2318,14 @@ package body Prettier_Ada.Documents.Implementation is
 
             when String_Align =>
                Flush;
-               Append (Value, Part.Text);
+               Append (Result.Value, Part.Text);
 
             when Number_Align =>
                Last_Tabs := @ + Natural (1);
                Last_Spaces := @ + Part.Width;
 
             when Inner_Root =>
-               if Part.Margin > Natural (Value.Display_Width) then
+               if Part.Margin > Natural (Result.Value.Display_Width) then
                   --  Last_Tabs and Last_Spaces are not flushed only when
                   --  Part.Kind = Number_Align. By simply adjusting Last_Spaces
                   --  based on the current line length, any previously
@@ -2382,9 +2333,9 @@ package body Prettier_Ada.Documents.Implementation is
                   --  and the number of tabs added when Part.Kind = Indent is
                   --  kept.
 
-                  Last_Spaces := Part.Margin - Value.Display_Width;
+                  Last_Spaces := Part.Margin - Result.Value.Display_Width;
 
-               elsif Part.Margin < Natural (Value.Display_Width) then
+               elsif Part.Margin < Natural (Result.Value.Display_Width) then
                   --  This is only possible when there are String_Align before
                   --  Inner_Roots. Keep the flushed tabs and fill with spaces.
                   --
@@ -2393,10 +2344,10 @@ package body Prettier_Ada.Documents.Implementation is
                   --  Inner root assumes that previous indentation was tabs
                   --  followed by spaces only.
 
-                  Value.Text.Clear;
-                  Value.Display_Width := 0;
+                  Result.Value.Text.Clear;
+                  Result.Value.Display_Width := 0;
                   Add_Tabs (Flushed_Tabs);
-                  Last_Spaces := Part.Margin - Value.Display_Width;
+                  Last_Spaces := Part.Margin - Result.Value.Display_Width;
                end if;
 
             when Dedent =>
@@ -2406,7 +2357,9 @@ package body Prettier_Ada.Documents.Implementation is
 
       Flush_Spaces;
 
-      return Indentation_Queue_Type'(Value, Queue, From.Root);
+      Self.Pool.Append (Result);
+
+      return Result;
    end Generate_Indentation;
 
    ------------------------
@@ -2431,11 +2384,12 @@ package body Prettier_Ada.Documents.Implementation is
    ----------------
 
    function Make_Align
-     (From                : Indentation_Queue_Type;
+     (Self                : in out Indentation_Queue_Pool_Record;
+      From                : Indentation_Queue_Access;
       Align_Data          : Alignment_Data_Type;
       Options             : Format_Options_Type;
       Current_Line_Length : Natural)
-      return Indentation_Queue_Type
+      return Indentation_Queue_Access
    is
       use VSS.Strings;
       use VSS.Characters.Latin;
@@ -2447,61 +2401,60 @@ package body Prettier_Ada.Documents.Implementation is
 
          when Width =>
             return
-              Generate_Indentation
+              Self.Generate_Indentation
                 (From,
-                 Indentation_Data_Type'(Number_Align, Align_Data.N),
+                 Indentation_Data_Record'(Number_Align, Align_Data.N),
                  Options.Indentation);
 
          when Text =>
             return
-              Generate_Indentation
+              Self.Generate_Indentation
                 (From,
-                 Indentation_Data_Type'
-                   (String_Align,
-                    To_Prettier_String (Align_Data.T)),
+                 Indentation_Data_Record'
+                   (String_Align, To_Prettier_String (Align_Data.T)),
                  Options.Indentation);
 
          when Continuation_Line_Indent =>
             return
-              Generate_Indentation
+              Self.Generate_Indentation
                 (From,
-                 Indentation_Data_Type'
+                 Indentation_Data_Record'
                    (String_Align,
-                    (Character_Count (Options.Indentation.Continuation)
-                     * Space,
-                     Display_Cell_Count (Options.Indentation.Continuation))),
+                      (Character_Count (Options.Indentation.Continuation)
+                       * Space,
+                       Display_Cell_Count (Options.Indentation.Continuation))),
                  Options.Indentation);
 
          when Dedent_To_Root =>
             if From.Root = null then
-               return Root_Indent (Options.Indentation);
+               return Self.Root_Indent (Options.Indentation);
             end if;
 
-            return From.Root.all;
+            return From.Root;
 
          when Dedent =>
             return
-              Generate_Indentation
+              Self.Generate_Indentation
                 (From,
-                 Indentation_Data_Type'(Kind => Dedent),
+                 Indentation_Data_Record'(Kind => Dedent),
                  Options.Indentation);
 
          when Inner_Root =>
             return
-              Generate_Indentation
+              Self.Generate_Indentation
                 (From,
-                 Indentation_Data_Type'
+                 Indentation_Data_Record'
                    (Kind => Inner_Root, Margin => Current_Line_Length),
                  Options.Indentation);
 
          when Root =>
-            declare
-               Result : Indentation_Queue_Type := From;
-
-            begin
-               Result.Root := new Indentation_Queue_Type'(From);
-               return Result;
-            end;
+            return
+               Result : constant Indentation_Queue_Access :=
+                 new Indentation_Queue_Record'(From.all)
+            do
+               Result.Root := Result;
+               Self.Pool.Append (Result);
+            end return;
       end case;
    end Make_Align;
 
@@ -2510,11 +2463,12 @@ package body Prettier_Ada.Documents.Implementation is
    ----------------------
 
    function Make_Indentation
-     (From    : Indentation_Queue_Type;
+     (Self    : in out Indentation_Queue_Pool_Record;
+      From    : Indentation_Queue_Access;
       Options : Indentation_Options_Type)
-      return Indentation_Queue_Type
-   is (Generate_Indentation
-         (From, Indentation_Data_Type'(Kind => Indent), Options));
+      return Indentation_Queue_Access
+   is (Self.Generate_Indentation
+         (From, Indentation_Data_Record'(Kind => Indent), Options));
 
    ---------------------
    -- New_Document_Id --
@@ -2682,16 +2636,20 @@ package body Prettier_Ada.Documents.Implementation is
    -----------------
 
    function Root_Indent
-     (Options : Indentation_Options_Type)
-      return Indentation_Queue_Type
-   is
+     (Self    : in out Indentation_Queue_Pool_Record;
+      Options : Indentation_Options_Type)
+      return Indentation_Queue_Access is
    begin
       if Options.Offset = (Tabs => 0, Spaces => 0) then
          return
-           Indentation_Queue_Type'
-             (Value  => Empty_Prettier_String,
-              Queue  => [],
-              Root   => null);
+           Indentation_Queue : constant Indentation_Queue_Access :=
+             new Indentation_Queue_Record'
+               (Value  => Empty_Prettier_String,
+                Queue  => [],
+                Root   => null)
+         do
+            Self.Pool.Append (Indentation_Queue);
+         end return;
 
       else
          declare
@@ -2702,7 +2660,7 @@ package body Prettier_Ada.Documents.Implementation is
               ((Kind => Indent),
                Ada.Containers.Count_Type (Options.Offset.Tabs));
             Queue.Append
-              (Indentation_Data_Type'
+              (Indentation_Data_Record'
                  (Kind => String_Align,
                   Text =>
                     (VSS.Strings."*"
@@ -2711,20 +2669,24 @@ package body Prettier_Ada.Documents.Implementation is
                      VSS.Strings.Display_Cell_Count (Options.Offset.Spaces))));
 
             return
-              Indentation_Queue_Type'
-                (Value  =>
-                  (VSS.Strings."&"
-                     (VSS.Strings."*"
-                        (VSS.Strings.Character_Count (Options.Offset.Tabs),
-                         VSS.Characters.Latin.Character_Tabulation),
-                      VSS.Strings."*"
-                        (VSS.Strings.Character_Count (Options.Offset.Spaces),
-                         VSS.Characters.Latin.Space)),
-                   VSS.Strings.Display_Cell_Count
-                     (Options.Offset.Spaces
-                      + Options.Offset.Tabs * Options.Width)),
-                 Queue  => Queue,
-                 Root   => null);
+              Indentation_Queue : constant Indentation_Queue_Access :=
+                new Indentation_Queue_Record'
+                  (Value  =>
+                    (VSS.Strings."&"
+                       (VSS.Strings."*"
+                          (VSS.Strings.Character_Count (Options.Offset.Tabs),
+                           VSS.Characters.Latin.Character_Tabulation),
+                        VSS.Strings."*"
+                          (VSS.Strings.Character_Count (Options.Offset.Spaces),
+                           VSS.Characters.Latin.Space)),
+                     VSS.Strings.Display_Cell_Count
+                       (Options.Offset.Spaces
+                        + Options.Offset.Tabs * Options.Width)),
+                   Queue  => Queue,
+                   Root   => null)
+            do
+               Self.Pool.Append (Indentation_Queue);
+            end return;
          end;
       end if;
    end Root_Indent;
