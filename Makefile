@@ -52,6 +52,7 @@ install:
 		--sources-subdir=include/prettier_ada \
 		--build-name=$(LIBRARY_TYPE) \
 		--build-var=LIBRARY_TYPE \
+		--build-var=PRETTIER_ADA_LIBRARY_TYPE \
 		-P $(LIB_PROJECT) -p -f ; \
 
 .PHONY: install-all
@@ -66,6 +67,7 @@ install-all:
 			--sources-subdir=include/prettier_ada \
 			--build-name=$$library_type \
 			--build-var=LIBRARY_TYPE \
+			--build-var=PRETTIER_ADA_LIBRARY_TYPE \
 			-P $(LIB_PROJECT) -p -f ; \
 	done ;
 
