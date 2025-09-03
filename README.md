@@ -46,7 +46,7 @@ deserialization functions for `Prettier_Ada.Documents.Document_Type`.
 ### Dependencies
 
 - [GNATcoll](https://github.com/AdaCore/gnatcoll-core)
-- [VSS](https://github.com/AdaCore/vss)
+- [vss-text](https://github.com/AdaCore/vss-text)
 
 ### Instructions
 
