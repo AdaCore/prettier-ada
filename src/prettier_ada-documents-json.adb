@@ -560,8 +560,16 @@ package body Prettier_Ada.Documents.Json is
                  Wrap_Command (new Command_Type'(To_Command_Line (Json)), Id);
 
             elsif Command_Text = "label" then
-               return
-                 Wrap_Command (new Command_Type'(To_Command_Label (Json)), Id);
+               --  Allocate from a constant and not from the function call:
+               --  GNAT moves a function result to the heap without calling
+               --  Adjust, and a short VSS string then still refers to its
+               --  old place on the secondary stack.
+
+               declare
+                  Command : constant Command_Type := To_Command_Label (Json);
+               begin
+                  return Wrap_Command (new Command_Type'(Command), Id);
+               end;
 
             elsif Command_Text = "lineSuffix" then
                return
@@ -584,11 +592,14 @@ package body Prettier_Ada.Documents.Json is
                    (new Command_Type'(To_Command_Alignment_Table (Json)), Id);
 
             elsif Command_Text = "alignmentTableSeparator" then
-               return
-                 Wrap_Command
-                   (new Command_Type'
-                          (To_Command_Alignment_Table_Separator (Json)),
-                    Id);
+               --  Allocate from a constant, as for "label" above
+
+               declare
+                  Command : constant Command_Type :=
+                    To_Command_Alignment_Table_Separator (Json);
+               begin
+                  return Wrap_Command (new Command_Type'(Command), Id);
+               end;
 
             else
                --  TODO: Raise a better exception
