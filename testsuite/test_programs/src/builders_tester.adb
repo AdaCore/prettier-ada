@@ -3,9 +3,13 @@
 --  SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 --
 
+with Ada.Exceptions;
+with Ada.Strings;
 with Ada.Strings.Unbounded;    use Ada.Strings.Unbounded;
 with Ada.Text_IO;              use Ada.Text_IO;
 with Ada.Text_IO.Unbounded_IO; use Ada.Text_IO.Unbounded_IO;
+
+with GNAT.OS_Lib;
 
 with GNATCOLL.Traces;
 
@@ -24,6 +28,10 @@ procedure Builders_Tester is
 
    procedure Test_Alignment_Table;
    --  Builds multiple Document_Type objects using the Alignment_Table builder
+
+   procedure Test_Alignment_Table_Many_Rows;
+   --  Builds an Alignment_Table with many rows, like a positional aggregate
+   --  with many elements, and formats it with a small stack.
 
    procedure Test_Alignment_Table_Separator;
    --  Builds multiple Document_Type objects using the
@@ -268,6 +276,87 @@ procedure Builders_Tester is
       Put_Line (Format (Alignment_Table_3));
       New_Line;
    end Test_Alignment_Table;
+
+   ------------------------------------
+   -- Test_Alignment_Table_Many_Rows --
+   ------------------------------------
+
+   procedure Test_Alignment_Table_Many_Rows is
+      Row_Count : constant := 10_000;
+
+      task type Formatter_Task with Storage_Size => 1024 * 1024;
+      --  Formats the table with a small and fixed stack, so that the result
+      --  does not depend on the stack limit of the environment. With the
+      --  state of each row on the stack, 10_000 rows need about 1.8 MB.
+
+      task body Formatter_Task is
+         Rows     : Document_Table;
+         Document : Document_Type;
+         Result   : Unbounded_String;
+
+      begin
+         --  Same shape as a positional aggregate formatted by GNATformat: one
+         --  row per element, and one column per row.
+
+         for Row_Index in 1 .. Row_Count loop
+            Rows.Append
+              (Document_Vector'
+                 [(if Row_Index < Row_Count
+                   then List ([Group ("1.5"), ","])
+                   else Group ("1.5"))]);
+         end loop;
+
+         Document :=
+           Group
+             (["(",
+               Align
+                 ((Kind => Text, T => To_Unbounded_String (" ")),
+                  Group (Alignment_Table (Rows, Must_Break => False))),
+               ")"]);
+
+         Result := Format (Document);
+
+         --  Only print the first and last lines, and the number of line
+         --  breaks: all the other lines are " 1.5,".
+
+         Put_Line ("> Alignment_Table_Many_Rows Document Formatted:");
+         Put_Line (Slice (Result, 1, Index (Result, "" & ASCII.LF) - 1));
+         Put_Line ("...");
+         Put_Line
+           (Slice
+              (Result,
+               Index (Result, "" & ASCII.LF, Going => Ada.Strings.Backward)
+               + 1,
+               Length (Result)));
+         Put_Line
+           ("> Line breaks:"
+            & Ada.Strings.Unbounded.Count (Result, "" & ASCII.LF)'Image);
+
+      exception
+         when E : others =>
+            Put_Line
+              ("> Formatting raised " & Ada.Exceptions.Exception_Name (E));
+            Flush;
+
+            --  Exit at once: after a stack overflow the state can be broken,
+            --  and finalizing Rows can then crash or never end.
+
+            GNAT.OS_Lib.OS_Exit (1);
+      end Formatter_Task;
+
+   begin
+      Put_Line ("=== Alignment_Table_Many_Rows ===");
+
+      --  Wait for Formatter to finish
+
+      declare
+         Formatter : Formatter_Task;
+      begin
+         null;
+      end;
+
+      New_Line;
+   end Test_Alignment_Table_Many_Rows;
 
    ------------------------------------
    -- Test_Alignment_Table_Separator --
@@ -809,6 +898,7 @@ begin
    --  Run all the test procedures
    Test_Align;
    Test_Alignment_Table;
+   Test_Alignment_Table_Many_Rows;
    Test_Alignment_Table_Separator;
    Test_Break_Parent;
    Test_Continuation_Line_Indent;

@@ -36,6 +36,15 @@ package body Prettier_Ada.Documents.Implementation is
 
    subtype Document_Hashed_Set is Document_Hashed_Sets.Set;
 
+   type Format_State_Array is
+     array (Positive range <>) of Format_State_Record;
+
+   type Format_State_Array_Access is access Format_State_Array;
+
+   procedure Free is new
+     Ada.Unchecked_Deallocation
+       (Format_State_Array, Format_State_Array_Access);
+
    procedure Append (To : in out Prettier_String; Source : Prettier_String);
    --  Append Source to the end of To
 
@@ -1252,9 +1261,6 @@ package body Prettier_Ada.Documents.Implementation is
                procedure Process_Mode_Break is
                   use VSS.Strings;
 
-                  type Format_State_Array is
-                    array (Positive range <>) of Format_State_Record;
-
                   Alignment_Table_Elements   : Document_Table
                     renames Document
                               .Bare_Document
@@ -1266,17 +1272,13 @@ package body Prettier_Ada.Documents.Implementation is
                               .Command
                               .Alignment_Table_Separators;
 
-                  States :
-                    Format_State_Array
-                      (Alignment_Table_Elements.First_Index
-                       .. Alignment_Table_Elements.Last_Index) :=
-                      [others =>
-                         Format_State_Record'
-                           (Format_State
-                            with delta
-                              Print_Commands => null,
-                              Result         => Empty_Prettier_String)];
-                  --  The state for each row
+                  States : Format_State_Array_Access :=
+                    new Format_State_Array
+                          (Alignment_Table_Elements.First_Index
+                           .. Alignment_Table_Elements.Last_Index);
+                  --  The state for each row. It is on the heap and not on the
+                  --  stack, because a table can have many rows (one per
+                  --  element of a positional aggregate).
 
                   First_Row_Index    : constant Positive :=
                     Alignment_Table_Elements.First_Index;
@@ -1294,8 +1296,18 @@ package body Prettier_Ada.Documents.Implementation is
                     ("On Process_Document_Command_Alignment_Table."
                      & "Process_Mode_Break");
 
-                  for State of States loop
-                     State.Result := Empty_Prettier_String;
+                  --  Initialize each state here and not with an aggregate in
+                  --  the allocator: Ada does not require the compiler to
+                  --  build such an aggregate in place, and a temporary copy
+                  --  would be on the stack.
+
+                  for State of States.all loop
+                     State :=
+                       Format_State_Record'
+                         (Format_State
+                          with delta
+                            Print_Commands => null,
+                            Result         => Empty_Prettier_String);
                   end loop;
 
                   if Format_State.Last_Was_Hardline then
@@ -1665,6 +1677,12 @@ package body Prettier_Ada.Documents.Implementation is
                   Format_State.Current_Line_Length :=
                     States (Last_Row_Index).Current_Line_Length;
 
+                  Free (States);
+
+               exception
+                  when others =>
+                     Free (States);
+                     raise;
                end Process_Mode_Break;
 
                -----------------------

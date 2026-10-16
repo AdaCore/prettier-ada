@@ -19,3 +19,6 @@ testsuite/out
 
 # Ignore VS Code settings (possibly modified by ancr)
 .vscode
+
+# Ancr generated dotenv
+.env

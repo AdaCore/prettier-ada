@@ -1622,6 +1622,13 @@ end record
 with Prettier_Ada.Documents;          use Prettier_Ada.Documents;
 with Prettier_Ada.Documents.Builders; use Prettier_Ada.Documents;
 
+=== Alignment_Table_Many_Rows ===
+> Alignment_Table_Many_Rows Document Formatted:
+(1.5,
+...
+ 1.5)
+> Line breaks: 9999
+
 === Alignment_Table_Separator ===
 > Alignment_Table_Separator Document JSON:
 {
