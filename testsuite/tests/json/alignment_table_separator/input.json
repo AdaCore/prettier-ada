@@ -1,0 +1,22 @@
+{
+    "kind": "list",
+    "id": 1,
+    "list": [
+        {
+            "kind": "command",
+            "id": 2,
+            "command": {
+                "command": "alignmentTableSeparator",
+                "text": "=>"
+            }
+        },
+        {
+            "kind": "command",
+            "id": 3,
+            "command": {
+                "command": "alignmentTableSeparator",
+                "text": ":"
+            }
+        }
+    ]
+}
